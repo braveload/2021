@@ -1,0 +1,7 @@
+.env
+node_modules
+.next
+*.log
+.supabase-token
+.app-db-password
+.app-db-password

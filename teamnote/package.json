@@ -1,0 +1,26 @@
+{
+  "name": "teamnote",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node scripts/migrate.mjs && next start -H 0.0.0.0 -p 3000",
+    "migrate": "node scripts/migrate.mjs",
+    "test": "node tests/run.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "next": "14.2.15",
+    "pg": "8.13.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.16.11",
+    "@types/pg": "8.11.10",
+    "@types/react": "18.3.11",
+    "@types/bcryptjs": "2.4.6",
+    "typescript": "5.6.3"
+  }
+}
