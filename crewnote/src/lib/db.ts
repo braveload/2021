@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 const g = globalThis as unknown as { __cnPool?: Pool };
 const pool: Pool = (g.__cnPool ??= new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: /supabase.(com|co)/.test(process.env.DATABASE_URL ?? "") ? { rejectUnauthorized: false } : undefined,
   max: 10,
   statement_timeout: 10000,
 }));

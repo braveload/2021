@@ -23,9 +23,9 @@ docker compose exec web node tests/run.mjs     # DB·권한·동시성·HTTP 12�
 - 데이터: 도커 볼륨 `crewnote_crewnote_pgdata`
 
 ## 클라우드 배포 (Vercel + Supabase, 무료 플랜 한도 내에서만)
-1. Supabase 새 프로젝트(Free) → SQL Editor에 `supabase-setup.sql` 전체 실행
-2. 같은 편집기에서 `alter role app_user with password '<새 임의 값>';` 실행
-3. Connect → Transaction pooler 연결 문자열의 사용자만 `app_user.<project-ref>`로 바꿔 `DATABASE_URL`로 사용
-4. Vercel → Import `braveload/2021`, **Root Directory = `crewnote`**, 환경변수 `DATABASE_URL`(Production) 등록
-5. 이후 main push마다 자동 배포. DB 변경은 새 마이그레이션 파일 + SQL Editor 실행(자동 반영은 미구성)
-비밀값은 저장소에 두지 않습니다(.env 는 gitignore).
+1. Supabase SQL Editor에 `supabase-setup.sql` 실행 — 전용 스키마 `crewnote`만 생성합니다(다른 스키마·테이블 변경 없음)
+2. `alter role app_user with password '<새 임의 값>';` 실행
+3. Connect → Transaction pooler 문자열의 사용자를 `app_user.<project-ref>`로 바꿔 `DATABASE_URL`로 사용 (SSL 자동)
+4. Vercel → Import 저장소, **Root Directory = `crewnote`**, 환경변수 `DATABASE_URL`(Production) 등록
+5. 이후 main push마다 자동 배포. DB 변경은 새 마이그레이션 + SQL Editor 실행(자동 반영 미구성)
+비밀값은 저장소에 두지 않습니다(.env, .supabase-token, .app-db-password 는 gitignore).

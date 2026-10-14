@@ -5,7 +5,17 @@ import assert from "node:assert/strict";
 const APP = process.env.DATABASE_URL;
 const BASE = "http://127.0.0.1:3000";
 const tag = Math.random().toString(36).slice(2, 8);
-const pool = new pg.Pool({ connectionString: APP, max: 40 });
+const pool = new pg.Pool({ connectionString: APP, max: 40, ssl: /supabase.(com|co)/.test(APP) ? { rejectUnauthorized: false } : undefined });
+// 시간 경과 시뮬레이션용 관리자 SQL: 로컬은 소유자 DB, 클라우드는 Management API
+async function admin(sql) {
+  if (process.env.OWNER_DATABASE_URL) {
+    const c = new pg.Client({ connectionString: process.env.OWNER_DATABASE_URL }); await c.connect(); await c.query(sql); await c.end();
+  } else {
+    const r = await fetch(`https://api.supabase.com/v1/projects/${process.env.SB_REF}/database/query`, { method: "POST",
+      headers: { Authorization: `Bearer ${process.env.SB_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify({ query: sql }) });
+    if (!r.ok) throw new Error("admin sql failed " + r.status);
+  }
+}
 let pass = 0, fail = 0;
 const results = [];
 
@@ -118,10 +128,7 @@ await t("취소 후 재신청 시 대기 맨 뒤로", async () => {
 await t("시작된 모임은 신청·취소·수정 불가", async () => {
   const c = await pool.connect(); // 소유자 연결이 아닌 앱 계정으로는 과거 이벤트 생성 불가 → 시간 경과를 직접 시뮬레이션
   c.release();
-  const owner_url = process.env.OWNER_DATABASE_URL;
-  const oc = new pg.Client({ connectionString: owner_url }); await oc.connect();
-  await oc.query("update events set starts_at = now() - interval '1 hour' where id=$1", [evt]);
-  await oc.end();
+  await admin(`update ${process.env.OWNER_DATABASE_URL ? "" : "crewnote."}events set starts_at = now() - interval '1 hour' where id='${evt}'`);
   await rejects(as(people[29], "select register_event($1)", [evt]), /event_started/);
   await rejects(as(people[29], "select cancel_registration($1)", [evt]), /event_started/);
   await rejects(as(owner, "select update_event($1,'제목바꿈','','',$2,5)", [evt, future()]), /event_started/);

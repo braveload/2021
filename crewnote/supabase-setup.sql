@@ -1,8 +1,10 @@
--- CrewNote: Supabase SQL Editor에 한 번에 붙여넣어 실행 (001+002+003 합본)
-
+-- CrewNote 전용 스키마 설치 (기존 public 스키마의 다른 서비스 테이블은 건드리지 않음)
+create schema if not exists crewnote;
+set search_path = crewnote;
+revoke all on schema crewnote from public;
+revoke all on schema crewnote from anon, authenticated;
 -- ===== db/migrations/001_init.sql =====
 -- CrewNote 초기 스키마: 테이블 + RLS + RPC (모든 쓰기는 RPC 경유)
-create extension if not exists pgcrypto;
 
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'app_user') then
@@ -30,7 +32,7 @@ create table crews (
   intro text not null default '' check (char_length(intro) <= 500),
   theme text not null default 'running' check (theme in ('running','reading','study')),
   plan text not null default 'free' check (plan in ('free','pro')),
-  invite_code text not null unique default encode(gen_random_bytes(6), 'hex'),
+  invite_code text not null unique default encode(extensions.gen_random_bytes(6), 'hex'),
   created_by uuid not null references users(id),
   created_at timestamptz not null default now()
 );
@@ -115,20 +117,20 @@ create function app_uid() returns uuid language sql stable
   as $$ select nullif(current_setting('app.user_id', true), '')::uuid $$;
 
 create function is_member(p_crew uuid) returns boolean language sql stable
-  security definer set search_path = public, pg_temp
+  security definer set search_path = crewnote, pg_temp
   as $$ select exists (select 1 from crew_members where crew_id = p_crew and user_id = app_uid()) $$;
 
 create function crew_role(p_crew uuid) returns text language sql stable
-  security definer set search_path = public, pg_temp
+  security definer set search_path = crewnote, pg_temp
   as $$ select role from crew_members where crew_id = p_crew and user_id = app_uid() $$;
 
 create function shares_crew(p_user uuid) returns boolean language sql stable
-  security definer set search_path = public, pg_temp
+  security definer set search_path = crewnote, pg_temp
   as $$ select exists (select 1 from crew_members a join crew_members b on a.crew_id = b.crew_id
                        where a.user_id = app_uid() and b.user_id = p_user) $$;
 
 create function event_crew(p_event uuid) returns uuid language sql stable
-  security definer set search_path = public, pg_temp
+  security definer set search_path = crewnote, pg_temp
   as $$ select crew_id from events where id = p_event $$;
 
 -- ---------- RLS ----------
@@ -155,7 +157,7 @@ create policy plan_changes_select on plan_changes for select using (is_member(cr
 
 -- 정원(멤버 수) 제한: 모든 경로의 INSERT에 DB가 직접 적용
 create function enforce_member_limit() returns trigger language plpgsql
-  security definer set search_path = public, pg_temp as $$
+  security definer set search_path = crewnote, pg_temp as $$
 declare v_plan text; v_cnt int;
 begin
   select plan into v_plan from crews where id = new.crew_id for update;
@@ -168,7 +170,7 @@ create trigger crew_members_limit before insert on crew_members
 
 -- ---------- 인증 ----------
 create function auth_register(p_email text, p_name text, p_hash text) returns uuid
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_id uuid;
 begin
   insert into users (email, name, pw_hash) values (lower(trim(p_email)), trim(p_name), p_hash)
@@ -178,41 +180,41 @@ exception when unique_violation then raise exception 'email_taken';
 end $$;
 
 create function auth_get_login(p_email text) returns table (id uuid, pw_hash text)
-  language sql security definer set search_path = public, pg_temp
+  language sql security definer set search_path = crewnote, pg_temp
   as $$ select u.id, u.pw_hash from users u where u.email = lower(trim(p_email)) $$;
 
 create function auth_create_session(p_user uuid, p_token_hash text, p_hours int) returns void
-  language sql security definer set search_path = public, pg_temp
+  language sql security definer set search_path = crewnote, pg_temp
   as $$ delete from sessions where expires_at < now();
         insert into sessions (token_hash, user_id, expires_at)
         values (p_token_hash, p_user, now() + make_interval(hours => p_hours)) $$;
 
 create function auth_session_user(p_token_hash text) returns table (id uuid, name text, email text)
-  language sql security definer set search_path = public, pg_temp
+  language sql security definer set search_path = crewnote, pg_temp
   as $$ select u.id, u.name, u.email from sessions s join users u on u.id = s.user_id
         where s.token_hash = p_token_hash and s.expires_at > now() $$;
 
 create function auth_delete_session(p_token_hash text) returns void
-  language sql security definer set search_path = public, pg_temp
+  language sql security definer set search_path = crewnote, pg_temp
   as $$ delete from sessions where token_hash = p_token_hash $$;
 
 -- ---------- 내부 유틸 ----------
 create function require_user() returns uuid language plpgsql stable
-  security definer set search_path = public, pg_temp as $$
+  security definer set search_path = crewnote, pg_temp as $$
 begin
   if app_uid() is null then raise exception 'not_authenticated'; end if;
   return app_uid();
 end $$;
 
 create function notify(p_user uuid, p_crew uuid, p_event uuid, p_kind text, p_body text, p_key text)
-  returns void language sql security definer set search_path = public, pg_temp
+  returns void language sql security definer set search_path = crewnote, pg_temp
   as $$ insert into notifications (user_id, crew_id, event_id, kind, body, dedupe_key)
         values (p_user, p_crew, p_event, p_kind, p_body, p_key)
         on conflict (user_id, dedupe_key) do nothing $$;
 
 -- 대기 1번부터 빈자리만큼 승급 (event 행은 호출자가 FOR UPDATE로 잠근 상태)
 create function promote_waitlist(p_event uuid) returns int
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_cap int; v_att int; v_crew uuid; v_title text; r record; v_n int := 0;
 begin
   select capacity, crew_id, title into v_cap, v_crew, v_title from events where id = p_event;
@@ -233,13 +235,13 @@ end $$;
 -- ---------- 크루 ----------
 create function crew_preview(p_code text)
   returns table (id uuid, name text, intro text, theme text, plan text, member_count int)
-  language sql stable security definer set search_path = public, pg_temp
+  language sql stable security definer set search_path = crewnote, pg_temp
   as $$ select c.id, c.name, c.intro, c.theme, c.plan,
                (select count(*)::int from crew_members m where m.crew_id = c.id)
         from crews c where c.invite_code = p_code $$;
 
 create function create_crew(p_name text, p_intro text, p_theme text) returns uuid
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_id uuid;
 begin
   insert into crews (name, intro, theme, created_by) values (trim(p_name), coalesce(p_intro,''), p_theme, v_uid)
@@ -249,7 +251,7 @@ begin
 end $$;
 
 create function update_crew(p_crew uuid, p_name text, p_intro text, p_theme text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 begin
   perform require_user();
   if crew_role(p_crew) not in ('owner','staff') then raise exception 'forbidden'; end if;
@@ -257,7 +259,7 @@ begin
 end $$;
 
 create function join_crew(p_code text) returns uuid
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_crew uuid;
 begin
   select id into v_crew from crews where invite_code = p_code;
@@ -270,7 +272,7 @@ begin
 end $$;
 
 create function set_member_role(p_crew uuid, p_user uuid, p_role text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_plan text; v_staff int; v_cur text;
 begin
   perform require_user();
@@ -290,7 +292,7 @@ end $$;
 
 -- 모의 구독 (실제 결제 없음)
 create function set_plan(p_crew uuid, p_plan text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_m int; v_s int;
 begin
   if crew_role(p_crew) <> 'owner' then raise exception 'forbidden'; end if;
@@ -308,7 +310,7 @@ end $$;
 
 -- ---------- 모임 ----------
 create function create_event(p_crew uuid, p_title text, p_desc text, p_loc text, p_starts timestamptz, p_cap int)
-  returns uuid language plpgsql security definer set search_path = public, pg_temp as $$
+  returns uuid language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_id uuid; m record;
 begin
   if crew_role(p_crew) not in ('owner','staff') then raise exception 'forbidden'; end if;
@@ -323,7 +325,7 @@ begin
 end $$;
 
 create function update_event(p_event uuid, p_title text, p_desc text, p_loc text, p_starts timestamptz, p_cap int)
-  returns void language plpgsql security definer set search_path = public, pg_temp as $$
+  returns void language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare e events%rowtype; v_att int;
 begin
   perform require_user();
@@ -340,7 +342,7 @@ begin
 end $$;
 
 create function register_event(p_event uuid) returns text
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); e events%rowtype; r registrations%rowtype; v_att int; v_status text;
 begin
   select * into e from events where id = p_event for update;   -- 동시 신청 직렬화
@@ -363,7 +365,7 @@ begin
 end $$;
 
 create function cancel_registration(p_event uuid) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); e events%rowtype; r registrations%rowtype;
 begin
   select * into e from events where id = p_event for update;
@@ -376,7 +378,7 @@ begin
 end $$;
 
 create function check_in(p_event uuid, p_user uuid, p_flag boolean) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare e events%rowtype;
 begin
   perform require_user();
@@ -390,7 +392,7 @@ begin
 end $$;
 
 create function toggle_reaction(p_event uuid, p_emoji text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user();
 begin
   if not is_member(event_crew(p_event)) then raise exception 'forbidden'; end if;
@@ -402,7 +404,7 @@ begin
 end $$;
 
 create function post_review(p_event uuid, p_body text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); e events%rowtype;
 begin
   select * into e from events where id = p_event;
@@ -416,7 +418,7 @@ end $$;
 
 -- 무료 대안 리마인더: 크론 없이, 접속 시 24시간 이내 모임을 알림함에 1회만 생성
 create function generate_reminders() returns int
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); r record; v_n int := 0;
 begin
   for r in select e.id, e.crew_id, e.title from registrations g join events e on e.id = g.event_id
@@ -429,13 +431,13 @@ begin
 end $$;
 
 create function mark_notifications_read() returns void
-  language sql security definer set search_path = public, pg_temp
+  language sql security definer set search_path = crewnote, pg_temp
   as $$ update notifications set read_at = now() where user_id = app_uid() and read_at is null $$;
 
 -- ---------- 권한 ----------
-revoke all on all tables in schema public from public, app_user;
-revoke execute on all functions in schema public from public;
-grant usage on schema public to app_user;
+revoke all on all tables in schema crewnote from public, app_user;
+revoke execute on all functions in schema crewnote from public;
+grant usage on schema crewnote to app_user;
 grant select on users, crews, crew_members, events, registrations, reactions, reviews,
   notifications, plan_changes to app_user;
 grant execute on function
@@ -450,13 +452,12 @@ grant execute on function
   to app_user;
 -- RLS 정책이 호출하는 헬퍼도 app_user가 평가할 수 있어야 함
 grant execute on function shares_crew(uuid), event_crew(uuid) to app_user;
-
 -- ===== db/migrations/002_fix_null_role_and_found.sql =====
 -- 수정 1: 비멤버(crew_role = NULL)가 `not in (...)` 검사를 통과하던 문제
 -- 수정 2: register_event에서 count(*) 이후 FOUND가 항상 true라 신규 신청이 깨지던 문제
 
 create or replace function update_crew(p_crew uuid, p_name text, p_intro text, p_theme text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 begin
   perform require_user();
   if coalesce(crew_role(p_crew), '') not in ('owner','staff') then raise exception 'forbidden'; end if;
@@ -464,7 +465,7 @@ begin
 end $$;
 
 create or replace function set_member_role(p_crew uuid, p_user uuid, p_role text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_plan text; v_staff int; v_cur text;
 begin
   perform require_user();
@@ -483,7 +484,7 @@ begin
 end $$;
 
 create or replace function set_plan(p_crew uuid, p_plan text) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_m int; v_s int;
 begin
   if coalesce(crew_role(p_crew), '') <> 'owner' then raise exception 'forbidden'; end if;
@@ -500,7 +501,7 @@ begin
 end $$;
 
 create or replace function create_event(p_crew uuid, p_title text, p_desc text, p_loc text, p_starts timestamptz, p_cap int)
-  returns uuid language plpgsql security definer set search_path = public, pg_temp as $$
+  returns uuid language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); v_id uuid; m record;
 begin
   if coalesce(crew_role(p_crew), '') not in ('owner','staff') then raise exception 'forbidden'; end if;
@@ -515,7 +516,7 @@ begin
 end $$;
 
 create or replace function update_event(p_event uuid, p_title text, p_desc text, p_loc text, p_starts timestamptz, p_cap int)
-  returns void language plpgsql security definer set search_path = public, pg_temp as $$
+  returns void language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare e events%rowtype; v_att int;
 begin
   perform require_user();
@@ -532,7 +533,7 @@ begin
 end $$;
 
 create or replace function register_event(p_event uuid) returns text
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare v_uid uuid := require_user(); e events%rowtype; r registrations%rowtype;
         v_att int; v_status text; v_had boolean;
 begin
@@ -557,7 +558,7 @@ begin
 end $$;
 
 create or replace function check_in(p_event uuid, p_user uuid, p_flag boolean) returns void
-  language plpgsql security definer set search_path = public, pg_temp as $$
+  language plpgsql security definer set search_path = crewnote, pg_temp as $$
 declare e events%rowtype;
 begin
   perform require_user();
@@ -569,7 +570,6 @@ begin
     where event_id = p_event and user_id = p_user and status = 'attending';
   if not found then raise exception 'not_attending'; end if;
 end $$;
-
 -- ===== db/migrations/003_lock_supabase_api_roles.sql =====
 -- Supabase 배포 대비: 자동 REST(PostgREST) 노출 역할(anon/authenticated)이
 -- 테이블·함수에 접근하지 못하게 한다. 이 앱은 서버가 app_user로만 DB에 접속한다.
@@ -579,12 +579,13 @@ declare r text;
 begin
   foreach r in array array['anon','authenticated'] loop
     if exists (select 1 from pg_roles where rolname = r) then
-      execute format('revoke all on all tables in schema public from %I', r);
-      execute format('revoke all on all functions in schema public from %I', r);
-      execute format('revoke all on all sequences in schema public from %I', r);
-      execute format('alter default privileges in schema public revoke all on tables from %I', r);
-      execute format('alter default privileges in schema public revoke all on functions from %I', r);
-      execute format('alter default privileges in schema public revoke all on sequences from %I', r);
+      execute format('revoke all on all tables in schema crewnote from %I', r);
+      execute format('revoke all on all functions in schema crewnote from %I', r);
+      execute format('revoke all on all sequences in schema crewnote from %I', r);
+      execute format('alter default privileges in schema crewnote revoke all on tables from %I', r);
+      execute format('alter default privileges in schema crewnote revoke all on functions from %I', r);
+      execute format('alter default privileges in schema crewnote revoke all on sequences from %I', r);
     end if;
   end loop;
 end $$;
+alter role app_user set search_path = crewnote;

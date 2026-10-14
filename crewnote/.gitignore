@@ -2,3 +2,5 @@
 node_modules
 .next
 *.log
+.supabase-token
+.app-db-password
