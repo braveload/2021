@@ -29,3 +29,8 @@ docker compose exec web node tests/run.mjs     # DB·권한·동시성·HTTP 12�
 4. Vercel → Import 저장소, **Root Directory = `crewnote`**, 환경변수 `DATABASE_URL`(Production) 등록
 5. 이후 main push마다 자동 배포. DB 변경은 새 마이그레이션 + SQL Editor 실행(자동 반영 미구성)
 비밀값은 저장소에 두지 않습니다(.env, .supabase-token, .app-db-password 는 gitignore).
+
+## 배포 현황 (학습용 데모)
+- URL: https://crewnote-demo.vercel.app (Vercel Hobby, GitHub main push 시 자동 배포)
+- DB: Supabase 기존 프로젝트의 전용 스키마 `crewnote`
+- 쓰기 종료: DB 트리거가 `service_state.closes_at` 이후 모든 쓰기를 차단(2026-10-14 23:40 KST). 클라우드 자원 종료(Vercel 프로젝트 일시 중지)와는 별개입니다.

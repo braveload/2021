@@ -59,6 +59,7 @@ export const ERRORS: Record<string, string> = {
   not_attended: "출석 체크된 참석자만 소감을 남길 수 있어요.",
   email_taken: "이미 가입된 이메일이에요.",
   not_found: "대상을 찾을 수 없어요.",
+  service_closed: "학습용 데모 운영이 종료되어 더 이상 쓰기를 받지 않아요.",
 };
 
 export function errMessage(e: unknown): string {
