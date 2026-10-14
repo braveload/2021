@@ -1,0 +1,35 @@
+name: crewnote
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      POSTGRES_USER: crewnote_owner
+      POSTGRES_DB: crewnote
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      TZ: UTC
+    volumes:
+      - crewnote_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crewnote_owner -d crewnote"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      OWNER_DATABASE_URL: postgres://crewnote_owner:${POSTGRES_PASSWORD}@db:5432/crewnote
+      DATABASE_URL: postgres://app_user:${APP_DB_PASSWORD}@db:5432/crewnote
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set in .env}
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:3100:3000"
+
+volumes:
+  crewnote_pgdata:
