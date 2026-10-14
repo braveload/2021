@@ -13,9 +13,9 @@ for (const [label, opt] of [["desktop", { viewport: { width: 1280, height: 800 }
   const shot = (n) => page.screenshot({ path: `/shots/${label}-${n}.png`, fullPage: true });
   const overflow = async (w) => log((await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 1, `${label} 가로 스크롤 없음: ${w}`);
   await page.goto(BASE + "/"); await overflow("랜딩"); await shot("1-landing");
-  await page.click("text=무료로 시작하기");
-  await page.fill("#name", `${label}팀장`); await page.fill("#email", `${tag}-${label}@t.local`); await page.fill("#pw", "password123");
-  await page.click("text=가입하고 시작"); await page.waitForURL("**/dashboard**"); log(true, `${label} 가입`);
+  await page.click("text=이름만 입력하고 시작하기");
+  await page.fill("#name", `${label}팀장`);
+  await page.click("main form button"); await page.waitForURL("**/dashboard**"); log(true, `${label} 가입`);
   await page.goto(BASE + "/teams/new"); await page.fill("#name", `${label} 개발팀`); await page.fill("#days", "12");
   await page.click("main form button"); await page.waitForURL(/\/teams\/[0-9a-f-]{36}/); log(true, `${label} 팀 생성(지급 12일)`);
   const wd = nextWeekday();

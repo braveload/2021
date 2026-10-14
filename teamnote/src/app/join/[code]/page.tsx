@@ -17,13 +17,15 @@ export default async function Join({ params, searchParams }: SP & { params: { co
         {user ? (
           <form action="/api/act/team_join" method="post">
             <input type="hidden" name="code" value={code} /><input type="hidden" name="next" value={`/join/${code}`} />
-            <button className="btn p full-m">이 팀에 가입하기</button>
+            <button className="btn p full-m">{user.name}(으)로 이 팀에 가입하기</button>
           </form>
         ) : (
-          <div className="row">
-            <Link className="btn p" href={`/signup?next=/join/${code}`}>가입하고 참여</Link>
-            <Link className="btn" href={`/login?next=/join/${code}`}>로그인</Link>
-          </div>
+          <form action="/api/act/start" method="post">
+            <input type="hidden" name="next" value={`/join/${code}`} />
+            <label htmlFor="name">이름(닉네임)</label>
+            <input id="name" name="name" maxLength={30} required />
+            <div style={{ marginTop: 12 }}><button className="btn p full-m">이름 입력하고 계속</button></div>
+          </form>
         )}
       </div>
     </div>

@@ -218,8 +218,7 @@ await t("HTTP: 가입→팀 생성→출석→연차 신청→승인, 타 사용
   };
   const get = (path, c = cookie) => fetch(BASE + path, { redirect: "manual", headers: { Cookie: c() } });
   { const r = await get("/dashboard"); const b = await r.text(); assert.ok(r.status === 307 || /NEXT_REDIRECT|\/login/.test(b)); assert.ok(!/내 팀/.test(b)); }
-  assert.match((await post("/api/act/login", { email: "nobody@t.local", password: "wrongwrong" })).headers.get("location"), /err=/);
-  const su = await post("/api/act/signup", { name: "웹팀장", email: `${tag}-web@t.local`, password: "password123", next: "/dashboard" });
+  const su = await post("/api/act/start", { name: "웹팀장", next: "/dashboard" });
   assert.equal(su.status, 303); assert.ok(jar.cn_session);
   const tc = await post("/api/act/team_create", { name: "웹팀", annual_days: "10", next: "/teams/new" });
   const tp = tc.headers.get("location").split("?")[0];
@@ -233,8 +232,8 @@ await t("HTTP: 가입→팀 생성→출석→연차 신청→승인, 타 사용
   assert.match(body, /승인 대기/);
   const csv = await get(`/api/teams/${teamId}/csv/leaves`);
   assert.equal(csv.status, 200);
-  const other = await fetch(BASE + "/api/act/signup", { method: "POST", redirect: "manual", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ name: "타인", email: `${tag}-other@t.local`, password: "password123" }) });
+  const other = await fetch(BASE + "/api/act/start", { method: "POST", redirect: "manual", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ name: "타인" }) });
   const sc = other.headers.getSetCookie()[0].split(";")[0];
   const oc = () => sc;
   { const r = await get(tp, oc); const b = await r.text(); assert.ok(r.status === 404 || /NEXT_NOT_FOUND|404/.test(b)); assert.ok(!b.includes("웹팀")); }

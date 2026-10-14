@@ -18,8 +18,7 @@ export default async function Home({ searchParams }: SP) {
         <div className="card"><h2>📊 팀별 지급일수</h2><p className="mute">팀장이 팀 기본 지급일수와 팀원별 지급일수를 직접 입력해요. 월별 CSV도 내보낼 수 있어요.</p></div>
       </div>
       <div className="row">
-        <Link className="btn p" href="/signup">무료로 시작하기</Link>
-        <Link className="btn" href="/login">로그인</Link>
+        <Link className="btn p" href="/signup">이름만 입력하고 시작하기</Link>
       </div>
     </div>
   );

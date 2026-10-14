@@ -1,23 +1,19 @@
-import Link from "next/link";
 import Flash, { SP } from "@/components/Flash";
 
-export default function Signup({ searchParams }: SP) {
-  const next = typeof searchParams.next === "string" ? searchParams.next : "/dashboard";
+export default function Start({ searchParams }: SP) {
+  const next = typeof searchParams.next === "string" && searchParams.next.startsWith("/") && !searchParams.next.startsWith("//")
+    ? searchParams.next : "/dashboard";
   return (
     <div style={{ maxWidth: 420 }}>
-      <h1>가입하기</h1>
+      <h1>이름을 입력하고 시작하세요</h1>
       <Flash sp={searchParams} />
-      <form action="/api/act/signup" method="post" className="card">
+      <form action="/api/act/start" method="post" className="card">
         <input type="hidden" name="next" value={next} />
         <label htmlFor="name">이름(닉네임)</label>
-        <input id="name" name="name" maxLength={30} autoComplete="nickname" required />
-        <label htmlFor="email">이메일</label>
-        <input id="email" name="email" type="email" autoComplete="email" inputMode="email" required />
-        <label htmlFor="pw">비밀번호 (8자 이상)</label>
-        <input id="pw" name="password" type="password" minLength={8} maxLength={72} autoComplete="new-password" required />
-        <div style={{ marginTop: 16 }}><button className="btn p full-m">가입하고 시작</button></div>
+        <input id="name" name="name" maxLength={30} autoComplete="nickname" required autoFocus />
+        <div style={{ marginTop: 16 }}><button className="btn p full-m">시작하기</button></div>
       </form>
-      <p className="mute">이미 계정이 있나요? <Link href={`/login?next=${encodeURIComponent(next)}`}>로그인</Link></p>
+      <p className="mute">비밀번호 없이 이름만으로 시작해요. 기록은 <b>이 브라우저</b>에 연결되어 있어, 쿠키를 지우거나 다른 기기에서 열면 새 사용자로 시작돼요.</p>
     </div>
   );
 }

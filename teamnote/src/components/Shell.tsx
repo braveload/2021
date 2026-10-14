@@ -10,8 +10,8 @@ export default function Shell({ user, unread, children }: { user: SessionUser | 
         { href: "/me", icon: "🏅", label: "내 기록" },
       ]
     : [
-        { href: "/login", icon: "🔑", label: "로그인" },
-        { href: "/signup", icon: "✨", label: "가입" },
+        
+        { href: "/signup", icon: "✨", label: "시작하기" },
       ];
   return (
     <div className="shell">

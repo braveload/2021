@@ -1,12 +1,8 @@
 import { NextRequest } from "next/server";
 import crypto from "node:crypto";
-import bcrypt from "bcryptjs";
 import { COOKIE, errMessage, getUser, q, sha256, withUser } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-// 로그인 실패 제한 (프로세스 메모리, 이메일당 10분 5회)
-const fails = new Map<string, { n: number; t: number }>();
 
 class Fail extends Error {}
 
@@ -25,28 +21,14 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
   const name = params.name;
   const next = safeNext(str(f, "next"), "/dashboard");
   try {
-    // ---------- 인증 ----------
-    if (name === "signup") {
-      const email = str(f, "email").toLowerCase(), nm = str(f, "name"), pw = String(f.get("password") ?? "");
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Fail("이메일 형식을 확인해주세요.");
-      if (nm.length < 1 || nm.length > 30) throw new Fail("이름은 1~30자로 입력해주세요.");
-      if (pw.length < 8 || pw.length > 72) throw new Fail("비밀번호는 8~72자여야 해요.");
-      const hash = await bcrypt.hash(pw, 10);
+    // ---------- 이름만 입력 (비밀번호 없음, 이 브라우저에 세션 저장) ----------
+    if (name === "start") {
+      const nm = str(f, "name");
+      if (nm.length < 1 || nm.length > 30) throw new Fail("이름을 1~30자로 입력해주세요.");
+      const email = `guest-${crypto.randomUUID()}@guest.local`;
+      const hash = "!"; // bcrypt 해시가 아니므로 비밀번호 로그인은 불가능
       const id = (await q<{ auth_register: string }>(null, "select auth_register($1,$2,$3)", [email, nm, hash]))[0].auth_register;
       return await startSession(id, next);
-    }
-    if (name === "login") {
-      const email = str(f, "email").toLowerCase(), pw = String(f.get("password") ?? "");
-      const rec = fails.get(email);
-      if (rec && Date.now() - rec.t < 600000 && rec.n >= 5) throw new Fail("로그인 시도가 너무 많아요. 10분 뒤 다시 시도해주세요.");
-      const row = (await q<{ id: string; pw_hash: string }>(null, "select * from auth_get_login($1)", [email]))[0];
-      const ok = await bcrypt.compare(pw, row?.pw_hash ?? "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinv");
-      if (!row || !ok) {
-        fails.set(email, { n: (rec && Date.now() - rec.t < 600000 ? rec.n : 0) + 1, t: Date.now() });
-        throw new Fail("이메일 또는 비밀번호가 올바르지 않아요.");
-      }
-      fails.delete(email);
-      return await startSession(row.id, next);
     }
     if (name === "logout") {
       const token = req.cookies.get(COOKIE)?.value;
@@ -58,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
 
     // ---------- 이하 로그인 필요 ----------
     const user = await getUser();
-    if (!user) return go("/login", "err", "로그인이 필요해요.", { next });
+    if (!user) return go("/signup", "err", "이름을 입력하고 시작해주세요.", { next });
     const uid = user.id;
     const run = <T,>(sql: string, p: unknown[]) => q<T & Record<string, unknown>>(uid, sql, p);
 
@@ -109,18 +91,18 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
     return go("/dashboard", "err", "알 수 없는 요청이에요.");
   } catch (e) {
     const msg = e instanceof Fail ? e.message : errMessage(e);
-    const back = name === "signup" ? "/signup" : name === "login" ? "/login" : next;
-    return go(back, "err", msg, name === "login" || name === "signup" ? { next } : {});
+    const back = name === "start" ? "/signup" : next;
+    return go(back, "err", msg, name === "start" ? { next } : {});
   }
 }
 
 async function startSession(userId: string, next: string) {
   const token = crypto.randomBytes(32).toString("base64url");
-  await q(null, "select auth_create_session($1,$2,$3)", [userId, sha256(token), 24 * 14]);
+  await q(null, "select auth_create_session($1,$2,$3)", [userId, sha256(token), 24 * 180]);
   const res = go(next, "msg");
   res.headers.append(
     "Set-Cookie",
-    `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 14}`
+    `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 180}`
   );
   return res;
 }
