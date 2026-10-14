@@ -1,0 +1,7 @@
+tests
+shots
+scripts
+server
+docker-compose.yml
+supabase/*.bak
+node_modules

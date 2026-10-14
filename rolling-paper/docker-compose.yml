@@ -1,0 +1,47 @@
+# 모든 개발·테스트·배포 도구는 컨테이너 안에서만 실행됩니다 (호스트에 설치 없음).
+#   docker compose up -d web      -> http://127.0.0.1:3015  (컨테이너를 내리면 서비스도 종료)
+#   docker compose run --rm e2e   -> Playwright 브라우저 테스트
+#   docker compose run --rm cli   -> vercel / gh / supabase CLI 작업용 셸
+name: rolling-paper
+
+services:
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app:ro
+    ports:
+      - "127.0.0.1:3015:3000"      # 내 PC 에서만 접속 가능
+    command: node server/dev-server.mjs
+    restart: "no"
+    mem_limit: 128m
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.49.1-noble
+    profiles: ["test"]
+    working_dir: /app
+    environment:
+      BASE_URL: http://web:3000
+      SHOTS_DIR: /app/shots
+    volumes:
+      - ./:/app
+      - pw_node_modules:/app/tests/node_modules
+    depends_on:
+      - web
+    command: sh -c "cd tests && npm install --no-audit --no-fund --silent && node e2e.mjs"
+
+  cli:
+    image: node:22-bookworm-slim
+    profiles: ["tools"]
+    working_dir: /app
+    environment:
+      HOME: /home/node
+      VERCEL_TELEMETRY_DISABLED: "1"
+    volumes:
+      - ./:/app
+      - cli_home:/home/node            # 로그인 토큰은 도커 볼륨에만 저장 (호스트 영향 없음)
+    entrypoint: ["bash"]
+
+volumes:
+  pw_node_modules:
+  cli_home:

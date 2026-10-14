@@ -1,0 +1,30 @@
+import { chromium, devices } from 'playwright';
+const BASE = process.env.BASE_URL;
+const b = await chromium.launch();
+let ok = true; const chk = (n, c) => { if (!c) ok = false; console.log(`  ${c ? '✓' : '✗'} ${n}`); };
+for (const [name, dev] of [['iPhone 13', devices['iPhone 13']], ['Pixel 7', devices['Pixel 7']]]) {
+  const c = await b.newContext({ ...dev }); const p = await c.newPage();
+  const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto(BASE + '/?x=1');
+  await p.waitForURL(/\/m(\?|$)/, { timeout: 8000 }).catch(() => {});
+  chk(`${name}: / → /m 자동 이동 (${new URL(p.url()).pathname}${new URL(p.url()).search})`, new URL(p.url()).pathname === '/m');
+  await p.waitForSelector('#create-form');
+  chk(`${name}: 실서버 모드`, (await p.locator('.demo-banner').count()) === 0);
+  await p.fill('#f-title', `${name} 점검`);
+  await p.click('#create-form button[type=submit]');
+  await p.waitForSelector('.topbar', { timeout: 20000 });
+  await p.waitForSelector('.overlay .qr svg', { timeout: 15000 });
+  chk(`${name}: 생성 직후 초대 모달/QR`, (await p.locator('.overlay .qr svg').count()) === 1);
+  await p.keyboard.press('Escape');
+  chk(`${name}: 보드 생성 후 /m 유지`, new URL(p.url()).pathname === '/m' && new URL(p.url()).searchParams.has('b'));
+  await p.click('.fab'); await p.waitForTimeout(400);
+  await p.fill('#c-msg', '폰에서 실서버 테스트 📱');
+  await p.click('.composer button[type=submit]');
+  await p.waitForSelector('.board .note', { timeout: 15000 });
+  chk(`${name}: 글쓰기 성공`, (await p.locator('.board .note').count()) === 1);
+  chk(`${name}: 가로 스크롤 없음`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  chk(`${name}: JS 오류 없음`, errs.length === 0);
+  await p.screenshot({ path: `/app/shots/live-mobile-${name.replace(' ', '')}.png` });
+  await c.close();
+}
+await b.close(); process.exit(ok ? 0 : 1);
