@@ -21,6 +21,24 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
   const name = params.name;
   const next = safeNext(str(f, "next"), "/dashboard");
   try {
+    if (name === "admin_invite_start") {
+      const raw = str(f, "token");
+      if (!/^[0-9a-f]{64}$/.test(raw)) throw new Fail("올바르지 않은 관리자 초대입니다.");
+      const sessionToken = crypto.randomBytes(32).toString("base64url");
+      const team = await withUser(null, async (c) => {
+        const invite = (await c.query("select * from admin_invite_preview($1)", [sha256(raw)])).rows[0];
+        if (!invite || invite.claimed) throw new Fail("만료되었거나 이미 사용한 관리자 초대입니다.");
+        const uid = (await c.query("select auth_register($1,$2,$3) as id",
+          [`guest-${crypto.randomUUID()}@guest.local`, invite.intended_name, "!"])).rows[0].id;
+        await c.query("select set_config('app.user_id',$1,true)", [uid]);
+        const tid = (await c.query("select claim_admin_invite($1) as id", [sha256(raw)])).rows[0].id;
+        await c.query("select auth_create_session($1,$2,$3)", [uid,sha256(sessionToken),24*180]);
+        return tid;
+      });
+      const res = go(`/teams/${team}`, "msg", "관리자 계정을 활성화했어요.");
+      res.headers.append("Set-Cookie", `${COOKIE}=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60*60*24*180}`);
+      return res;
+    }
     // ---------- 이름만 입력 (비밀번호 없음, 이 브라우저에 세션 저장) ----------
     if (name === "start") {
       const nm = str(f, "name");
@@ -46,6 +64,12 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
 
     const num = (k: string) => { const v = parseFloat(str(f, k)); if (!isFinite(v)) throw new Fail("숫자를 입력해주세요."); return v; };
     switch (name) {
+      case "admin_invite_claim": {
+        const raw = str(f, "token");
+        if (!/^[0-9a-f]{64}$/.test(raw)) throw new Fail("올바르지 않은 관리자 초대입니다.");
+        const r = await run<{ id: string }>("select claim_admin_invite($1) as id", [sha256(raw)]);
+        return go(`/teams/${r[0].id}`, "msg", "관리자 권한을 활성화했어요.");
+      }
       case "team_create": {
         const r = await run<{ create_team: string }>("select create_team($1,$2)", [str(f, "name"), num("annual_days")]);
         return go(`/teams/${r[0].create_team}`, "msg", "팀을 만들었어요! 초대 링크를 팀원에게 공유하세요.");

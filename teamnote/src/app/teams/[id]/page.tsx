@@ -209,13 +209,16 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
             {members.map((m) => (
               <div key={m.id} style={{ padding: "10px 0", borderBottom: "1px solid var(--line)" }}>
                 <div className="row sp"><b>{m.name}</b><span className="pill">{ROLE_LABEL[m.role]}</span></div>
+                <form action="/api/act/member_role" method="post" className="row" style={{ marginTop: 8 }}>
+                  <input type="hidden" name="team" value={team.id} /><input type="hidden" name="user" value={m.id} />
+                  <input type="hidden" name="next" value={next} />
+                  <select name="role" aria-label={`${m.name} 역할`} defaultValue={m.role} style={{ width: "auto" }}>
+                    <option value="owner">관리자</option><option value="staff">운영자</option><option value="member">팀원</option>
+                  </select>
+                  <button className="btn sm">역할 저장</button>
+                </form>
                 {m.role !== "owner" && (
                   <div className="row" style={{ marginTop: 8 }}>
-                    <form action="/api/act/member_role" method="post">
-                      <input type="hidden" name="team" value={team.id} /><input type="hidden" name="user" value={m.id} />
-                      <input type="hidden" name="role" value={m.role === "staff" ? "member" : "staff"} /><input type="hidden" name="next" value={next} />
-                      <button className="btn sm">{m.role === "staff" ? "운영자 해제" : "운영자 지정"}</button>
-                    </form>
                     <form action="/api/act/member_allowance" method="post" className="row">
                       <input type="hidden" name="team" value={team.id} /><input type="hidden" name="user" value={m.id} /><input type="hidden" name="next" value={next} />
                       <input name="days" type="number" inputMode="decimal" step="0.5" min="0" max="60" placeholder={`기본 ${team.annual_days}`}
@@ -226,7 +229,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
                 )}
               </div>
             ))}
-            <p className="mute">비워서 저장하면 팀 기본값을 사용해요.</p>
+            <p className="mute">지급일수를 비우면 팀 기본값을 사용해요. 관리자는 여러 명 지정할 수 있으며 마지막 관리자는 해제할 수 없어요.</p>
           </details>
         </>
       )}

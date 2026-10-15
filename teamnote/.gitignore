@@ -1,4 +1,5 @@
 .env
+.admin-invites*.json
 node_modules
 .next
 *.log

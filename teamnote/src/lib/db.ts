@@ -46,6 +46,10 @@ export async function getUser(): Promise<SessionUser | null> {
 }
 
 export const ERRORS: Record<string, string> = {
+  last_admin: "마지막 관리자는 팀원으로 변경할 수 없어요. 다른 관리자를 먼저 지정해주세요.",
+  invalid_admin_invite: "만료되었거나 올바르지 않은 관리자 초대예요.",
+  admin_invite_used: "이미 다른 계정에서 사용한 관리자 초대예요.",
+  admin_name_mismatch: "이 관리자 초대의 지정된 이름과 현재 계정이 달라요.",
   not_authenticated: "로그인이 필요해요.",
   forbidden: "권한이 없어요.",
   invalid_invite: "초대 링크가 올바르지 않아요.",
