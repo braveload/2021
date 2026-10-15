@@ -20,6 +20,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
   if (!team) notFound(); // RLS: 비멤버는 존재 여부도 알 수 없음
   const role = (await q<any>(uid, "select team_role($1) as r", [params.id]))[0].r as string;
   const approver = role === "owner" || role === "staff";
+  const canDecideLeave = role === "owner";
   const today = todayKST();
   const year = Number(today.slice(0, 4));
   const monthQ = typeof searchParams.m === "string" && /^\d{4}-\d{2}$/.test(searchParams.m) ? searchParams.m : today.slice(0, 7);
@@ -29,7 +30,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
   const myToday = (await q<any>(uid, "select status from attendance where team_id=$1 and user_id=app_uid() and work_date=kst_today()", [team.id]))[0]?.status as string | undefined;
   const myLeaves = await q<any>(uid, `select * from leave_requests where team_id=$1 and user_id=app_uid()
       and status in ('pending','approved') and end_date >= kst_today() order by start_date limit 20`, [team.id]);
-  const pending = approver
+  const pending = canDecideLeave
     ? await q<any>(uid, `select l.*, u.name from leave_requests l join users u on u.id = l.user_id
         where l.team_id = $1 and l.status = 'pending' order by l.created_at limit 50`, [team.id])
     : [];
@@ -86,7 +87,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
         <select id="kind" name="kind"><option value="full">연차 (종일)</option><option value="half_am">오전 반차 (0.5일)</option><option value="half_pm">오후 반차 (0.5일)</option></select>
         <label htmlFor="sd">시작일</label><input id="sd" name="start_date" type="date" min={today} required />
         <label htmlFor="ed">종료일 (반차는 시작일과 같게 비워두세요)</label><input id="ed" name="end_date" type="date" min={today} />
-        <label htmlFor="rs">사유 (선택, 팀장·승인자에게만 보여요)</label><input id="rs" name="reason" maxLength={200} />
+        <label htmlFor="rs">사유 (선택, 관리자·운영자에게만 보여요)</label><input id="rs" name="reason" maxLength={200} />
         <p className="mute">토·일은 일수에서 제외돼요. 공휴일은 반영하지 않으니 직접 확인해주세요.</p>
         <div style={{ marginTop: 12 }}><button className="btn p full-m">신청하기</button></div>
       </form>
@@ -110,7 +111,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
         </>
       )}
 
-      {approver && (
+      {canDecideLeave && (
         <>
           <h2 style={{ margin: "24px 0 8px" }}>승인 대기 {pending.length}건</h2>
           {pending.length === 0 ? <div className="card empty">처리할 신청이 없어요.</div> : (
@@ -213,7 +214,7 @@ export default async function TeamPage({ params, searchParams }: SP & { params: 
                     <form action="/api/act/member_role" method="post">
                       <input type="hidden" name="team" value={team.id} /><input type="hidden" name="user" value={m.id} />
                       <input type="hidden" name="role" value={m.role === "staff" ? "member" : "staff"} /><input type="hidden" name="next" value={next} />
-                      <button className="btn sm">{m.role === "staff" ? "승인자 해제" : "승인자 지정"}</button>
+                      <button className="btn sm">{m.role === "staff" ? "운영자 해제" : "운영자 지정"}</button>
                     </form>
                     <form action="/api/act/member_allowance" method="post" className="row">
                       <input type="hidden" name="team" value={team.id} /><input type="hidden" name="user" value={m.id} /><input type="hidden" name="next" value={next} />

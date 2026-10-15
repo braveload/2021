@@ -318,7 +318,7 @@ declare v_uid uuid := require_user(); r leave_requests%rowtype;
 begin
   select * into r from leave_requests where id = p_leave for update;
   if not found then raise exception 'not_found'; end if;
-  if not is_approver(r.team_id) then raise exception 'forbidden'; end if;
+  if coalesce(team_role(r.team_id), '') <> 'owner' then raise exception 'forbidden'; end if;
   if r.user_id = v_uid and team_role(r.team_id) <> 'owner' then raise exception 'self_approval'; end if;
   if r.status <> 'pending' then raise exception 'already_decided'; end if;
   update leave_requests set status = case when p_approve then 'approved' else 'rejected' end,

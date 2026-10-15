@@ -83,15 +83,17 @@ await t("권한: 팀원은 설정·지급일수·승인 불가, 사유는 타 �
   await rejects(as(m2, "select decide_leave($1,true,'')", [id]), /forbidden/);
   const cal = await as(m2, "select * from team_calendar($1,$2::date,$3::date)", [teamA, WD[0], WD[11]]);
   assert.equal(cal.length, 0); // 아직 승인 전
-  await as(appr, "select decide_leave($1,true,'ok')", [id]);
+  await rejects(as(appr, "select decide_leave($1,true,'')", [id]), /forbidden/);
+  await rejects(as(appr, "select decide_leave($1,false,'')", [id]), /forbidden/);
+  await as(owner, "select decide_leave($1,true,'ok')", [id]);
   const cal2 = await as(m2, "select * from team_calendar($1,$2::date,$3::date)", [teamA, WD[0], WD[11]]);
   assert.equal(cal2.length, 1); assert.equal(cal2[0].reason, undefined);
-  await rejects(as(appr, "select decide_leave($1,false,'')", [id]), /already_decided/);
+  await rejects(as(owner, "select decide_leave($1,false,'')", [id]), /already_decided/);
 });
 
-await t("승인자 본인 신청은 스스로 승인 불가, 팀장은 가능", async () => {
+await t("운영자는 본인/다른 사람 승인 불가, 관리자만 승인 가능", async () => {
   const id = (await as(appr, "select request_leave($1,'half_am',$2::date,$2::date,'')", [teamA, WD[9]]))[0].request_leave;
-  await rejects(as(appr, "select decide_leave($1,true,'')", [id]), /self_approval/);
+  await rejects(as(appr, "select decide_leave($1,true,'')", [id]), /forbidden/);
   await as(owner, "select decide_leave($1,true,'')", [id]);
   const id2 = (await as(owner, "select request_leave($1,'half_pm',$2::date,$2::date,'')", [teamA, WD[9]]))[0].request_leave;
   await as(owner, "select decide_leave($1,true,'')", [id2]);

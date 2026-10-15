@@ -20,4 +20,4 @@ export function fmtDateTime(d: Date | string) {
 export const STATUS_LABEL: Record<string, string> = { office: "🏢 출근", remote: "🏠 재택", field: "🚗 외근" };
 export const KIND_LABEL: Record<string, string> = { full: "연차", half_am: "오전 반차", half_pm: "오후 반차" };
 export const LEAVE_STATE: Record<string, string> = { pending: "승인 대기", approved: "승인", rejected: "반려", cancelled: "취소" };
-export const ROLE_LABEL: Record<string, string> = { owner: "팀장", staff: "승인자", member: "팀원" };
+export const ROLE_LABEL: Record<string, string> = { owner: "관리자", staff: "운영자", member: "팀원" };
