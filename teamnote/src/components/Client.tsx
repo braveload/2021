@@ -37,23 +37,42 @@ export function Party() {
 
 export function CopyButton({ text, label }: { text: string; label: string }) {
   const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
   return (
     <button
       type="button"
       className="btn sm"
       onClick={async () => {
+        let copied = false;
         try {
           text = text.startsWith("/") ? window.location.origin + text : text;
           await navigator.clipboard.writeText(text);
+          copied = true;
         } catch {
           const ta = document.createElement("textarea");
-          ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { copied = document.execCommand("copy"); } catch { copied = false; }
+          ta.remove();
         }
-        setDone(true);
+        setDone(copied);
+        setFailed(!copied);
         setTimeout(() => setDone(false), 1800);
       }}
     >
-      {done ? "복사됨 ✓" : label}
+      {done ? "복사됨 ✓" : failed ? "복사 제한 · 문구를 직접 선택해주세요" : label}
     </button>
   );
+}
+
+export function InviteShare({ text, label }: { text: string; label: string }) {
+  return <div style={{ marginTop: 12, marginBottom: 12 }}>
+    <CopyButton text={text} label={label} />
+    <details style={{ marginTop: 10 }}>
+      <summary style={{ cursor: "pointer" }}>초대문구 직접 복사하기</summary>
+      <textarea aria-label="카톡 초대문구" readOnly rows={7} value={text}
+        style={{ width: "100%", marginTop: 8, resize: "vertical" }}
+        onFocus={(event) => event.currentTarget.select()} />
+      <p className="mute">문구를 길게 눌러 복사한 뒤 카톡 대화창에 붙여넣으세요.</p>
+    </details>
+  </div>;
 }
