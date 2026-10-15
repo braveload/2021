@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getUser, q } from "@/lib/db";
 import Flash, { SP } from "@/components/Flash";
+import { CopyButton } from "@/components/Client";
 
 export default async function Join({ params, searchParams }: SP & { params: { code: string } }) {
   const user = await getUser();
@@ -14,6 +15,7 @@ export default async function Join({ params, searchParams }: SP & { params: { co
         <div style={{ fontSize: "2rem" }}>🗓️</div>
         <h1>{t.name}</h1>
         <p className="mute">팀원 {t.member_count}명</p>
+        <CopyButton label="카톡 직원 초대문구 복사" text={`팀노트 출석부,연차신청\n${t.name} 팀원 초대입니다. 본인 이름으로 시작한 뒤 팀에 가입해주세요.\nhttps://teamnote-demo-iota.vercel.app/join/${code}?share=20261015`} />
         {user ? (
           <form action="/api/act/team_join" method="post">
             <input type="hidden" name="code" value={code} /><input type="hidden" name="next" value={`/join/${code}`} />

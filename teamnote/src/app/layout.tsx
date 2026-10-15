@@ -5,8 +5,16 @@ import { getUser, q } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "팀노트 — 팀 출석부·연차 신청 (학습용 데모)",
-  description: "출석 상태와 연차(반차 포함) 신청·승인을 한 곳에서. 학습용 데모이며 실제 근로기준법 산정과 다를 수 있습니다.",
+  title: "팀노트 출석부,연차신청",
+  description: "팀노트 출석부,연차신청",
+  openGraph: {
+    title: "팀노트 출석부,연차신청",
+    description: "팀노트 출석부,연차신청",
+    siteName: "팀노트 출석부,연차신청",
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: { card: "summary", title: "팀노트 출석부,연차신청", description: "팀노트 출석부,연차신청" },
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 

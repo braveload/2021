@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getUser, q, sha256 } from "@/lib/db";
 import Flash, { SP } from "@/components/Flash";
+import { CopyButton } from "@/components/Client";
 
 export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
@@ -26,6 +27,7 @@ export default async function AdminInvite({ params, searchParams }: SP & { param
           <button className="btn p full-m">{invite.intended_name}님 관리자로 시작하기</button>
         </form>
         <p className="mute">본인만 사용하세요. 이 링크는 한 번만 사용할 수 있습니다. 활성화 후에는 같은 브라우저에서 접속하고 쿠키를 유지해주세요.</p>
+        <CopyButton label="카톡 초대문구 복사" text={`팀노트 출석부,연차신청\n${invite.intended_name}님 관리자 전용 초대입니다. 아래 링크에서 ‘관리자로 시작하기’를 눌러주세요.\nhttps://teamnote-demo-iota.vercel.app/admin-invite/${token}?share=20261015\n본인만 사용하는 일회용 링크입니다.`} />
       </>}
     </div>
   </div>;
