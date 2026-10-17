@@ -1,34 +1,25 @@
-# 사이드장부 클라우드 v1.2.0
+# 사이드장부 클라우드 v1.2.0 · 2026-10-17
 
-GitHub: braveload/2021의 sideledger 전용 폴더. 기존 앱 폴더는 수정하지 않는다.
-Supabase: public.sl_* 전용 테이블/함수 및 비공개 sl-receipts 버킷. 앱은 publishable 키와 사용자의 Auth 세션만 사용하며 service_role은 사용하지 않는다.
+공개 서비스: https://sideledger-tiger82.vercel.app
+GitHub: braveload/2021/sideledger · Vercel tiger82/sideledger-tiger82 · Supabase sidejangbu (xgqpdkildlfldgqzdjqm, 서울).
 
-## 개발
-Node 24 이상, npm ci 후 .env.example을 참고해 .env.local을 작성한다. npm run dev (3217), npm run check, npm run build.
-로컬 v1.0.0의 DB·계정은 클라우드로 자동 이전하지 않는다.
+## 가입과 계정 찾기
+이메일·이름·비밀번호 6자 이상으로 인증 메일 없이 바로 가입한다. 4자 요청은 Supabase 서버 최소 6자 제약 확인 후 사용자 선택으로 6자 기준으로 변경했다. 기존 10자 이상 비밀번호도 그대로 사용할 수 있다.
+로그인 후 설정 → 계정 복구코드에서 현재 비밀번호를 확인하고 코드를 발급한다. 안전한 곳에 저장해야 한다. 이메일·비밀번호를 잊으면 로그인 화면의 찾기 버튼에서 코드로 이메일을 확인하거나 비밀번호를 재설정한다. 비밀번호 재설정 시 코드가 소진되고 이전 세션은 차단된다. 재발급하면 이전 코드는 폐기된다. 코드가 없는 기존 사용자는 먼저 정상 로그인해서 발급해야 한다. 이름만으로 계정을 찾거나 변경하지 않는다.
 
-## DB 변경과 자동 배포 순서
-1. GitHub push 시 SideLedger CI: 타입/단위 → 일회용 Postgres 17 마이그레이션/RLS 회귀 테스트 → 빌드.
-2. Vercel 신규 프로젝트 Root Directory=sideledger. Build Command=npm run vercel-build.
-3. 빌드는 해당 commit SHA의 GitHub CI 성공을 먼저 확인한다. 실패/미확인 시 DB 반영과 배포를 중단한다.
-4. npm run migrate: sl_migrator 전용 계정, 트랜잭션·잠금·체크섬으로 sl_ 마이그레이션만 적용. 기존 적용 파일 변조·파괴적/공통 Storage 변경은 거절한다.
-5. DB의 RLS 확인 뒤 Next 빌드 및 Vercel 배포.
+## 데이터와 권한
+Next 앱은 publishable 키·사용자 세션을 사용한다. Auth 관리자 비밀키는 Next/Vercel/브라우저/Git에 저장하지 않는다. 전용 Supabase Edge Function sl-account-recovery가 플랫폼에서 제공하는 서버 전용 secret/service 자격으로 Auth Admin API를 호출한다. 공개 복구 요청은 256비트 복구코드의 소유로 인증하며 코드 발급은 로그인과 현재 비밀번호를 확인한다. DB에는 SHA-256 해시만 저장한다. 복구 테이블은 익명/일반 사용자 직접 접근을 금지한다. 코드 선점과 실패 해제·일회용 소진을 DB에서 처리한다.
+재설정 시 Supabase Auth가 기존 세션/갱신 토큰을 폐기한다. 추가 reset_at 검사와 RLS/RPC/Storage 정책이 이전 JWT의 앱 데이터 접근을 차단한다. 이미 발급한 영수증 서명 URL은 기존 최대 60초 만료까지 유효할 수 있다.
 
-필수 Vercel 환경변수: SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SIDELEDGER_MIGRATION_DATABASE_URL. 마지막 변수는 전용 DB 계정으로 된 서버/빌드 전용 비밀값이다. 공유 postgres 비밀번호는 사용하지 않는다. 환경파일은 Git에 올리지 않는다.
+## 개발과 배포
+Node 24.x, npm ci, npm run check, npm run build. 개발 포트 3217. 비밀 환경값은 .env.local에 보관하고 Git에서 제외한다.
+GitHub push → 해당 커밋 CI 성공 확인 → sl_migrator 전용 계정의 트랜잭션 DB 마이그레이션 → Vercel 빌드·배포. CI는 일회용 Postgres 17에서 장부 및 복구 권한/원자성 회귀를 실행한다.
+Edge Function 소스 변경은 Supabase에 별도 배포해야 한다. 현재 GitHub/Vercel 자동화는 Edge 배포를 수행하지 않는다. supabase/functions/sl-account-recovery/index.ts의 동작을 배포 후 검증한다. verify_jwt=false이며 함수 내부에서 사용자 JWT+현재 비밀번호 또는 복구코드로 인증하므로 JWT가 없는 계정 복구가 가능하다.
+최초 Storage는 프로젝트 소유자가 bootstrap-storage.sql을 적용한다. 기존 프로젝트의 reset session 정책 추가는 bootstrap-storage-reset-guard.sql을 한 번 적용한다. 신규 환경에서는 DB 마이그레이션 적용 후 두 파일을 순서대로 적용한다. 제한된 CI 계정에 공통 Storage/Auth 관리 권한은 부여하지 않는다.
 
-## 초기 설정과 범위
-기존 프로젝트 소유자가 최초 migration과 bootstrap-storage.sql을 적용하고, sl_ 객체만 sl_migrator에 소유권을 넘긴다. sl_migration_log에는 최초 파일의 SHA-256을 기록해 자동화가 중복 적용하지 않게 한다.
-공통 Auth Site URL/메일 템플릿은 임의 변경하지 않는다. 앱의 확인 메일 callback을 허용하려면 기존 redirect 목록을 보존한 채 전용 URL을 추가해야 한다.
-실제 Pro 결제·청구서 메일·리마인더는 미연결. 정책 페이지는 운영자 검토용 초안이다.
-마이그레이션/RLS·실제 배포·로그인 결과는 작업폴더 History/2026-10-17_v1.2.0에서 구분해 보고한다. 설정 파일 존재만으로 연결 성공으로 간주하지 않는다.
+## 검증
+npm run check, npm run test:db (TEST_DATABASE_URL은 일회용 localhost Postgres만 허용).
+실제 UI 전체 검사는 e2e/full-user-flow.spec.ts. SIDELEDGER_TEST_URL, SL_FLOW_EMAIL, SL_FLOW_PASSWORD, SL_FLOW_NEW_PASSWORD에는 일회용 계정만 넣는다. 테스트는 장부와 문서를 작성하므로 실제 사용자의 계정을 쓰지 않는다. 코드/비밀번호/세션은 로그·Git·공유 증거에 넣지 않는다.
+검증 기록은 기준 work/History/2026-10-17_v1.2.0, 오류는 Issue debug/동일 버전, 계획은 Plan/동일 버전에 저장했다.
 
-사용자가 최종 지정한 Supabase 프로젝트: sidejangbu / xgqpdkildlfldgqzdjqm / 서울. 기존 hvnoy... 프로젝트는 사용하지 않는다.
-
-공개 체험 주소: https://sideledger-tiger82.vercel.app
-2026-10-17 확인: custom SMTP는 비활성 상태다. 기본 인증 메일은 조직 구성원 이메일에만 전달되므로 일반 사용자의 신규 가입은 SMTP 설정 전까지 제한된다. 이메일 확인을 끄는 방식으로 우회하지 않는다. Site URL과 정확한 /api/auth/callback 주소 1개는 사용자 승인 후 저장·재확인했다. 실제 가입 메일 수신은 아직 검증하지 않았다.
-확인 출처: https://supabase.com/docs/guides/auth/auth-smtp
-
-실제 배포 검사: SIDELEDGER_TEST_URL로 대상 주소를 명시한다. scripts/verify-cloud.mjs는 SL_TEST_A/SL_TEST_B/SL_TEST_PASSWORD의 사전 생성된 일회용 계정만 사용한다. 테스트 계정의 장부를 변경하므로 실제 사용자 계정을 넣지 않는다. 테스트 비밀값은 Git에 올리지 않는다. Playwright 검사는 npm run test:e2e이며 기존 설치 Chromium 경로를 PLAYWRIGHT_CHROMIUM_EXECUTABLE로 지정할 수 있다.
-
-## v1.2.0 가입 방식 변경
-사용자 요청으로 이메일 확인 없이 이메일·비밀번호로 즉시 가입하도록 변경한다. SMTP 연결은 진행하지 않는다. 기존 SMTP 관련 내용은 이전 검토 기록이며 이 결정이 우선한다. 비밀번호 찾기는 미제공이다. 이메일 소유권은 확인하지 않으므로 본인 인증이나 권한 상승 근거로 사용하지 않는다.
+결제·청구서 메일·리마인더는 미연결. 정책 페이지는 초안. 로컬 v1.0.0 데이터는 자동 이전하지 않는다.
