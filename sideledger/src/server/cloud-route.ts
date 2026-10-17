@@ -130,43 +130,70 @@ export async function handler(req: NextRequest) {
       if (optional && !v) return null;
       return (await own("sl_clients", str(v, 36))).id;
     };
+    const all = async (
+      table: string,
+      columns = "*",
+      sort = "id",
+      year: string | null = null,
+    ): Promise<Row[]> => {
+      const result: Row[] = [];
+      for (let offset = 0; offset < 100000; offset += 500) {
+        let q = db
+          .from(table)
+          .select(columns)
+          .eq("owner_id", owner)
+          .order(sort)
+          .order("id")
+          .range(offset, offset + 499);
+        if (year)
+          q = q
+            .gte("occurred_on", year + "-01-01")
+            .lte("occurred_on", year + "-12-31");
+        const r = await q;
+        checked(r);
+        const rows = (r.data || []) as unknown as Row[];
+        result.push(...rows);
+        if (rows.length < 500) return result;
+      }
+      throw new AppError(
+        "내역이 너무 많습니다. 관리자에게 대용량 조회를 요청해 주세요.",
+        503,
+      );
+    };
     if (resource === "state" && method === "GET") {
-      const [p, c, e, d, r] = await Promise.all([
+      const [p, cs, es, ds, rs] = await Promise.all([
         db
           .from("sl_profiles")
           .select("name,account,plan")
           .eq("owner_id", owner)
           .single(),
-        db.from("sl_clients").select("*").eq("owner_id", owner).order("name"),
-        db
-          .from("sl_entries")
-          .select("*")
-          .eq("owner_id", owner)
-          .order("occurred_on", { ascending: false }),
-        db
-          .from("sl_documents")
-          .select(
-            "id,owner_id,client_id,kind,number,issued_on,due_on,status,notes,total",
-          )
-          .eq("owner_id", owner)
-          .order("issued_on", { ascending: false }),
-        db.from("sl_receipts").select("id,entry_id").eq("owner_id", owner),
+        all("sl_clients", "*", "name"),
+        all("sl_entries", "*", "occurred_on"),
+        all(
+          "sl_documents",
+          "id,owner_id,client_id,kind,number,issued_on,due_on,status,notes,total",
+          "issued_on",
+        ),
+        all("sl_receipts", "id,entry_id"),
       ]);
-      [p, c, e, d, r].forEach(checked);
-      const cs = c.data || [];
+      checked(p);
       return json({
         user: { id: owner, email: user.email, ...p.data },
         today: today(),
         clients: cs,
-        entries: (e.data || []).map((x) => ({
-          ...x,
-          client_name: cs.find((y) => y.id === x.client_id)?.name,
-          receipt_id: r.data?.find((y) => y.entry_id === x.id)?.id,
-        })),
-        documents: (d.data || []).map((x) => ({
-          ...x,
-          client_name: cs.find((y) => y.id === x.client_id)?.name,
-        })),
+        entries: es
+          .reverse()
+          .map((x) => ({
+            ...x,
+            client_name: cs.find((y) => y.id === x.client_id)?.name,
+            receipt_id: rs.find((y) => y.entry_id === x.id)?.id,
+          })),
+        documents: ds
+          .reverse()
+          .map((x) => ({
+            ...x,
+            client_name: cs.find((y) => y.id === x.client_id)?.name,
+          })),
       });
     }
     if (resource === "profile" && method === "PUT") {
@@ -348,28 +375,17 @@ export async function handler(req: NextRequest) {
       const year = url.searchParams.get("year");
       if (year && !/^\d{4}$/.test(year))
         throw new AppError("연도를 확인해 주세요.");
-      let q = db
-        .from("sl_entries")
-        .select("*")
-        .eq("owner_id", owner)
-        .order("occurred_on");
-      if (year)
-        q = q
-          .gte("occurred_on", year + "-01-01")
-          .lte("occurred_on", year + "-12-31");
-      const r = await q,
-        c = await db.from("sl_clients").select("id,name").eq("owner_id", owner);
-      checked(r);
-      checked(c);
+      const entries = await all("sl_entries", "*", "occurred_on", year),
+        clients = await all("sl_clients", "id,name");
       const rows = [
         ["날짜", "구분", "금액", "분류", "적요", "거래처"],
-        ...(r.data || []).map((x) => [
+        ...entries.map((x) => [
           x.occurred_on,
           x.kind === "income" ? "수입" : "경비",
           x.amount,
           x.category,
           x.memo,
-          c.data?.find((y) => y.id === x.client_id)?.name || "",
+          clients.find((y) => y.id === x.client_id)?.name || "",
         ]),
       ];
       return new Response(
