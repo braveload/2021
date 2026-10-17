@@ -37,9 +37,7 @@ test("email signup immediately opens workspace and supports password login", asy
   await page.getByRole("button", { name: "설정", exact: true }).click();
   await page.getByRole("button", { name: /로그아웃/ }).click();
   expect((await page.request.get("/api/state")).status()).toBe(401);
-  await page
-    .getByRole("button", { name: "이미 계정이 있어요 · 로그인", exact: true })
-    .click();
+  await expect(page.getByRole("button", {name: "로그인 →", exact: true})).toBeVisible();
   await page
     .getByRole("textbox", { name: "이메일", exact: true })
     .fill(process.env.SL_SIGNUP_EMAIL!);
