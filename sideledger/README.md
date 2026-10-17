@@ -21,3 +21,5 @@ Node 24 이상, npm ci 후 .env.example을 참고해 .env.local을 작성한다.
 공통 Auth Site URL/메일 템플릿은 임의 변경하지 않는다. 앱의 확인 메일 callback을 허용하려면 기존 redirect 목록을 보존한 채 전용 URL을 추가해야 한다.
 실제 Pro 결제·청구서 메일·리마인더는 미연결. 정책 페이지는 운영자 검토용 초안이다.
 마이그레이션/RLS·실제 배포·로그인 결과는 작업폴더 History/2026-10-17_v1.1.0에서 구분해 보고한다. 설정 파일 존재만으로 연결 성공으로 간주하지 않는다.
+
+사용자가 최종 지정한 Supabase 프로젝트: sidejangbu / xgqpdkildlfldgqzdjqm / 서울. 기존 hvnoy... 프로젝트는 사용하지 않는다.

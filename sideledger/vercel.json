@@ -1,1 +1,1 @@
-{"framework":"nextjs","buildCommand":"npm run vercel-build","regions":["hnd1"]}
+{"framework": "nextjs", "buildCommand": "npm run vercel-build", "regions": ["icn1"]}
