@@ -1,4 +1,4 @@
-# 사이드장부 클라우드 v1.2.0 · 2026-10-17
+# 사이드장부 클라우드 v1.2.2 · 2026-10-17
 
 공개 서비스: https://sideledger-tiger82.vercel.app
 GitHub: braveload/2021/sideledger · Vercel tiger82/sideledger-tiger82 · Supabase sidejangbu (xgqpdkildlfldgqzdjqm, 서울).
@@ -20,6 +20,6 @@ Edge Function 소스 변경은 Supabase에 별도 배포해야 한다. 현재 Gi
 ## 검증
 npm run check, npm run test:db (TEST_DATABASE_URL은 일회용 localhost Postgres만 허용).
 실제 UI 전체 검사는 e2e/full-user-flow.spec.ts. SIDELEDGER_TEST_URL, SL_FLOW_EMAIL, SL_FLOW_PASSWORD, SL_FLOW_NEW_PASSWORD에는 일회용 계정만 넣는다. 테스트는 장부와 문서를 작성하므로 실제 사용자의 계정을 쓰지 않는다. 코드/비밀번호/세션은 로그·Git·공유 증거에 넣지 않는다.
-검증 기록은 기준 work/History/2026-10-17_v1.2.0, 오류는 Issue debug/동일 버전, 계획은 Plan/동일 버전에 저장했다.
+검증 기록은 기준 work/History/2026-10-17_v1.2.2, 오류는 Issue debug/동일 버전, 계획은 Plan/동일 버전에 저장했다.
 
 결제·청구서 메일·리마인더는 미연결. 정책 페이지는 초안. 로컬 v1.0.0 데이터는 자동 이전하지 않는다.

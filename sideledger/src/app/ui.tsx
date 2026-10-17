@@ -11,6 +11,7 @@ import {
 } from "react";
 import Papa from "papaparse";
 import { AccountRecovery, RecoveryCodeSettings } from "./account-recovery";
+import { siteDescription } from "./site-data";
 type Row = Record<string, any>;
 type State = {
   user: Row;
@@ -252,6 +253,22 @@ export default function LedgerApp() {
               <br />
               당신의 작은 사업을 한 장에 담으세요.
             </p>
+            <p>{siteDescription}</p>
+            <p>
+              <strong>무료 베타 운영 중</strong>
+              <br />
+              현재 기능에 요금제별 추가 제한을 적용하지 않으며 실제 결제는
+              없습니다.
+            </p>
+            <details>
+              <summary>향후 유료 기능 안내</summary>
+              <p>
+                거래처·문서 한도 확대, 맞춤 PDF, 거래처별 상세 분석, 반복
+                청구서, 미수금 만기 알림을 검토 중입니다. 현재 제공을 약속하는
+                기능이 아니며 가격·한도·출시 일정은 미정입니다. 도입 전 별도로
+                안내합니다.
+              </p>
+            </details>
           </div>
           <p className="auth-note">
             CLOUD EDITION · 안전하게 보관하는 나의 장부.
@@ -343,7 +360,7 @@ export default function LedgerApp() {
               이메일 인증 없이 바로 가입할 수 있습니다. 이메일과 비밀번호를
               정확히 입력해 주세요. 이메일·비밀번호 찾기는 보관한 복구코드로
               이용할 수 있습니다. 로그인 후 설정에서 복구코드를 발급·보관하세요.
-              클라우드 체험판에서는 실제 결제가 진행되지 않습니다.
+              무료 베타에서는 실제 결제가 진행되지 않습니다.
             </p>
           </div>
         </section>
@@ -469,7 +486,7 @@ export default function LedgerApp() {
         </nav>
         <div className="sidebar-bottom">
           <div className="local-card">
-            <span className="dot" /> 클라우드 체험판
+            <span className="dot" /> 무료 베타
             <p>
               기록은 클라우드에 보관됩니다.
               <br />
@@ -491,7 +508,7 @@ export default function LedgerApp() {
             MY WORKSPACE <b>/</b> {labels[page]}
           </span>
           <span className="version">
-            v1.2.0 <span className="dot" /> 클라우드 저장
+            v1.2.2 <span className="dot" /> 클라우드 저장
           </span>
         </header>
         <div className="content">
@@ -1256,12 +1273,18 @@ export default function LedgerApp() {
               <section className="panel">
                 <h2>이용 및 연결 상태</h2>
                 <div className="connection">
-                  <strong>클라우드 체험판</strong>
+                  <strong>무료 베타</strong>
                   <span className="badge income">사용 중</span>
                 </div>
                 <p className="muted">
-                  장부·문서·영수증·CSV 기능을 제한 없이 사용합니다. 운영 요금제
-                  결제는 연결되지 않았습니다.
+                  현재 베타에서는 기존 기능에 요금제별 추가 제한을 적용하지
+                  않습니다. 실제 결제는 연결되지 않았습니다.
+                </p>
+                <p className="muted">
+                  향후 유료 기능 후보: 거래처·문서 한도 확대, 맞춤 PDF, 거래처별
+                  상세 분석, 반복 청구서, 미수금 만기 알림. 현재 구현·제공
+                  여부와 별개인 검토안이며 가격·한도·출시 일정은 미정입니다.
+                  도입 전에 안내합니다.
                 </p>
                 <div className="connection">
                   <span>실제 Pro 결제</span>
