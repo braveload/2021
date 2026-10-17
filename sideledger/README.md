@@ -23,3 +23,9 @@ Node 24 이상, npm ci 후 .env.example을 참고해 .env.local을 작성한다.
 마이그레이션/RLS·실제 배포·로그인 결과는 작업폴더 History/2026-10-17_v1.1.0에서 구분해 보고한다. 설정 파일 존재만으로 연결 성공으로 간주하지 않는다.
 
 사용자가 최종 지정한 Supabase 프로젝트: sidejangbu / xgqpdkildlfldgqzdjqm / 서울. 기존 hvnoy... 프로젝트는 사용하지 않는다.
+
+공개 체험 주소: https://sideledger-tiger82.vercel.app
+2026-10-17 확인: custom SMTP는 비활성 상태다. 기본 인증 메일은 조직 구성원 이메일에만 전달되므로 일반 사용자의 신규 가입은 SMTP 설정 전까지 제한된다. 이메일 확인을 끄는 방식으로 우회하지 않는다. Site URL/callback 설정은 사용자 승인 대기이며, 실제 가입 메일 수신은 아직 검증하지 않았다.
+확인 출처: https://supabase.com/docs/guides/auth/auth-smtp
+
+실제 배포 검사: SIDELEDGER_TEST_URL로 대상 주소를 명시한다. scripts/verify-cloud.mjs는 SL_TEST_A/SL_TEST_B/SL_TEST_PASSWORD의 사전 생성된 일회용 계정만 사용한다. 테스트 계정의 장부를 변경하므로 실제 사용자 계정을 넣지 않는다. 테스트 비밀값은 Git에 올리지 않는다. Playwright 검사는 npm run test:e2e이며 기존 설치 Chromium 경로를 PLAYWRIGHT_CHROMIUM_EXECUTABLE로 지정할 수 있다.

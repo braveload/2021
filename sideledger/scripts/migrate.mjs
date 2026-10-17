@@ -31,7 +31,10 @@ try {
   for (const f of (await readdir("supabase/migrations"))
     .filter((f) => f.endsWith(".sql"))
     .sort()) {
-    const sql = (await readFile("supabase/migrations/" + f, "utf8")).replace(/\r\n/g, "\n"),
+    const sql = (await readFile("supabase/migrations/" + f, "utf8")).replace(
+        /\r\n/g,
+        "\n",
+      ),
       sha = createHash("sha256").update(sql).digest("hex"),
       old = await db.query(
         "select sha256 from public.sl_migration_log where name=$1",
