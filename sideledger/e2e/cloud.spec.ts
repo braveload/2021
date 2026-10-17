@@ -6,7 +6,7 @@ test("deployed cloud health and anonymous protection", async ({
   const r = await request.get("/api/health");
   expect(r.ok()).toBeTruthy();
   expect(await r.json()).toMatchObject({
-    version: "1.1.0",
+    version: "1.1.2",
     storage: "supabase",
   });
   expect((await request.get("/api/state")).status()).toBe(401);
@@ -18,7 +18,7 @@ test("deployed cloud health and anonymous protection", async ({
     page.getByRole("button", { name: "로그인 →", exact: true }),
   ).toBeVisible();
   await page.screenshot({
-    path: "../../History/2026-10-17_v1.1.0/evidence/deployed-login.png",
+    path: "../../History/2026-10-17_v1.1.2/evidence/deployed-login.png",
     fullPage: true,
   });
   if (process.env.SL_TEST_A && process.env.SL_TEST_PASSWORD) {
@@ -33,7 +33,7 @@ test("deployed cloud health and anonymous protection", async ({
       page.getByRole("heading", { name: "오늘도, 차곡차곡." }),
     ).toBeVisible();
     await page.screenshot({
-      path: "../../History/2026-10-17_v1.1.0/evidence/deployed-dashboard.png",
+      path: "../../History/2026-10-17_v1.1.2/evidence/deployed-dashboard.png",
       fullPage: true,
     });
     await page.getByRole("button", { name: "설정", exact: true }).click();

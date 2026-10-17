@@ -27,7 +27,7 @@ export async function handler(req: NextRequest) {
       [resource, key, action] = url.pathname.slice(5).split("/"),
       method = req.method;
     if (resource === "health" && method === "GET")
-      return json({ ok: true, version: "1.1.0", storage: "supabase" });
+      return json({ ok: true, version: "1.1.2", storage: "supabase" });
     const host = req.headers.get("host") || "",
       origin = req.headers.get("origin"),
       local = /^(localhost|127\.0\.0\.1):\d+$/.test(host);
@@ -45,6 +45,8 @@ export async function handler(req: NextRequest) {
     ) {
       const b = await req.json(),
         email = str(b.email, 254).toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+        throw new AppError("이메일 형식을 확인해 주세요.");
       if (key === "verify") {
         const r = await db.auth.verifyOtp({
           email,
@@ -86,11 +88,7 @@ export async function handler(req: NextRequest) {
         return json({ ok: true });
       }
       const r = await db.auth.signInWithPassword({ email, password });
-      if (r.error)
-        throw new AppError(
-          "이메일·비밀번호 또는 이메일 인증 상태를 확인해 주세요.",
-          401,
-        );
+      if (r.error) throw new AppError("이메일·비밀번호를 확인해 주세요.", 401);
       return json({ ok: true });
     }
     if (resource === "auth" && key === "callback" && method === "GET") {
@@ -181,19 +179,15 @@ export async function handler(req: NextRequest) {
         user: { id: owner, email: user.email, ...p.data },
         today: today(),
         clients: cs,
-        entries: es
-          .reverse()
-          .map((x) => ({
-            ...x,
-            client_name: cs.find((y) => y.id === x.client_id)?.name,
-            receipt_id: rs.find((y) => y.entry_id === x.id)?.id,
-          })),
-        documents: ds
-          .reverse()
-          .map((x) => ({
-            ...x,
-            client_name: cs.find((y) => y.id === x.client_id)?.name,
-          })),
+        entries: es.reverse().map((x) => ({
+          ...x,
+          client_name: cs.find((y) => y.id === x.client_id)?.name,
+          receipt_id: rs.find((y) => y.entry_id === x.id)?.id,
+        })),
+        documents: ds.reverse().map((x) => ({
+          ...x,
+          client_name: cs.find((y) => y.id === x.client_id)?.name,
+        })),
       });
     }
     if (resource === "profile" && method === "PUT") {

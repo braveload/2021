@@ -338,10 +338,9 @@ export default function LedgerApp() {
                 : "처음이에요 · 계정 만들기"}
             </button>
             <p className="fine">
-              현재 체험 환경에서는 운영자에게 승인된 이메일만 가입할 수
-              있습니다. 가입 확인 메일로 인증을 완료한 뒤 로그인해 주세요.
-              클라우드 체험판은 모든 장부 기능을 사용할 수 있으며 결제는
-              진행되지 않습니다.
+              이메일 인증 없이 바로 가입할 수 있습니다. 이메일과 비밀번호를
+              정확히 입력해 주세요. 현재 비밀번호 찾기는 제공하지 않습니다.
+              클라우드 체험판에서는 실제 결제가 진행되지 않습니다.
             </p>
           </div>
         </section>
@@ -489,7 +488,7 @@ export default function LedgerApp() {
             MY WORKSPACE <b>/</b> {labels[page]}
           </span>
           <span className="version">
-            v1.1.0 <span className="dot" /> 클라우드 저장
+            v1.1.2 <span className="dot" /> 클라우드 저장
           </span>
         </header>
         <div className="content">
