@@ -8,7 +8,13 @@ if (!url)
   );
 const db = new pg.Client({
   connectionString: url,
-  ssl: { rejectUnauthorized: true },
+  ssl: {
+    rejectUnauthorized: true,
+    ca: await readFile(
+      new URL("../assets/supabase-ca.crt", import.meta.url),
+      "utf8",
+    ),
+  },
 });
 await db.connect();
 try {
