@@ -140,5 +140,5 @@ begin
 end $$;
 revoke all on function public.sl_import_csv(jsonb) from public,anon;
 grant execute on function public.sl_import_csv(jsonb) to authenticated;
-create view public.sl_monthly_summary with(security_invoker=true) as select owner_id,date_trunc('month',occurred_on)::date month,coalesce(sum(amount) filter(where kind='income'),0) income,coalesce(sum(amount) filter(where kind='expense'),0) expense from public.sl_entries group by 1,2;
+create view public.sl_monthly_summary with(security_invoker=true) as select owner_id,date_trunc('month',occurred_on)::date as month,coalesce(sum(amount) filter(where kind='income'),0) income,coalesce(sum(amount) filter(where kind='expense'),0) expense from public.sl_entries group by 1,2;
 grant select on public.sl_monthly_summary to authenticated;

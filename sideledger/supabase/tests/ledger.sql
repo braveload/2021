@@ -30,12 +30,10 @@ do $$declare r jsonb;begin
  if exists(select 1 from public.sl_entries where memo='ROLLBACK') then raise exception 'TEST CSV ATOMICITY FAILED';end if;
 end $$;
 reset role;
--- Reset only transaction-local fixtures, never actual app records.
-delete from public.sl_entries where owner_id='a1111111-1111-4111-8111-111111111111';
-delete from public.sl_documents where owner_id='a1111111-1111-4111-8111-111111111111';
-delete from public.sl_counters where owner_id='a1111111-1111-4111-8111-111111111111';
-update public.sl_profiles set plan='free' where owner_id='a1111111-1111-4111-8111-111111111111';
+update public.sl_profiles set plan='free' where owner_id='b1111111-1111-4111-8111-111111111111';
 set local role authenticated;
+select set_config('request.jwt.claim.sub','b1111111-1111-4111-8111-111111111111',true);
+with c as(insert into public.sl_clients(name) values('TEST B CLIENT') returning id) select set_config('sl_test.client',id::text,true) from c;
 do $$begin
  for n in 1..3 loop perform public.sl_create_document(current_setting('sl_test.client')::uuid,'invoice',current_date,current_date,'','[{"description":"TEST","qty100":100,"unit_price":1}]');end loop;
  begin perform public.sl_create_document(current_setting('sl_test.client')::uuid,'invoice','2020-01-01','2020-01-01','','[{"description":"TEST","qty100":100,"unit_price":1}]');raise exception 'TEST FREE LIMIT BYPASS';exception when others then if SQLERRM<>'FREE_DOCUMENT_LIMIT' then raise;end if;end;
@@ -43,8 +41,8 @@ do $$begin
  begin insert into public.sl_clients(name) values('TEST FOUR');raise exception 'TEST CLIENT LIMIT FAILED';exception when others then if SQLERRM<>'FREE_CLIENT_LIMIT' then raise;end if;end;
 end $$;
 reset role;
-update public.sl_documents set created_month='2000-01-01' where owner_id='a1111111-1111-4111-8111-111111111111';
-update public.sl_profiles set plan='pro' where owner_id='a1111111-1111-4111-8111-111111111111';
+update public.sl_documents set created_month='2000-01-01' where owner_id='b1111111-1111-4111-8111-111111111111';
+update public.sl_profiles set plan='pro' where owner_id='b1111111-1111-4111-8111-111111111111';
 set local role authenticated;
 do $$declare names text[];begin
  for n in 1..10 loop perform public.sl_create_document(current_setting('sl_test.client')::uuid,'quote',current_date,current_date,'','[{"description":"TEST","qty100":100,"unit_price":1}]');end loop;
