@@ -27,7 +27,7 @@ export async function handler(req: NextRequest) {
       [resource, key, action] = url.pathname.slice(5).split("/"),
       method = req.method;
     if (resource === "health" && method === "GET")
-      return json({ ok: true, version: "1.2.3", storage: "supabase" });
+      return json({ ok: true, version: "1.2.4", storage: "supabase" });
     const host = req.headers.get("host") || "",
       origin = req.headers.get("origin"),
       local = /^(localhost|127\.0\.0\.1):\d+$/.test(host);

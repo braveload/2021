@@ -508,7 +508,7 @@ export default function LedgerApp() {
             MY WORKSPACE <b>/</b> {labels[page]}
           </span>
           <span className="version">
-            v1.2.3 <span className="dot" /> 클라우드 저장
+            v1.2.4 <span className="dot" /> 클라우드 저장
           </span>
         </header>
         <div className="content">
