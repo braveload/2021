@@ -94,7 +94,7 @@ assert.equal(pdf.status, 200, await pdf.clone().text());
 const data = Buffer.from(await pdf.arrayBuffer());
 assert.equal(data.subarray(0, 4).toString(), "%PDF");
 await writeFile(
-  "../../History/2026-10-17_v1.2.2/evidence/deployed-invoice.pdf",
+  "../../History/2026-10-17_v1.2.3/evidence/deployed-invoice.pdf",
   data,
 );
 const form = new FormData();
@@ -142,7 +142,7 @@ const result = {
   ],
 };
 await writeFile(
-  "../../History/2026-10-17_v1.2.2/evidence/cloud-results.json",
+  "../../History/2026-10-17_v1.2.3/evidence/cloud-results.json",
   JSON.stringify(result, null, 2),
 );
 console.log(JSON.stringify(result));

@@ -1,3 +1,4 @@
+import { OperatorInfo } from "./operator";
 import LedgerApp from "./ui";
 import { homepageJsonLd, siteUrl, siteDescription } from "./site-data";
 export const metadata = {
@@ -20,6 +21,7 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: homepageJsonLd }}
       />
       <LedgerApp />
+      <OperatorInfo />
     </>
   );
 }

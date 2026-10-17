@@ -133,7 +133,7 @@ test("full customer journey, documents, six-character password and recovery", as
     const download = await downloadPromise;
     expect(await download.failure()).toBeNull();
     await download.saveAs(
-      "../../History/2026-10-17_v1.2.2/evidence/flow-" + kind + ".pdf",
+      "../../History/2026-10-17_v1.2.3/evidence/flow-" + kind + ".pdf",
     );
     await dialog
       .getByRole("button", { name: "보냄 표시", exact: true })
@@ -158,7 +158,7 @@ test("full customer journey, documents, six-character password and recovery", as
   ).toBe(11250);
   await page.getByRole("button", { name: "대시보드", exact: true }).click();
   await page.screenshot({
-    path: "../../History/2026-10-17_v1.2.2/evidence/full-dashboard.png",
+    path: "../../History/2026-10-17_v1.2.3/evidence/full-dashboard.png",
     fullPage: true,
   });
   await page.getByRole("button", { name: "설정", exact: true }).click();
@@ -272,11 +272,11 @@ test("full customer journey, documents, six-character password and recovery", as
   ).toBe(400);
   await page.getByRole("button", { name: "로그아웃", exact: true }).click();
   await page.screenshot({
-    path: "../../History/2026-10-17_v1.2.2/evidence/recovery-login.png",
+    path: "../../History/2026-10-17_v1.2.3/evidence/recovery-login.png",
     fullPage: true,
   });
   await writeFile(
-    "../../History/2026-10-17_v1.2.2/evidence/full-flow-result.json",
+    "../../History/2026-10-17_v1.2.3/evidence/full-flow-result.json",
     JSON.stringify({
       at: new Date().toISOString(),
       result: "PASS",
