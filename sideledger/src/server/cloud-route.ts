@@ -122,6 +122,27 @@ export async function handler(req: NextRequest) {
       }
       const r = await db.auth.signInWithPassword({ email, password });
       if (r.error) throw new AppError("이메일·비밀번호를 확인해 주세요.", 401);
+      if (r.data.user && r.data.session) {
+        const cutoff = await db
+          .from("sl_account_security")
+          .select("reset_at")
+          .eq("owner_id", r.data.user.id)
+          .maybeSingle();
+        checked(cutoff);
+        const issued = JSON.parse(
+          Buffer.from(
+            r.data.session.access_token.split(".")[1],
+            "base64url",
+          ).toString(),
+        ).iat;
+        if (
+          cutoff.data &&
+          issued <= Math.floor(Date.parse(cutoff.data.reset_at) / 1000)
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 1100));
+          checked(await db.auth.refreshSession());
+        }
+      }
       return json({ ok: true });
     }
     if (resource === "auth" && key === "callback" && method === "GET") {

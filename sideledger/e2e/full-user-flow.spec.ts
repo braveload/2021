@@ -72,7 +72,7 @@ test("full customer journey, documents, six-character password and recovery", as
       .getByRole("textbox", { name: "금액 (원)", exact: true })
       .fill(amount);
     await dialog
-      .getByRole("textbox", { name: "분류", exact: true })
+      .getByRole("combobox", { name: "분류", exact: true })
       .fill(category);
     await dialog
       .getByRole("combobox", { name: "거래처 (선택)", exact: true })
@@ -146,7 +146,7 @@ test("full customer journey, documents, six-character password and recovery", as
         dialog.getByText("입금 완료", { exact: true }),
       ).toBeVisible();
     }
-    await dialog.getByRole("button", { name: "창 닫기", exact: true }).click();
+    await dialog.getByRole("button", { name: "문서 닫기", exact: true }).click();
   }
   s = await state();
   expect(s.documents).toHaveLength(2);

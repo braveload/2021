@@ -1708,6 +1708,7 @@ export default function LedgerApp() {
               <button
                 className="close"
                 aria-label="문서 닫기"
+                disabled={busy}
                 onClick={() => setDetail(null)}
               >
                 ×
