@@ -27,7 +27,7 @@ export async function handler(req: NextRequest) {
       [resource, key, action] = url.pathname.slice(5).split("/"),
       method = req.method;
     if (resource === "health" && method === "GET")
-      return json({ ok: true, version: "1.1.2", storage: "supabase" });
+      return json({ ok: true, version: "1.2.0", storage: "supabase" });
     const host = req.headers.get("host") || "",
       origin = req.headers.get("origin"),
       local = /^(localhost|127\.0\.0\.1):\d+$/.test(host);
@@ -38,6 +38,39 @@ export async function handler(req: NextRequest) {
     if (Number(req.headers.get("content-length") || 0) > 5500000)
       throw new AppError("업로드 크기를 줄여 주세요.", 413);
     const db = await cloud();
+    const recovery = async (body: Row, token?: string) => {
+      const r = await fetch(
+        process.env.SUPABASE_URL + "/functions/v1/sl-account-recovery",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.SUPABASE_PUBLISHABLE_KEY!,
+            ...(token ? { Authorization: "Bearer " + token } : {}),
+          },
+          body: JSON.stringify(body),
+          cache: "no-store",
+        },
+      );
+      const data = await r.json();
+      if (!r.ok)
+        throw new AppError(data.error || "계정 복구에 실패했습니다.", r.status);
+      return data;
+    };
+    if (
+      resource === "auth" &&
+      method === "POST" &&
+      ["recovery-find", "recovery-reset"].includes(key)
+    ) {
+      const b = await req.json();
+      return json(
+        await recovery({
+          action: key === "recovery-find" ? "find" : "reset",
+          code: str(b.code, 100),
+          password: b.password,
+        }),
+      );
+    }
     if (
       resource === "auth" &&
       method === "POST" &&
@@ -58,8 +91,8 @@ export async function handler(req: NextRequest) {
         return json({ ok: true });
       }
       const password = str(b.password, 128);
-      if (password.length < 10)
-        throw new AppError("비밀번호는 10자 이상 입력해 주세요.");
+      if (password.length < 6)
+        throw new AppError("비밀번호는 6자 이상 입력해 주세요.");
       if (key === "register") {
         const name = str(b.name, 80),
           r = await db.auth.signUp({
@@ -105,6 +138,36 @@ export async function handler(req: NextRequest) {
     if (resource === "auth" && key === "logout" && method === "POST") {
       checked(await db.auth.signOut({ scope: "local" }));
       return json({ ok: true });
+    }
+    const session = await db.auth.getSession();
+    const security = await db
+      .from("sl_account_security")
+      .select("reset_at")
+      .eq("owner_id", owner)
+      .maybeSingle();
+    checked(security);
+    if (security.data) {
+      const token = session.data.session?.access_token;
+      const iat = token
+        ? JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString())
+            .iat
+        : 0;
+      if (iat <= Math.floor(Date.parse(security.data.reset_at) / 1000)) {
+        await db.auth.signOut({ scope: "local" });
+        throw new AppError(
+          "비밀번호가 변경되었습니다. 다시 로그인해 주세요.",
+          401,
+        );
+      }
+    }
+    if (resource === "auth" && key === "recovery-issue" && method === "POST") {
+      const b = await req.json();
+      return json(
+        await recovery(
+          { action: "issue", password: str(b.password, 128) },
+          session.data.session?.access_token,
+        ),
+      );
     }
     checked(
       await db.rpc("sl_ensure_profile", {

@@ -31,7 +31,7 @@ test("email signup immediately opens workspace and supports password login", asy
     JSON.stringify({ id: state.user.id, email: state.user.email }),
   );
   await page.screenshot({
-    path: "../../History/2026-10-17_v1.1.2/evidence/immediate-signup-dashboard.png",
+    path: "../../History/2026-10-17_v1.2.0/evidence/immediate-signup-dashboard.png",
     fullPage: true,
   });
   await page.getByRole("button", { name: "설정", exact: true }).click();
@@ -62,7 +62,7 @@ test("email signup immediately opens workspace and supports password login", asy
     data: {},
   });
   await writeFile(
-    "../../History/2026-10-17_v1.1.2/evidence/immediate-signup-result.json",
+    "../../History/2026-10-17_v1.2.0/evidence/immediate-signup-result.json",
     JSON.stringify({
       at: new Date().toISOString(),
       result: "PASS",

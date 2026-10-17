@@ -9,13 +9,18 @@ const db = new pg.Client({ connectionString: url });
 await db.connect();
 try {
   await db.query(
-    `create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as 'select nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid';grant usage on schema auth to authenticated,anon;`,
+    `create role service_role bypassrls;create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as 'select nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid';grant usage on schema auth to authenticated,anon;`,
   );
   for (const f of (await readdir("supabase/migrations"))
     .filter((f) => f.endsWith(".sql"))
     .sort())
     await db.query(await readFile("supabase/migrations/" + f, "utf8"));
-  const r = await db.query(await readFile("supabase/tests/ledger.sql", "utf8"));
+  const results = [];
+  for (const file of ["ledger.sql", "recovery.sql"])
+    results.push(
+      ...(await db.query(await readFile("supabase/tests/" + file, "utf8"))),
+    );
+  const r = results;
   for (const result of r)
     for (const row of result.rows || [])
       if (row.result) console.log(row.result);

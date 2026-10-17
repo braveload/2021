@@ -1,0 +1,30 @@
+begin;
+insert into auth.users(id) values('c1111111-1111-4111-8111-111111111111');
+insert into public.sl_profiles(owner_id,name) values('c1111111-1111-4111-8111-111111111111','RECOVERY TEST');
+insert into public.sl_recovery_codes(owner_id,code_hash,email) values('c1111111-1111-4111-8111-111111111111',repeat('a',64),'recovery@example.test');
+set local role service_role;
+do $$declare r jsonb;begin
+ r:=public.sl_recovery_claim(repeat('a',64),'c2222222-2222-4222-8222-222222222222');
+ if r->>'id'<>'c1111111-1111-4111-8111-111111111111' then raise exception 'CLAIM FAILED';end if;
+ if public.sl_recovery_claim(repeat('a',64),'c3333333-3333-4333-8333-333333333333') is not null then raise exception 'DOUBLE CLAIM';end if;
+ if public.sl_recovery_finish('c1111111-1111-4111-8111-111111111111','c3333333-3333-4333-8333-333333333333',true) then raise exception 'FOREIGN CLAIM';end if;
+ perform public.sl_recovery_finish('c1111111-1111-4111-8111-111111111111','c2222222-2222-4222-8222-222222222222',false);
+ if public.sl_recovery_claim(repeat('a',64),'c3333333-3333-4333-8333-333333333333') is null then raise exception 'RETRY FAILED';end if;
+ perform public.sl_recovery_finish('c1111111-1111-4111-8111-111111111111','c3333333-3333-4333-8333-333333333333',true);
+ if public.sl_recovery_claim(repeat('a',64),'c2222222-2222-4222-8222-222222222222') is not null then raise exception 'REUSE ACCEPTED';end if;
+ if (select count(*) from public.sl_account_security)<>1 then raise exception 'RESET CUTOFF MISSING';end if;
+end $$;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','c1111111-1111-4111-8111-111111111111',true);
+do $$begin
+ if (select count(*) from public.sl_account_security)<>1 then raise exception 'OWN CUTOFF INVISIBLE';end if;
+ if public.sl_session_allowed() then raise exception 'OLD SESSION ALLOWED';end if;
+ if (select count(*) from public.sl_profiles)<>0 then raise exception 'OLD PROFILE VISIBLE';end if;
+ begin perform code_hash from public.sl_recovery_codes;raise exception 'HASH EXPOSED';exception when insufficient_privilege then null;end;
+ begin perform public.sl_recovery_claim(repeat('a',64),'c2222222-2222-4222-8222-222222222222');raise exception 'CLAIM EXPOSED';exception when insufficient_privilege then null;end;
+ begin update public.sl_account_security set reset_at='2000-01-01';raise exception 'CUTOFF UPDATE EXPOSED';exception when insufficient_privilege then null;end;
+end $$;
+select set_config('request.jwt.claim.sub','d1111111-1111-4111-8111-111111111111',true);
+do $$begin if (select count(*) from public.sl_account_security)<>0 then raise exception 'CROSS OWNER CUTOFF';end if;end $$;
+select 'PASS: recovery atomic claim, failure retry, single use, reset cutoff, recovery grants and owner isolation' as result;
+rollback;

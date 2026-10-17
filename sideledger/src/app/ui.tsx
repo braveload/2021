@@ -10,6 +10,7 @@ import {
   FormEvent,
 } from "react";
 import Papa from "papaparse";
+import { AccountRecovery, RecoveryCodeSettings } from "./account-recovery";
 type Row = Record<string, any>;
 type State = {
   user: Row;
@@ -307,10 +308,10 @@ export default function LedgerApp() {
                   type="password"
                   name="password"
                   autoComplete={register ? "new-password" : "current-password"}
-                  minLength={10}
+                  minLength={6}
                   maxLength={128}
                   required
-                  placeholder="10자 이상"
+                  placeholder="6자 이상"
                 />
               </Field>
               {error && (
@@ -337,10 +338,12 @@ export default function LedgerApp() {
                 ? "이미 계정이 있어요 · 로그인"
                 : "처음이에요 · 계정 만들기"}
             </button>
+            <AccountRecovery />
             <p className="fine">
               이메일 인증 없이 바로 가입할 수 있습니다. 이메일과 비밀번호를
-              정확히 입력해 주세요. 현재 비밀번호 찾기는 제공하지 않습니다.
-              클라우드 체험판에서는 실제 결제가 진행되지 않습니다.
+              정확히 입력해 주세요. 이메일·비밀번호 찾기는 보관한 복구코드로
+              이용할 수 있습니다. 클라우드 체험판에서는 실제 결제가 진행되지
+              않습니다.
             </p>
           </div>
         </section>
@@ -488,7 +491,7 @@ export default function LedgerApp() {
             MY WORKSPACE <b>/</b> {labels[page]}
           </span>
           <span className="version">
-            v1.1.2 <span className="dot" /> 클라우드 저장
+            v1.2.0 <span className="dot" /> 클라우드 저장
           </span>
         </header>
         <div className="content">
@@ -1249,6 +1252,7 @@ export default function LedgerApp() {
                   </button>
                 </form>
               </section>
+              <RecoveryCodeSettings />
               <section className="panel">
                 <h2>이용 및 연결 상태</h2>
                 <div className="connection">
