@@ -13,7 +13,7 @@ alter table public.sl_account_security enable row level security;
 revoke all on public.sl_recovery_codes,public.sl_account_security from public,anon,authenticated;
 grant all on public.sl_recovery_codes,public.sl_account_security to service_role;
 grant select on public.sl_account_security to authenticated;
-create policy sl_security_read on public.sl_account_security for select to authenticated using(owner_id=(select auth.uid()));
+create policy sl_security_read on public.sl_account_security for select to authenticated using(owner_id=coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid);
 create function public.sl_recovery_claim(p_hash text,p_claim uuid) returns jsonb language plpgsql security invoker set search_path='' as $$
 declare r public.sl_recovery_codes;begin
  update public.sl_recovery_codes set used_at=clock_timestamp(),claim_id=p_claim where code_hash=p_hash and used_at is null returning * into r;
