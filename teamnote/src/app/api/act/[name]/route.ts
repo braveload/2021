@@ -21,6 +21,13 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
   const name = params.name;
   const next = safeNext(str(f, "next"), "/dashboard");
   try {
+    if (name === "account_recovery") {
+      const raw = str(f,"token");
+      if (!/^[0-9a-f]{64}$/.test(raw)) throw new Fail("올바르지 않은 계정 복구 링크입니다.");
+      const sessionToken = crypto.randomBytes(32).toString("base64url");
+      const r = await q<{id:string}>(null,"select redeem_account_recovery($1,$2) as id",[sha256(raw),sha256(sessionToken)]);
+      return sessionResponse(sessionToken,`/teams/${r[0].id}`,"기존 계정과 바로카드 팀을 연결했어요.");
+    }
     if (name === "admin_invite_start") {
       const raw = str(f, "token");
       if (!/^[0-9a-f]{64}$/.test(raw)) throw new Fail("올바르지 않은 관리자 초대입니다.");
@@ -28,8 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
       const team = await withUser(null, async (c) => {
         const invite = (await c.query("select * from admin_invite_preview($1)", [sha256(raw)])).rows[0];
         if (!invite || invite.claimed) throw new Fail("만료되었거나 이미 사용한 관리자 초대입니다.");
-        const uid = (await c.query("select auth_register($1,$2,$3) as id",
-          [`guest-${crypto.randomUUID()}@guest.local`, invite.intended_name, "!"])).rows[0].id;
+        const uid = (await c.query("select auth_start_named($1) as id", [invite.intended_name])).rows[0].id;
         await c.query("select set_config('app.user_id',$1,true)", [uid]);
         const tid = (await c.query("select claim_admin_invite($1) as id", [sha256(raw)])).rows[0].id;
         await c.query("select auth_create_session($1,$2,$3)", [uid,sha256(sessionToken),24*180]);
@@ -43,10 +49,17 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
     if (name === "start") {
       const nm = str(f, "name");
       if (nm.length < 1 || nm.length > 30) throw new Fail("이름을 1~30자로 입력해주세요.");
-      const email = `guest-${crypto.randomUUID()}@guest.local`;
-      const hash = "!"; // bcrypt 해시가 아니므로 비밀번호 로그인은 불가능
-      const id = (await q<{ auth_register: string }>(null, "select auth_register($1,$2,$3)", [email, nm, hash]))[0].auth_register;
-      return await startSession(id, next);
+      const current = await getUser();
+      if (current) {
+        await q(current.id,"select auth_start_named($1)",[nm]);
+        return go(next,"msg","기존 계정으로 계속합니다.");
+      }
+      const sessionToken = crypto.randomBytes(32).toString("base64url");
+      await withUser(null,async c=>{
+        const uid=(await c.query("select auth_start_named($1) as id",[nm])).rows[0].id;
+        await c.query("select auth_create_session($1,$2,$3)",[uid,sha256(sessionToken),24*180]);
+      });
+      return sessionResponse(sessionToken,next);
     }
     if (name === "logout") {
       const token = req.cookies.get(COOKIE)?.value;
@@ -120,13 +133,11 @@ export async function POST(req: NextRequest, { params }: { params: { name: strin
   }
 }
 
-async function startSession(userId: string, next: string) {
-  const token = crypto.randomBytes(32).toString("base64url");
-  await q(null, "select auth_create_session($1,$2,$3)", [userId, sha256(token), 24 * 180]);
-  const res = go(next, "msg");
+function sessionResponse(token: string, next: string, message?: string) {
+  const res = go(next, "msg",message);
   res.headers.append(
     "Set-Cookie",
-    `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 180}`
+    `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 180}`
   );
   return res;
 }

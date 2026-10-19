@@ -1,5 +1,6 @@
 .env
 .admin-invites*.json
+.account-recovery*.json
 node_modules
 .next
 *.log

@@ -46,6 +46,11 @@ export async function getUser(): Promise<SessionUser | null> {
 }
 
 export const ERRORS: Record<string, string> = {
+  account_exists: "이미 등록된 이름입니다. 새 계정은 만들지 않았어요. 기존에 사용한 브라우저로 접속하거나 기존 계정 복구 링크를 이용해주세요.",
+  account_name_mismatch: "현재 로그인한 계정과 이름이 달라요. 기존 계정을 유지했어요. 다른 계정은 전용 복구 링크로 연결해주세요.",
+  invalid_name: "이름을 1~30자로 입력해주세요.",
+  invalid_recovery: "만료되었거나 올바르지 않은 계정 복구 링크예요.",
+  recovery_used: "이미 사용한 계정 복구 링크예요. 연결한 브라우저에서 접속해주세요.",
   last_admin: "마지막 관리자는 팀원으로 변경할 수 없어요. 다른 관리자를 먼저 지정해주세요.",
   invalid_admin_invite: "만료되었거나 올바르지 않은 관리자 초대예요.",
   admin_invite_used: "이미 다른 계정에서 사용한 관리자 초대예요.",

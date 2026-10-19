@@ -1,8 +1,12 @@
 import Flash, { SP } from "@/components/Flash";
+import { getUser } from "@/lib/db";
+import { redirect } from "next/navigation";
 
-export default function Start({ searchParams }: SP) {
+export default async function Start({ searchParams }: SP) {
   const next = typeof searchParams.next === "string" && searchParams.next.startsWith("/") && !searchParams.next.startsWith("//")
     ? searchParams.next : "/dashboard";
+  const user = await getUser();
+  if (user && !searchParams.err) redirect(next);
   return (
     <div style={{ maxWidth: 420 }}>
       <h1>이름을 입력하고 시작하세요</h1>
@@ -13,7 +17,7 @@ export default function Start({ searchParams }: SP) {
         <input id="name" name="name" maxLength={30} autoComplete="nickname" required autoFocus />
         <div style={{ marginTop: 16 }}><button className="btn p full-m">시작하기</button></div>
       </form>
-      <p className="mute">비밀번호 없이 이름만으로 시작해요. 기록은 <b>이 브라우저</b>에 연결되어 있어, 쿠키를 지우거나 다른 기기에서 열면 새 사용자로 시작돼요.</p>
+      <p className="mute">기존 로그인은 이 브라우저에서 유지됩니다. 같은 이름을 다시 입력해도 새 계정을 만들지 않습니다. 다른 기기나 브라우저에서는 기존 계정 복구 링크가 필요합니다.</p>
     </div>
   );
 }
