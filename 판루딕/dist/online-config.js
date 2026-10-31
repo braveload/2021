@@ -1,0 +1,1 @@
+window.PANLUDIQ_API = '';
