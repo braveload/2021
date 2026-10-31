@@ -1,1 +1,1 @@
-window.PANLUDIQ_API = '';
+window.PANLUDIQ_API = 'https://panludiq-online.onrender.com';
