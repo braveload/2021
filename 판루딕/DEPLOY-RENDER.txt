@@ -19,8 +19,8 @@ Render 설정
    Name: panludiq (사용 가능 여부에 따라 변경)
    Branch: 실제 코드를 올린 브랜치 (예: main)
    Root Directory: 비워두기 (저장소 루트 기준 명령 사용)
-   Build Command: node '판루딕/verify.cjs'
-   Publish Directory: 판루딕/dist
+   Build Command: node '판루딕/build-render.cjs'
+   Publish Directory: panludiq-public
 4. Create Static Site를 실행합니다.
 5. 배포 성공 후 발급된 URL에서 첫 게스트 입장, 닉네임 유지, 3종 게임 시작 및 미니 체스 진입을 확인합니다.
 
@@ -43,3 +43,5 @@ Render 설정
 
 Render 공식 정적 사이트 안내(2026-10-31 확인)
 https://render.com/docs/static-sites
+
+Render는 공개 경로에 한글을 허용하지 않으므로 빌드 스크립트가 판루딕/dist를 panludiq-public으로 복사합니다.
