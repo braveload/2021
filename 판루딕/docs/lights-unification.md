@@ -24,3 +24,11 @@ Implementation/local verification complete; production deployment pending. Use e
 - Full existing engine and browser regression tests pass, including code/dice save/restore and original baseball.
 - Production pre-deploy test browser contains a real old1.0.0 reverse game with one move and three completed records. Raw browser state saved locally for post-deploy comparison. Existing free records/other game sessions/profile/audio included.
 - Next: push verified change to existing auto-deploy branch, wait live, replay old progress and verify free/all3levels and preservation. Rollback to ed3e88d if old data stops loading or gameplay fails. No clearing/migration of storage.
+
+## Production completion
+- Product commit5efad880806853d19cb5b937080cb2e2b731d9b0; Render deploydep-dbkto17lk1mc73ea8sbg became live2026-11-03 22:05:28 KST.
+- Actual pre-update production save1.0.0 with one move restored unchanged through the old URL, normalized togame=lights, then solved. Three original completion records preserved exactly; new legacy completion/free/three-level wins appended, total8 with no duplicate on reload.
+- Isolated production browser tests passed for unlimited free mode beyond25, all levels, mode/difficulty confirmation and cancellation, persistent settings, legal25th-move success/failure, separated records and legacy-format retention,390/320px widths. Existing code/dice/legacy baseball browser suite also passed.
+- Public11files match sources. Existing engine/profile/audio/online scripts retained. Deck-builder remains absent/held.
+- Evidence under chat visualization: lights-upgrade/upgrade-results.json and asset-results.json; lights-production/lights-results.json and browser-results.json; screenshots stored alongside.
+- Documentation-only follow-up uses[skip render]. No further product deployment needed. Physical phones, screen readers and subjective difficulty remain unverified.
