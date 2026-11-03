@@ -22,3 +22,14 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 @media(max-width:520px){.haru-ad{margin-bottom:20px;border-radius:13px}.haru-ad-link{grid-template-columns:90px minmax(0,1fr);gap:13px;padding:17px 14px;min-height:178px}.haru-ad-label{font-size:9px;margin-bottom:8px}.haru-ad-brand{padding-right:9px}.haru-ad-brand strong{font-size:18px}.haru-ad-brand small{font-size:8px;letter-spacing:.6px}.haru-ad-brand img{width:77px;height:auto}.haru-ad-copy h2{font-size:18px;letter-spacing:-.7px;line-height:1.5}.haru-ad-copy p{font-size:10px;line-height:1.7}.haru-ad-cta{padding:9px 11px;font-size:11px;gap:7px;margin-top:0;white-space:normal;text-align:center}}
 @media(max-width:350px){.haru-ad-link{grid-template-columns:1fr;gap:14px}.haru-ad-brand{grid-row:auto;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;border-right:0;border-bottom:1px solid #d9d7ce;padding-bottom:12px;padding-right:0;flex-wrap:wrap}.haru-ad-label{width:100%;margin:0}.haru-ad-brand img{margin:0;width:66px}.haru-ad-brand small{display:none}.haru-ad-copy h2{font-size:20px}.haru-ad-copy p{font-size:11px}.haru-ad-cta{grid-column:auto;justify-self:start}}
 @media(prefers-reduced-motion:reduce){.brand-motion img,.brand-motion::after{animation:none!important;transform:none!important}.brand-motion img{opacity:1}.brand-motion::after{display:none}}
+
+/* Wide-screen left rail; narrow screens retain an in-flow, non-overlapping ad. */
+@media(min-width:1500px){
+ .home-v2 .haru-ad{position:fixed;left:calc(50% - 740px);top:120px;width:160px;margin:0;z-index:3;max-height:calc(100dvh - 144px);overflow:auto;border-radius:14px}
+ .home-v2 .haru-ad-link{display:flex;flex-direction:column;align-items:stretch;gap:22px;padding:20px 15px;min-height:360px}
+ .home-v2 .haru-ad-brand{border-right:0;border-bottom:1px solid #d9d7ce;padding-bottom:18px;gap:6px}
+ .home-v2 .haru-ad-brand img{max-width:110px}
+ .home-v2 .haru-ad-copy h2{font-size:20px;line-height:1.55;letter-spacing:-.8px;word-break:keep-all}
+ .home-v2 .haru-ad-copy p{font-size:11px;line-height:1.9;word-break:keep-all}
+ .home-v2 .haru-ad-cta{white-space:normal;text-align:center;font-size:11px;padding:10px 7px;gap:5px;margin-top:auto}
+}

@@ -6,7 +6,7 @@ let browser;
 async function main() {
   fs.mkdirSync(out, { recursive: true });
   browser = await chromium.launch({ headless: true, ...(process.env.CHROMIUM_EXECUTABLE ? { executablePath: process.env.CHROMIUM_EXECUTABLE } : {}) });
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 1000 }, reducedMotion: 'no-preference' });
+  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1000 }, reducedMotion: 'no-preference' });
   await ctx.addInitScript(() => { if (!localStorage.getItem('panludiq.guest.v1')) localStorage.setItem('panludiq.guest.v1', JSON.stringify({ version: 1, id: 'guest_brand-review', nickname: '브랜드검수' })); });
   const page = await ctx.newPage(), errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(base + '/index.html');
@@ -30,8 +30,13 @@ async function main() {
   assert.equal(await target.getAttribute('href'), 'https://haru-hankan.onrender.com/');
   assert.equal(await target.getAttribute('target'), '_blank'); assert((await target.getAttribute('rel')).includes('noopener'));
   assert((await target.innerText()).includes('광고')); assert((await target.innerText()).includes('랜딩페이지 · 로고 · 브랜딩'));
-  assert(await page.evaluate(() => document.querySelector('.modes').getBoundingClientRect().bottom <= document.querySelector('.haru-ad').getBoundingClientRect().top));
-  assert(await page.evaluate(() => document.querySelector('#game-list').getBoundingClientRect().bottom <= document.querySelector('.haru-ad').getBoundingClientRect().top));
+  for (const width of [1920, 1600, 1500]) {
+    await page.setViewportSize({width,height:1000});
+    assert(await page.evaluate(() => {const a=document.querySelector('.haru-ad').getBoundingClientRect(), m=document.querySelector('.home-content').getBoundingClientRect();return a.left>=0 && a.right<=m.left && a.top===120 && document.documentElement.scrollWidth<=innerWidth;}), 'Left rail must fit outside content at '+width);
+    await page.evaluate(()=>scrollTo(0,600));
+    assert.equal(await page.locator('.haru-ad').evaluate(el=>Math.round(el.getBoundingClientRect().top)),120);
+  }
+  await page.setViewportSize({width:1920,height:1000});
   await target.scrollIntoViewIfNeeded(); await page.waitForFunction(() => document.querySelector('.haru-ad-brand img')?.naturalWidth > 0);
   await page.screenshot({ path: path.join(out, 'haru-banner-desktop.png'), fullPage: true });
   await page.evaluate(() => localStorage.setItem('panludiq.lights.v1', '[{"moves":8,"time":"2026-11-03T00:00:00.000Z"}]'));
@@ -63,7 +68,7 @@ async function main() {
   assert.equal(await staticPage.locator('.brand-motion').evaluate(el => getComputedStyle(el, '::after').display), 'none');
   await staticPage.screenshot({ path: path.join(out, 'logo-reduced-motion.png'), fullPage: true }); await reduced.close();
   assert.deepEqual(errors, []);
-  const result = { passed: true, site: base, originalLogoMotionSeconds: 3.6, finiteMotion: true, reducedMotionStatic: true, bannerPlacementAfterGamesAndModes: true, destination: 'https://haru-hankan.onrender.com/', externalNewTabNoOpener: true, storageUnchangedByAd: true, mobileWidths: [390, 320], existingPopupAndDedicatedPages: true, errors };
+  const result = { passed: true, site: base, originalLogoMotionSeconds: 3.6, finiteMotion: true, reducedMotionStatic: true, desktopLeftRail: true, narrowScreenInFlow: true, destination: 'https://haru-hankan.onrender.com/', externalNewTabNoOpener: true, storageUnchangedByAd: true, mobileWidths: [390, 320], existingPopupAndDedicatedPages: true, errors };
   fs.writeFileSync(path.join(out, 'brand-results.json'), JSON.stringify(result, null, 2)); console.log(JSON.stringify(result)); await browser.close();
 }
 main().catch(async error => { console.error(error); await browser?.close(); process.exitCode = 1; });
