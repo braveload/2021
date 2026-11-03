@@ -1,0 +1,2 @@
+# Hero logo framing
+2026-11-03. Original hero image1627x967 was vertically cropped by compact header height. Increase desktop hero height responsively and center copy, keeping original image unchanged; tablet height also adjusted. Mobile compact treatment unchanged.1834/1280 desktop screenshots reviewed: symbol and both Korean/English wordmarks fully visible. Hero-boundary rails automatically follow new hero size. Production pending.
