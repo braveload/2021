@@ -96,5 +96,5 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 @media(min-width:721px){.home-v2 .masthead{background-image:url('assets/hero-panorama-v4.webp');background-size:cover;background-position:right center}}
 
 /* Soft translucent gray panel fitted to the hero message and actions. */
-.home-v2 .hero-copy{width:fit-content;max-width:100%;padding:24px 28px;background:rgba(224,228,233,.30);border:1px solid rgba(255,255,255,.55);border-radius:18px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 6px 24px #17264208}
+.home-v2 .hero-copy{width:fit-content;max-width:100%;padding:24px 28px;background:rgba(224,228,233,.20);border:1px solid rgba(255,255,255,.55);border-radius:18px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 6px 24px #17264208}
 @media(max-width:720px){.home-v2 .hero-copy{padding:18px 16px;border-radius:14px}.home-v2 .hero .actions{flex-wrap:wrap}}
