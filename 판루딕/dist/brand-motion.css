@@ -98,3 +98,13 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 /* Soft translucent gray panel fitted to the hero message and actions. */
 .home-v2 .hero-copy{width:fit-content;max-width:100%;padding:24px 28px;background:rgba(224,228,233,.20);border:1px solid rgba(255,255,255,.55);border-radius:18px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:0 6px 24px #17264208}
 @media(max-width:720px){.home-v2 .hero-copy{padding:18px 16px;border-radius:14px}.home-v2 .hero .actions{flex-wrap:wrap}}
+
+/* Decorative light reflection anchored to the panoramic glass panel. */
+.hero-glass-shine{position:absolute;pointer-events:none;z-index:1;overflow:hidden;clip-path:polygon(0 18%,94% 0,100% 4%,100% 100%,0 100%);isolation:isolate}
+.glass-sweep{position:absolute;inset:-30% -70%;background:linear-gradient(108deg,transparent 43%,#ffffff12 46%,#ffffff75 49%,#ffffff18 52%,transparent 56%);transform:translateX(-75%);opacity:0;animation:glass-reflection 9s ease-in-out infinite}
+.glass-spark{position:absolute;right:5%;top:5%;width:22px;height:22px;background:radial-gradient(ellipse,#fff 0%,#ffffffb3 12%,#ffffff00 65%);opacity:0;animation:glass-edge-spark 9s ease-in-out infinite}
+.glass-spark::before,.glass-spark::after{content:"";position:absolute;left:50%;top:50%;background:linear-gradient(transparent,#ffffffd9,transparent);transform:translate(-50%,-50%);width:2px;height:28px}
+.glass-spark::after{width:28px;height:2px}
+@keyframes glass-reflection{0%,12%{opacity:0;transform:translateX(-75%)}18%{opacity:.55}35%{opacity:.55}43%,100%{opacity:0;transform:translateX(75%)}}
+@keyframes glass-edge-spark{0%,33%,48%,100%{opacity:0;transform:scale(.6)}39%{opacity:.8;transform:scale(1)}44%{opacity:0;transform:scale(1.2)}}
+@media(max-width:720px),(prefers-reduced-motion:reduce){.hero-glass-shine{display:none}.glass-sweep,.glass-spark{animation:none}}
