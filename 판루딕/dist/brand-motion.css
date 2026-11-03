@@ -70,3 +70,15 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
  .home-v2 .hero{min-height:calc(clamp(480px,36vw,620px) - 36px);display:flex;align-items:center}
 }
 @media(min-width:721px) and (max-width:1100px){.home-v2 .masthead{min-height:560px}.home-v2 .hero{min-height:420px}}
+
+/* Compact hero with a fully fitted source image: no vertical logo crop. */
+@media(min-width:1101px){
+ .home-v2 .masthead{min-height:0;padding-top:0;padding-bottom:0;background-size:cover;background-position:center center}
+ .home-v2 .hero{height:clamp(400px,28vw,480px);min-height:0;padding-top:20px;padding-bottom:20px;box-sizing:border-box}
+}
+@media(min-width:721px) and (max-width:1100px){
+ .home-v2 .masthead{min-height:0;background-size:cover;background-position:center center}
+ .home-v2 .hero{min-height:330px;padding-top:25px;padding-bottom:25px}
+}
+
+@media(min-width:1450px){.home-v2 .masthead{background-size:1450px auto}}

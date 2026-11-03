@@ -1,0 +1,2 @@
+# Compact hero without logo clipping
+2026-11-03. Reduce desktop hero content height to400–480px from previous480–620 plus padding. Retain centered original background; source logo region remains inside visible crop. At1834px total hero previously672px, now524px (148px more first-screen game content). Background fills its established1450px scene width on large screens. Side rail boundary follows automatically. Mobile unchanged; tablet reduced. Production pending.
