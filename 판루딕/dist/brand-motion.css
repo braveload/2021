@@ -91,3 +91,6 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 }
 
 @media(min-width:721px){.home-v2 .masthead{background-image:linear-gradient(90deg,#edf4fa 0%,#edf4fa 55%,#edf4fa00 76%),url('assets/hero-scene-v2.webp');background-size:100% 100%,auto 100%;background-position:center,right center}.home-v2 .masthead::before{display:none}}
+
+/* Continuous panoramic window/city scene across the full hero. */
+@media(min-width:721px){.home-v2 .masthead{background-image:url('assets/hero-panorama-v4.webp');background-size:cover;background-position:right center}}
