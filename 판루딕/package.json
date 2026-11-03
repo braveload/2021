@@ -2,10 +2,10 @@
   "name": "panludiq-guest-demo",
   "version": "0.4.0",
   "private": true,
-  "description": "Panludiq browser guest demo with four solo games and local two-player mini chess",
+  "description": "Panludiq browser games with a shared three-game solo foundation and existing mini chess",
   "scripts": {
     "build": "node verify.cjs",
-    "test": "node tests.cjs && node solo-tests.cjs && node mini-tests.cjs && node online-tests.cjs",
+    "test": "node tests.cjs && node solo-tests.cjs && node mini-tests.cjs && node online-tests.cjs && node foundation-tests.cjs",
     "start": "python3 -m http.server 8000 --directory dist",
     "dev": "PORT=4173 PANLUDIQ_ALLOWED_ORIGINS=http://terminal.local:4173 node server/server.cjs",
     "online": "node server/server.cjs"
