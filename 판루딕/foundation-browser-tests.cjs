@@ -27,7 +27,7 @@ async function run() {
   // Save existing raw records and verify the new suite never changes them.
   await page.evaluate(() => { localStorage.setItem('panludiq.baseball.v1', '[{"length":3,"attempts":3,"won":true,"time":"2026-11-03T00:00:00.000Z"}]'); localStorage.setItem('panludiq.lights.v1', '[{"moves":8,"time":"2026-11-03T00:00:00.000Z"}]'); });
   const legacy = await page.evaluate(() => [localStorage.getItem('panludiq.baseball.v1'), localStorage.getItem('panludiq.lights.v1')]);
-  await page.goto(base + '/solo.html?game=code');
+  await page.goto(base + '/code-breaker.html');
   await checkWidth(); const code = await session('code');
   await page.locator('#code-guess').fill('0012'); await page.locator('#code-form button[type=submit]').click();
   assert.equal((await session('code')).data.attempts.length, 0); assert((await page.locator('#move-message').innerText()).includes('서로 다른'));
@@ -46,20 +46,20 @@ async function run() {
   }
   for (const guess of guesses) { await page.locator('#code-guess').fill(guess); await page.locator('#code-form button[type=submit]').click(); }
   assert.equal((await session('code')).status, 'lost'); assert.equal((await rows()).length, 2);
-  await page.goto(base + '/solo.html?game=reverse');
+  await page.goto(base + '/lights.html');
   let reverse = await session('reverse'); const initial = JSON.stringify(reverse);
   await page.locator('#new-game').click(); await page.locator('#cancel-new').click(); assert.equal(JSON.stringify(await session('reverse')), initial);
   const solution = C.solution(reverse.data.board), presses = Array.from({ length: 16 }, (_, i) => i).filter(i => solution & 1 << i);
   await page.locator(`[data-press="${presses[0]}"]`).click(); await page.reload(); assert.equal((await session('reverse')).data.moves, 1);
   for (const i of presses.slice(1)) await page.locator(`[data-press="${i}"]`).click();
   assert.equal((await session('reverse')).status, 'won'); assert.equal((await rows()).length, 3);
-  await page.goto(base + '/solo.html?game=dice');
+  await page.goto(base + '/dice-strategy.html');
   await page.locator('[data-place="0"]').click(); assert.equal((await session('dice')).data.turns, 0);
   await page.locator('[data-select="1"]').click(); const selected = await session('dice');
   await page.reload(); assert.deepEqual((await session('dice')).data, selected.data); assert.equal((await session('dice')).rng, selected.rng);
   await page.locator('[data-place="0"]').click(); assert.equal((await session('dice')).data.board[0], selected.data.pair[1]);
   const other = await context.newPage(); other.on('pageerror', e => errors.push(e.message));
-  await other.goto(base + '/solo.html?game=dice'); await other.locator('[data-select="0"]').click(); await other.locator('[data-place="1"]').click();
+  await other.goto(base + '/dice-strategy.html'); await other.locator('[data-select="0"]').click(); await other.locator('[data-place="1"]').click();
   await page.waitForFunction(() => document.querySelector('.play-status')?.textContent.includes('2 / 9'));
   assert.equal((await session('dice')).data.turns, 2); await other.close();
   await page.screenshot({ path: path.join(output, 'desktop-dice.png'), fullPage: true });
@@ -75,14 +75,14 @@ async function run() {
   // Mobile layouts, keyboard movement and complete history persist across games.
   await page.setViewportSize({ width: 390, height: 844 });
   for (const game of ['code', 'reverse', 'dice']) {
-    await page.goto(base + `/solo.html?game=${game}`); await page.locator('#new-game').click();
-    await checkWidth(); assert(await page.locator('[data-game-link="code"]').isVisible());
+    await page.goto(base + '/' + { code: 'code-breaker.html', reverse: 'lights.html', dice: 'dice-strategy.html' }[game]); await page.locator('#new-game').click(); if (await page.locator('#solo-confirm').isVisible()) await page.locator('#confirm-new').click();
+    await checkWidth(); assert.equal(await page.locator('.game-tabs').count(), 0);
     await page.locator('#open-rules').click(); assert(await page.locator('#rules-heading').isVisible()); await page.locator('[data-close="solo-rules"]').click();
     if (game === 'reverse') { await page.locator('[data-press="0"]').focus(); await page.keyboard.press('ArrowRight'); assert.equal(await page.evaluate(() => document.activeElement.dataset.press), '1'); }
     await page.screenshot({ path: path.join(output, `mobile-${game}.png`), fullPage: true });
   }
   await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto(base + '/solo.html?game=code'); await checkWidth();
+  await page.goto(base + '/code-breaker.html'); await checkWidth();
   await page.goto(base + '/index.html'); await checkWidth(); await page.screenshot({ path: path.join(output, 'mobile-home.png'), fullPage: true });
   // Local storage denied: game still accepts legitimate input and warns visibly.
   const blocked = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -90,11 +90,11 @@ async function run() {
     localStorage.setItem('panludiq.guest.v1', JSON.stringify({ version: 1, id: 'guest_denied', nickname: '검수' }));
     Storage.prototype.setItem = function () { throw new DOMException('denied', 'QuotaExceededError'); };
   });
-  const denied = await blocked.newPage(); denied.on('pageerror', e => errors.push(e.message)); await denied.goto(base + '/solo.html?game=dice');
+  const denied = await blocked.newPage(); denied.on('pageerror', e => errors.push(e.message)); await denied.goto(base + '/dice-strategy.html');
   assert(await denied.locator('#save-warning').isVisible()); await denied.locator('[data-select="0"]').click(); await denied.locator('[data-place="0"]').click();
   assert((await denied.locator('.play-status').innerText()).includes('1 / 9')); await blocked.close();
   // Corrupt sessions/records are not silently counted and legacy data survives.
-  await page.goto(base + '/solo.html?game=code');
+  await page.goto(base + '/code-breaker.html');
   await page.evaluate(() => { localStorage.setItem('panludiq.solo.code.session.v1', '{broken'); });
   await page.reload(); assert(await page.locator('#save-warning').isVisible());
   assert.equal(await page.evaluate(() => localStorage.getItem('panludiq.solo.code.session.v1.backup')), '{broken');

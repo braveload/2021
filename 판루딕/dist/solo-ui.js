@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const C = SoloCore, $ = selector => document.querySelector(selector), params = new URLSearchParams(location.search);
-  const requested = params.get('game'), game = requested === 'lights' ? 'reverse' : Object.hasOwn(C.GAMES, requested) ? requested : 'code';
+  const requested = document.body.dataset.soloGame || params.get('game'), game = requested === 'lights' ? 'reverse' : Object.hasOwn(C.GAMES, requested) ? requested : 'code';
   const escape = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let storage;
   try { storage = localStorage; } catch { storage = { getItem() { throw Error(); }, setItem() { throw Error(); } }; }
@@ -18,6 +18,7 @@
     const saved = store.save(state);
     $('#save-status').textContent = saved.ok ? (state.status === 'playing' ? '이 브라우저에 진행을 저장했습니다.' : '완료 기록을 이 브라우저에 저장했습니다.') : '저장하지 못함 · 현재 페이지에서 플레이 가능';
     if (!saved.ok) warn(saved.error);
+    return saved;
   }
   function focus(selector) { if (!document.querySelector('dialog[open]')) $(selector)?.focus({ preventScroll: true }); }
   function newState(settings = {}) {
@@ -137,14 +138,29 @@
   });
   document.title = `${C.GAMES[game].name} | 판루딕`; document.body.dataset.game = game;
   $('#game-title').textContent = C.GAMES[game].name; $('#game-tag').textContent = 'PANLUDIQ · SOLO'; $('#game-description').textContent = descriptions[game];
-  document.querySelector(`[data-game-link="${game}"]`).setAttribute('aria-current', 'page');
+  document.querySelector(`[data-game-link="${game}"]`)?.setAttribute('aria-current', 'page');
   $('#rules-heading').textContent = `${C.GAMES[game].name} · 방법 보기`; $('#rules-list').innerHTML = rules[game].map(text => `<li>${text}</li>`).join('');
-  if (game === 'reverse') { const url = new URL(location.href); url.searchParams.set('game', 'lights'); history.replaceState(null, '', url); }
   const read = store.load(game); warn(read.error);
-  if (read.state) { state = read.state; save(); render(); $('#move-message').textContent = '저장된 진행을 불러왔습니다. 새 문제나 주사위를 다시 뽑지 않았습니다.'; }
-  else newState();
+  if (read.state) {
+    state = read.state;
+    const navigation = performance.getEntriesByType('navigation')[0]?.type;
+    if (state.status !== 'playing' && navigation !== 'reload' && params.get('records') !== '1') {
+      const restored = save(); // Retry the previous completion before replacing it.
+      if (restored.ok) {
+        newState();
+        $('#move-message').textContent = '이전 완료 기록을 보존하고 새 도전을 시작했습니다.';
+      } else {
+        render();
+        $('#move-message').textContent = '이전 완료 기록을 저장하지 못해 결과를 유지했습니다. 저장 상태를 확인한 뒤 새 도전을 선택해주세요.';
+      }
+    } else { save(); render(); $('#move-message').textContent = '저장된 진행을 불러왔습니다. 새 문제나 주사위를 다시 뽑지 않았습니다.'; }
+  } else newState();
   if (requested && requested !== 'lights' && !Object.hasOwn(C.GAMES, requested)) $('#move-message').textContent = '요청한 게임을 찾지 못해 코드 브레이커를 열었습니다.';
   if (params.get('records') === '1') {
-    if ($('#guest-dialog')?.open) $('#guest-dialog').addEventListener('close', openRecords, { once: true }); else openRecords();
+    const showRequestedRecords = () => {
+      openRecords();
+      const url = new URL(location.href); url.searchParams.delete('records'); history.replaceState(null, '', url);
+    };
+    if ($('#guest-dialog')?.open) $('#guest-dialog').addEventListener('close', showRequestedRecords, { once: true }); else showRequestedRecords();
   }
 })();

@@ -15,7 +15,7 @@ async function main() {
   await page.goto(base + '/index.html');
   assert.equal(await page.locator('.game-card.lights').count(), 1); assert.equal(await page.locator('.suite-feature.reverse').count(), 0);
   assert.equal(await page.locator('.suite-feature').count(), 2);
-  await page.getByRole('button', { name: '불빛 뒤집기 바로 플레이' }).click(); await page.waitForURL('**/solo.html?game=lights');
+  await page.getByRole('button', { name: '불빛 뒤집기 바로 플레이' }).click(); await page.waitForURL('**/lights.html');
   await page.locator('#lights-mode').waitFor(); assert.equal(await page.locator('#lights-mode').inputValue(), 'free'); assert(await page.locator('#lights-level').isDisabled());
   const load = () => page.evaluate(() => JSON.parse(localStorage.getItem('panludiq.solo.reverse.session.v1')));
   const records = () => page.evaluate(() => JSON.parse(localStorage.getItem('panludiq.solo.records.v1') || '[]'));
@@ -26,7 +26,7 @@ async function main() {
   const oldRecord = { schema: 1, id: 'legacy-record', game: 'reverse', ruleVersion: '1.0.0', finishedAt: 2000, elapsedMs: 1000, terminal: true, outcome: 'won', score: null, moves: 7, stars: 3 };
   const freeRaw = '[{"moves":8,"time":"2026-11-03T00:00:00.000Z"}]', oldRows = JSON.stringify([oldRecord]);
   await page.evaluate(({ old, oldRows, freeRaw }) => { localStorage.setItem('panludiq.solo.reverse.session.v1', JSON.stringify(old)); localStorage.setItem('panludiq.solo.records.v1', oldRows); localStorage.setItem('panludiq.lights.v1', freeRaw); }, { old, oldRows, freeRaw });
-  await page.goto(base + '/solo.html?game=reverse'); await page.waitForURL('**/solo.html?game=lights');
+  await page.goto(base + '/solo.html?game=reverse'); await page.waitForURL('**/lights.html');
   await page.locator('#lights-mode').waitFor(); assert.equal(await page.locator('#game-title').innerText(), '불빛 뒤집기');
   assert.deepEqual(await load(), old); assert.equal(await page.locator('#lights-level').inputValue(), 'legacy');
   assert.equal(await page.evaluate(() => localStorage.getItem('panludiq.solo.records.v1')), oldRows);
