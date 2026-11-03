@@ -24,6 +24,7 @@ async function main() {
   await page.locator('.brand-motion img').evaluate(async el => { await Promise.all(el.getAnimations().map(a => a.finished)); });
   assert.equal(await page.locator('.brand-motion img').evaluate(el => getComputedStyle(el).opacity), '1');
   assert.equal(await page.locator('.brand-motion img').evaluate(el => el.getAnimations().every(a => a.playState === 'finished')), true);
+  await page.locator('.home-header').screenshot({path:path.join(out,'header-desktop.png')});
   assert.equal(await page.locator('.haru-ad').count(), 1);
   const target = page.locator('.haru-ad-link');
   assert.equal(await target.getAttribute('href'), 'https://haru-hankan.onrender.com/');
@@ -43,6 +44,7 @@ async function main() {
     await page.setViewportSize({ width, height: 844 }); await page.goto(base + '/index.html'); await target.scrollIntoViewIfNeeded();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     assert((await page.locator('.haru-ad-cta').boundingBox()).height >= 44);
+    await page.locator('.home-header').screenshot({path:path.join(out,`header-mobile-${width}.png`)});
     await page.screenshot({ path: path.join(out, `haru-banner-mobile-${width}.png`), fullPage: true });
   }
   await page.goto(base + '/index.html'); await page.getByRole('button', { name: '숫자야구 바로 플레이' }).click(); assert(await page.locator('#modal').isVisible());
