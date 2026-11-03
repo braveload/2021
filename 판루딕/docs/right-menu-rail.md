@@ -1,0 +1,2 @@
+# Homepage right menu rail
+2026-11-03. User screenshot marks right exterior position2 as the destination for the complete top menu. At >=1500 px move the existing header (logo, navigation and guest account) into a fixed160px right rail, top120px,20px away from centered1120px content. No duplicate navigation. Narrower screens retain existing top header. Left ad and game logic unchanged. Local build passed; browser checks at1920/1600/1500 verify bounds, no overlap, records modal and mobile390/320 compatibility.1834px preview visually reviewed. Production pending.

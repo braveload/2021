@@ -33,3 +33,14 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
  .home-v2 .haru-ad-copy p{font-size:11px;line-height:1.9;word-break:keep-all}
  .home-v2 .haru-ad-cta{white-space:normal;text-align:center;font-size:11px;padding:10px 7px;gap:5px;margin-top:auto}
 }
+
+/* Homepage navigation uses the right exterior rail when both side gutters fit. */
+@media(min-width:1500px){
+ .home-v2 .masthead{overflow:visible}
+ .home-v2 .home-header{position:fixed;top:120px;right:calc(50% - 740px);width:160px;max-width:160px;max-height:calc(100dvh - 144px);overflow-y:auto;margin:0;padding:17px 12px;display:flex;flex-direction:column;gap:15px;border-radius:16px;z-index:4;background:#ffffffed;box-shadow:0 6px 25px #2036640a}
+ .home-v2 .home-header .logo{width:132px;height:54px;mix-blend-mode:normal}
+ .home-v2 .home-header nav{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:3px;width:100%;flex:none;font-size:14px}
+ .home-v2 .home-header nav>a,.home-v2 .home-header nav>button{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:0;padding:10px 5px;border:0;border-radius:9px;background:transparent;color:#172642;font-size:14px;font-weight:700;text-decoration:none}
+ .home-v2 .home-header nav>a:hover,.home-v2 .home-header nav>button:hover{background:#edf3ff}
+ .home-v2 .home-header .guest-account{width:100%;max-width:100%;min-height:44px;font-size:11px;padding:8px 6px}
+}

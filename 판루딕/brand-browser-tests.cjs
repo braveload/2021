@@ -33,9 +33,12 @@ async function main() {
   for (const width of [1920, 1600, 1500]) {
     await page.setViewportSize({width,height:1000});
     assert(await page.evaluate(() => {const a=document.querySelector('.haru-ad').getBoundingClientRect(), m=document.querySelector('.home-content').getBoundingClientRect();return a.left>=0 && a.right<=m.left && a.top===120 && document.documentElement.scrollWidth<=innerWidth;}), 'Left rail must fit outside content at '+width);
+    assert(await page.evaluate(() => {const h=document.querySelector('.home-header').getBoundingClientRect(),m=document.querySelector('.home-content').getBoundingClientRect();return h.left>=m.right && h.right<=innerWidth && h.top===120;}),'Right navigation must fit outside content at '+width);
     await page.evaluate(()=>scrollTo(0,600));
     assert.equal(await page.locator('.haru-ad').evaluate(el=>Math.round(el.getBoundingClientRect().top)),120);
   }
+  await page.getByRole('navigation',{name:'주 메뉴'}).getByRole('button',{name:'내 기록',exact:true}).click();
+  assert(await page.locator('#modal').isVisible()); await page.locator('#modal .close').click();
   await page.setViewportSize({width:1920,height:1000});
   await target.scrollIntoViewIfNeeded(); await page.waitForFunction(() => document.querySelector('.haru-ad-brand img')?.naturalWidth > 0);
   await page.screenshot({ path: path.join(out, 'haru-banner-desktop.png'), fullPage: true });
