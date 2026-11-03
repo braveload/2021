@@ -1,0 +1,2 @@
+# Desktop zoom rail correction
+2026-11-03. Previous1500px media threshold caused rails to disappear at browser100% while90% exposed more CSS pixels. Lower both rails to1101px and reserve384px for rail gutters below1500px. Center content adapts with2/3/4 game columns by available width. Tests cover1920,1600,1500,1480,1366,1280,1101 CSS viewport widths plus390/320 mobile. Local engine/browser checks pass; production pending. No game/storage changes.

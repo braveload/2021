@@ -30,7 +30,7 @@ async function main() {
   assert.equal(await target.getAttribute('href'), 'https://haru-hankan.onrender.com/');
   assert.equal(await target.getAttribute('target'), '_blank'); assert((await target.getAttribute('rel')).includes('noopener'));
   assert((await target.innerText()).includes('광고')); assert((await target.innerText()).includes('랜딩페이지 · 로고 · 브랜딩'));
-  for (const width of [1920, 1600, 1500]) {
+  for (const width of [1920, 1600, 1500, 1480, 1366, 1280, 1101]) {
     await page.setViewportSize({width,height:1000});
     assert(await page.evaluate(() => {const a=document.querySelector('.haru-ad').getBoundingClientRect(), m=document.querySelector('.home-content').getBoundingClientRect();return a.left>=0 && a.right<=m.left && a.top===120 && document.documentElement.scrollWidth<=innerWidth;}), 'Left rail must fit outside content at '+width);
     assert(await page.evaluate(() => {const h=document.querySelector('.home-header').getBoundingClientRect(),m=document.querySelector('.home-content').getBoundingClientRect();return h.left>=m.right && h.right<=innerWidth && h.top===120;}),'Right navigation must fit outside content at '+width);
