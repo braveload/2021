@@ -11,6 +11,14 @@ async function main() {
   const page = await ctx.newPage(), errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(base + '/index.html');
   assert.equal(await page.locator('.brand-motion').count(), 1);
+  const alpha = await page.locator('.brand-motion img').evaluate(async img => {
+    await img.decode(); const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0); const d = ctx.getImageData(0,0,c.width,c.height).data;
+    let white = 0, transparent = 0; for(let i=0;i<d.length;i+=4){if(d[i+3]===0) transparent++; if(Math.min(d[i],d[i+1],d[i+2])>240 && d[i+3]>240) white++;}
+    return {corner:d[3], white, transparent, src:img.getAttribute('src')};
+  });
+  assert.equal(alpha.src, 'assets/logo-transparent-v3.png'); assert.equal(alpha.corner, 0); assert(alpha.white > 1000); assert(alpha.transparent > 10000);
+
   const motion = await page.locator('.brand-motion img').evaluate(el => ({ name: getComputedStyle(el).animationName, iterations: getComputedStyle(el).animationIterationCount, duration: getComputedStyle(el).animationDuration }));
   assert.equal(motion.name, 'panludiq-logo-arrive'); assert.equal(motion.iterations, '1'); assert.equal(motion.duration, '3.6s');
   await page.locator('.brand-motion img').evaluate(async el => { await Promise.all(el.getAnimations().map(a => a.finished)); });
