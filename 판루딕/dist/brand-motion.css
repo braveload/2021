@@ -1,0 +1,24 @@
+/* Original Panludiq artwork is retained. Motion settles after3.6seconds. */
+a.brand-motion{position:relative;display:inline-flex;align-items:center;isolation:isolate;overflow:hidden;border-radius:5px;flex-shrink:0;vertical-align:middle}
+.brand-motion img{display:block;transform-origin:50% 60%;animation:panludiq-logo-arrive 3.6s cubic-bezier(.22,.75,.25,1) 1 both}
+.brand-motion::after{content:"";position:absolute;inset:-30% -20%;pointer-events:none;background:linear-gradient(105deg,transparent 35%,#fff0 40%,#ffffffb8 49%,#fff0 58%,transparent 65%);transform:translateX(-130%);opacity:0;animation:panludiq-logo-glint 2.4s ease-out .6s 1 both}
+@keyframes panludiq-logo-arrive{0%{opacity:0;transform:translateY(7px) scale(.92) rotate(-2deg)}16%{opacity:1;transform:translateY(-2px) scale(1.015) rotate(.6deg)}32%{opacity:1;transform:translateY(0) scale(1) rotate(0)}57%{transform:translateY(-2px) scale(1.005)}80%,100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes panludiq-logo-glint{0%,12%{opacity:0;transform:translateX(-130%)}25%{opacity:.85}65%{opacity:.6;transform:translateX(105%)}80%,100%{opacity:0;transform:translateX(130%)}}
+/* Haru Hankan's existing paper/orange identity, confined to the sponsor panel. */
+.haru-ad{margin:0 0 24px;border:1px solid #dedacf;border-top:3px solid #ce7546;border-radius:16px;background:#f8f7f2;overflow:hidden}
+.haru-ad-link{display:grid;grid-template-columns:145px minmax(0,1fr) auto;align-items:center;gap:25px;padding:24px 27px;min-height:180px;color:#24241f;text-decoration:none}
+.haru-ad-link:focus-visible{outline:3px solid #aa4f2a;outline-offset:-5px}
+.haru-ad-brand{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border-right:1px solid #d9d7ce;min-width:0}
+.haru-ad-label{font-size:10px;letter-spacing:.02em;color:#706a5e;margin-bottom:11px}
+.haru-ad-brand img{display:block;object-fit:contain;max-width:100%;margin-bottom:4px}
+.haru-ad-brand strong{font-size:21px;letter-spacing:-.8px;font-weight:800;color:#282824}
+.haru-ad-brand small{font-size:9px;letter-spacing:1.3px;color:#706a5e}
+.haru-ad-copy h2{font-size:25px;font-weight:650;letter-spacing:-1.1px;line-height:1.45;margin:0 0 8px;color:#282824}
+.haru-ad-copy p{font-size:12px;color:#655f54;margin:0;line-height:1.8}
+.haru-ad-cta{display:inline-flex;align-items:center;justify-content:center;gap:13px;min-height:44px;padding:12px 16px;border:1px solid #c9ba9f;border-radius:9px;color:#714421;background:#fffdf7;font-size:12px;font-weight:700;white-space:nowrap}
+.haru-ad-cta span{font-size:18px;line-height:1}
+.haru-ad-link:hover .haru-ad-cta{background:#f0e7d6;border-color:#b89571}
+@media(max-width:900px){.haru-ad-link{grid-template-columns:125px minmax(0,1fr);gap:17px;padding:22px}.haru-ad-cta{grid-column:2;justify-self:start;margin-top:-4px}.haru-ad-brand{grid-row:1 / span 2;align-self:stretch;justify-content:center}.haru-ad-copy h2{font-size:23px}}
+@media(max-width:520px){.haru-ad{margin-bottom:20px;border-radius:13px}.haru-ad-link{grid-template-columns:90px minmax(0,1fr);gap:13px;padding:17px 14px;min-height:178px}.haru-ad-label{font-size:9px;margin-bottom:8px}.haru-ad-brand{padding-right:9px}.haru-ad-brand strong{font-size:18px}.haru-ad-brand small{font-size:8px;letter-spacing:.6px}.haru-ad-brand img{width:77px;height:auto}.haru-ad-copy h2{font-size:18px;letter-spacing:-.7px;line-height:1.5}.haru-ad-copy p{font-size:10px;line-height:1.7}.haru-ad-cta{padding:9px 11px;font-size:11px;gap:7px;margin-top:0;white-space:normal;text-align:center}}
+@media(max-width:350px){.haru-ad-link{grid-template-columns:1fr;gap:14px}.haru-ad-brand{grid-row:auto;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;border-right:0;border-bottom:1px solid #d9d7ce;padding-bottom:12px;padding-right:0;flex-wrap:wrap}.haru-ad-label{width:100%;margin:0}.haru-ad-brand img{margin:0;width:66px}.haru-ad-brand small{display:none}.haru-ad-copy h2{font-size:20px}.haru-ad-copy p{font-size:11px}.haru-ad-cta{grid-column:auto;justify-self:start}}
+@media(prefers-reduced-motion:reduce){.brand-motion img,.brand-motion::after{animation:none!important;transform:none!important}.brand-motion img{opacity:1}.brand-motion::after{display:none}}
