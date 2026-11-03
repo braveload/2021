@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs><linearGradient id="community" x1="15" y1="10" x2="42" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#49d2f3"/><stop offset="1" stop-color="#078be6"/></linearGradient></defs>
+  <g fill="url(#community)"><circle cx="46" cy="22" r="10"/><path d="M39 37c3-3 9-3 13-1 6 3 9 9 9 15v3H44v-4c0-5-2-10-5-13Z"/><circle cx="24" cy="20" r="12"/><path d="M4 54v-4c0-11 8-18 20-18s20 7 20 18v4H4Z"/></g>
+  <path d="M7 54h34m6 0h12" stroke="#078bd4" stroke-width="2" stroke-linecap="round"/>
+</svg>

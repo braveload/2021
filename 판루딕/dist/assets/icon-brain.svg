@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs><linearGradient id="brain" x1="14" y1="8" x2="49" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#9475ff"/><stop offset="1" stop-color="#5742ed"/></linearGradient></defs>
+  <g fill="url(#brain)" stroke="#6850e9" stroke-width="1.5" stroke-linejoin="round"><path d="M28 10c-5-5-13-1-13 6-7 0-11 7-7 13-6 4-5 13 2 16-1 8 7 13 13 9 3 5 8 2 8-3V16c0-3-1-5-3-6Z"/><path d="M36 10c5-5 13-1 13 6 7 0 11 7 7 13 6 4 5 13-2 16 1 8-7 13-13 9-3 5-8 2-8-3V16c0-3 1-5 3-6Z"/></g>
+  <g stroke="#eee8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17v6h-5m8 8h-7l-4 5m9 5v8m19-32v6h5m-8 8h7l4 5m-9 5v8"/></g>
+  <g fill="#eee8ff"><circle cx="23" cy="31" r="2"/><circle cx="41" cy="31" r="2"/><circle cx="14" cy="43" r="2"/><circle cx="50" cy="43" r="2"/></g>
+</svg>
