@@ -31,10 +31,10 @@ async function main() {
   assert.equal(await target.getAttribute('target'), '_blank'); assert((await target.getAttribute('rel')).includes('noopener'));
   assert((await target.innerText()).includes('광고')); assert((await target.innerText()).includes('랜딩페이지 · 로고 · 브랜딩'));
   for (const width of [1920, 1600, 1500, 1480, 1366, 1280, 1101]) {
-    await page.setViewportSize({width,height:1000});
-    assert(await page.evaluate(() => {const a=document.querySelector('.haru-ad').getBoundingClientRect(), m=document.querySelector('.home-content').getBoundingClientRect();return a.left>=0 && a.right<=m.left && a.top===120 && document.documentElement.scrollWidth<=innerWidth;}), 'Left rail must fit outside content at '+width);
-    assert(await page.evaluate(() => {const h=document.querySelector('.home-header').getBoundingClientRect(),m=document.querySelector('.home-content').getBoundingClientRect();return h.left>=m.right && h.right<=innerWidth && h.top===120;}),'Right navigation must fit outside content at '+width);
-    await page.evaluate(()=>scrollTo(0,600));
+    await page.setViewportSize({width,height:1000}); await page.evaluate(()=>scrollTo(0,0)); await page.waitForTimeout(100);
+    assert(await page.evaluate(() => {const a=document.querySelector('.haru-ad').getBoundingClientRect(), m=document.querySelector('.home-content').getBoundingClientRect();return a.left>=0 && a.right<=m.left && a.top>=Math.max(120,document.querySelector('.masthead').getBoundingClientRect().bottom) && document.documentElement.scrollWidth<=innerWidth;}), 'Left rail must fit outside content at '+width);
+    assert(await page.evaluate(() => {const h=document.querySelector('.home-header').getBoundingClientRect(),m=document.querySelector('.home-content').getBoundingClientRect();return h.left>=m.right && h.right<=innerWidth && h.top>=Math.max(120,document.querySelector('.masthead').getBoundingClientRect().bottom);}),'Right navigation must fit outside content at '+width);
+    await page.evaluate(()=>scrollTo(0,600)); await page.waitForTimeout(100);
     assert.equal(await page.locator('.haru-ad').evaluate(el=>Math.round(el.getBoundingClientRect().top)),120);
   }
   await page.getByRole('navigation',{name:'주 메뉴'}).getByRole('button',{name:'내 기록',exact:true}).click();

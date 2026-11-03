@@ -60,3 +60,6 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 
 @media(min-width:1280px) and (max-width:1399px){.home-v2 .game-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(min-width:1400px) and (max-width:1499px){.home-v2 .game-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Hero boundary also applies when returning to the page top. */
+@media(min-width:1101px){.home-v2 .haru-ad,.home-v2 .home-header{top:var(--home-rail-top,100vh)}}
