@@ -19,7 +19,7 @@ async function run() {
   const rows = async () => page.evaluate(() => JSON.parse(localStorage.getItem('panludiq.solo.records.v1') || '[]'));
   const checkWidth = async () => assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'horizontal overflow');
   await page.goto(base + '/index.html');
-  assert.equal(await page.locator('.suite-feature').count(), 3);
+  assert.equal(await page.locator('.suite-feature').count(), 2);
   await page.getByRole('button', { name: '숫자야구 바로 플레이' }).click();
   await page.locator('#baseball-guess').fill('037');
   await page.getByRole('button', { name: '던지기 →' }).click();

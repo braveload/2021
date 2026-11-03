@@ -3,7 +3,7 @@
   const SCHEMA = 1, VERSION = '1.0.0', TARGET = 65535;
   const GAMES = Object.freeze({
     code: { name: '코드 브레이커', tag: '암호 추리', version: VERSION },
-    reverse: { name: '리버스 타일', tag: '논리 퍼즐', version: VERSION },
+    reverse: { name: '불빛 뒤집기', tag: '자유 · 25회 도전', version: '1.1.0' },
     dice: { name: '전략 주사위', tag: '배치 전략', version: VERSION }
   });
   const integer = (x, lo, hi) => Number.isInteger(x) && x >= lo && x <= hi;
@@ -38,6 +38,25 @@
     }
     return solutions.get(board ^ TARGET);
   }
+  const LEVELS = Object.freeze({ easy: { name: '쉬움', min: 2, max: 3 }, normal: { name: '보통', min: 4, max: 5 }, hard: { name: '어려움', min: 6, max: 7 } });
+  const pools = new Map();
+  function lightPool(difficulty) {
+    if (!pools.has(difficulty)) {
+      solution(TARGET);
+      const band = difficulty === 'free' ? { min: 1, max: 7 } : LEVELS[difficulty];
+      const entries = [];
+      for (const [delta, presses] of solutions) {
+        const minimumMoves = popcount(presses);
+        if (minimumMoves >= band.min && minimumMoves <= band.max) entries.push({ board: TARGET ^ delta, minimumMoves });
+      }
+      pools.set(difficulty, entries);
+    }
+    return pools.get(difficulty);
+  }
+  function reverseSettings(s) {
+    if (s.ruleVersion === VERSION) return { mode: 'challenge', difficulty: 'legacy', limit: 25, minimumMoves: popcount(solution(s.data.initialBoard)) };
+    return { mode: s.data.mode, difficulty: s.data.difficulty, limit: s.data.mode === 'free' ? null : 25, minimumMoves: s.data.minimumMoves };
+  }
   function clues(secret, guess) {
     let exact = 0, misplaced = 0;
     for (let i = 0; i < 4; i++) { if (guess[i] === secret[i]) exact++; else if (secret.includes(guess[i])) misplaced++; }
@@ -62,18 +81,17 @@
   function create(game, options = {}) {
     if (!Object.hasOwn(GAMES, game)) throw new RangeError('지원하지 않는 게임입니다.');
     const now = Number.isFinite(options.now) ? options.now : Date.now(), seed = (Number(options.seed ?? now) >>> 0) || 1;
-    const s = { schema: SCHEMA, game, ruleVersion: VERSION, id: options.id || `${game}-${seed}-${now}`,
+    const s = { schema: SCHEMA, game, ruleVersion: GAMES[game].version, id: options.id || `${game}-${seed}-${now}`,
       seed, rng: seed, status: 'playing', revision: 0, startedAt: now, updatedAt: now, finishedAt: null };
     if (game === 'code') s.data = { secret: shuffle(s, '01234567'.split('')).slice(0, 4).join(''), attempts: [] };
     else if (game === 'dice') s.data = { board: Array(9).fill(null), pair: roll(s), selected: null, turns: 0 };
     else {
-      let board = TARGET;
-      for (let tries = 0; tries < 32; tries++) {
-        board = shuffle(s, Array.from({ length: 16 }, (_, i) => i)).slice(0, 6 + Math.floor(random(s) * 5)).reduce((v, i) => v ^ mask(i), TARGET);
-        if (board !== TARGET && popcount(solution(board)) >= 3) break;
-      }
-      if (board === TARGET || popcount(solution(board)) < 3) board = TARGET ^ mask(0) ^ mask(5) ^ mask(15);
-      s.data = { board, initialBoard: board, moves: 0 };
+      const mode = options.mode ?? 'challenge', difficulty = mode === 'free' ? null : (options.difficulty ?? 'normal');
+      if (!['free', 'challenge'].includes(mode) || (mode === 'challenge' && !Object.hasOwn(LEVELS, difficulty))) throw new RangeError('올바른 모드와 난이도를 선택해주세요.');
+      const pool = lightPool(mode === 'free' ? 'free' : difficulty), puzzle = pool[Math.floor(random(s) * pool.length)];
+      // A 1 bit means off on the unified screen. Keeping the old encoding and
+      // reverse ID preserves existing saved puzzles without rewriting them.
+      s.data = { board: puzzle.board, initialBoard: puzzle.board, moves: 0, mode, difficulty, minimumMoves: puzzle.minimumMoves };
     }
     return s;
   }
@@ -108,7 +126,7 @@
       if (hint.exact === 4) s.status = 'won'; else if (next.attempts.length === 8) s.status = 'lost';
     } else if (s.game === 'reverse') {
       next.board ^= mask(action.index); next.moves++;
-      if (next.board === TARGET) s.status = 'won'; else if (next.moves === 25) s.status = 'lost';
+      if (next.board === TARGET) s.status = 'won'; else if (reverseSettings(s).limit !== null && next.moves === 25) s.status = 'lost';
     } else if (action.type === 'select') next.selected = action.index;
     else {
       next.board[action.index] = next.pair[next.selected]; next.selected = null; next.turns++;
@@ -120,11 +138,14 @@
   function result(s) {
     const terminal = s.status !== 'playing';
     if (s.game === 'code') return { terminal, outcome: s.status, score: terminal ? (s.status === 'won' ? 1000 - 100 * (s.data.attempts.length - 1) : 0) : null, attempts: s.data.attempts.length };
-    if (s.game === 'reverse') return { terminal, outcome: s.status, score: null, moves: s.data.moves, stars: s.status === 'won' ? (s.data.moves <= 10 ? 3 : s.data.moves <= 16 ? 2 : 1) : 0 };
+    if (s.game === 'reverse') {
+      const settings = reverseSettings(s);
+      return { terminal, outcome: s.status, score: null, moves: s.data.moves, ...settings, stars: s.status === 'won' && settings.mode === 'challenge' ? (s.data.moves <= 10 ? 3 : s.data.moves <= 16 ? 2 : 1) : 0 };
+    }
     return { terminal, outcome: s.status, score: diceScore(s.data.board).total, turns: s.data.turns, breakdown: diceScore(s.data.board) };
   }
   function valid(s) {
-    if (!s || s.schema !== SCHEMA || !Object.hasOwn(GAMES, s.game) || s.ruleVersion !== VERSION || typeof s.id !== 'string' || !s.id || s.id.length > 160) return false;
+    if (!s || s.schema !== SCHEMA || !Object.hasOwn(GAMES, s.game) || ![GAMES[s.game].version, ...(s.game === 'reverse' ? [VERSION] : [])].includes(s.ruleVersion) || typeof s.id !== 'string' || !s.id || s.id.length > 160) return false;
     if (!integer(s.rng, 1, 4294967295) || !integer(s.seed, 1, 4294967295) || !integer(s.revision, 0, 1000000) || !Number.isFinite(s.startedAt) || !Number.isFinite(s.updatedAt) || s.updatedAt < s.startedAt) return false;
     if (!['playing', 'won', 'lost', 'completed'].includes(s.status) || (s.status === 'playing' ? s.finishedAt !== null : !Number.isFinite(s.finishedAt) || s.finishedAt !== s.updatedAt)) return false;
     const d = s.data; if (!d || typeof d !== 'object') return false;
@@ -141,9 +162,14 @@
       return s.status === expected;
     }
     if (s.game === 'reverse') {
-      if (!integer(d.board, 0, TARGET) || !integer(d.initialBoard, 0, TARGET - 1) || !integer(d.moves, 0, 25) || solution(d.board) === undefined || solution(d.initialBoard) === undefined) return false;
+      const legacy = s.ruleVersion === VERSION;
+      if (!legacy && (!['free', 'challenge'].includes(d.mode) || (d.mode === 'free' ? d.difficulty !== null : !Object.hasOwn(LEVELS, d.difficulty)))) return false;
+      const limit = legacy || d.mode === 'challenge' ? 25 : 1000000;
+      if (!integer(d.board, 0, TARGET) || !integer(d.initialBoard, 0, TARGET - 1) || !integer(d.moves, 0, limit) || solution(d.board) === undefined || solution(d.initialBoard) === undefined) return false;
+      if (!legacy && (d.minimumMoves !== popcount(solution(d.initialBoard)) || (d.mode === 'challenge' && (d.minimumMoves < LEVELS[d.difficulty].min || d.minimumMoves > LEVELS[d.difficulty].max)))) return false;
+      if (d.board === TARGET && d.moves < popcount(solution(d.initialBoard))) return false;
       if (!d.moves && d.board !== d.initialBoard) return false;
-      return s.status === (d.board === TARGET ? 'won' : d.moves === 25 ? 'lost' : 'playing');
+      return s.status === (d.board === TARGET ? 'won' : limit === 25 && d.moves === 25 ? 'lost' : 'playing');
     }
     if (!Array.isArray(d.board) || d.board.length !== 9 || d.board.some(n => n !== null && !integer(n, 1, 6)) || !Array.isArray(d.pair) || d.pair.length !== 2 || d.pair.some(n => !integer(n, 1, 6)) || (d.selected !== null && !integer(d.selected, 0, 1))) return false;
     if (!integer(d.turns, 0, 9) || d.board.filter(n => n !== null).length !== d.turns || (d.turns === 9 && d.selected !== null)) return false;
@@ -151,16 +177,23 @@
   }
   function record(s) {
     if (!valid(s) || s.status === 'playing') return null;
-    return { schema: SCHEMA, id: s.id, game: s.game, ruleVersion: VERSION, finishedAt: s.finishedAt,
+    return { schema: SCHEMA, id: s.id, game: s.game, ruleVersion: s.ruleVersion, finishedAt: s.finishedAt,
       elapsedMs: Math.max(0, s.finishedAt - s.startedAt), ...result(s) };
   }
   function validRecord(r) {
-    if (!r || r.schema !== SCHEMA || typeof r.id !== 'string' || !r.id || r.id.length > 160 || !Object.hasOwn(GAMES, r.game) || r.ruleVersion !== VERSION || r.terminal !== true || !Number.isFinite(r.finishedAt) || !Number.isFinite(r.elapsedMs) || r.elapsedMs < 0) return false;
+    if (!r || r.schema !== SCHEMA || typeof r.id !== 'string' || !r.id || r.id.length > 160 || !Object.hasOwn(GAMES, r.game) || ![GAMES[r.game].version, ...(r.game === 'reverse' ? [VERSION] : [])].includes(r.ruleVersion) || r.terminal !== true || !Number.isFinite(r.finishedAt) || !Number.isFinite(r.elapsedMs) || r.elapsedMs < 0) return false;
     if (r.game === 'code') return ['won', 'lost'].includes(r.outcome) && integer(r.attempts, 1, 8) && r.score === (r.outcome === 'won' ? 1000 - 100 * (r.attempts - 1) : 0) && (r.outcome !== 'lost' || r.attempts === 8);
-    if (r.game === 'reverse') return ['won', 'lost'].includes(r.outcome) && integer(r.moves, 1, 25) && r.score === null && r.stars === (r.outcome === 'won' ? (r.moves <= 10 ? 3 : r.moves <= 16 ? 2 : 1) : 0) && (r.outcome !== 'lost' || r.moves === 25);
+    if (r.game === 'reverse') {
+      if (r.ruleVersion !== VERSION) {
+        if (!['free', 'challenge'].includes(r.mode) || (r.mode === 'free' ? r.difficulty !== null : !Object.hasOwn(LEVELS, r.difficulty)) || !integer(r.minimumMoves, 1, 7) || (r.outcome === 'won' && r.moves < r.minimumMoves)) return false;
+        if (r.mode === 'free') return r.outcome === 'won' && integer(r.moves, 1, 1000000) && r.score === null && r.stars === 0;
+        const band = LEVELS[r.difficulty]; if (r.minimumMoves < band.min || r.minimumMoves > band.max) return false;
+      }
+      return ['won', 'lost'].includes(r.outcome) && integer(r.moves, 1, 25) && r.score === null && r.stars === (r.outcome === 'won' ? (r.moves <= 10 ? 3 : r.moves <= 16 ? 2 : 1) : 0) && (r.outcome !== 'lost' || r.moves === 25);
+    }
     return r.outcome === 'completed' && r.turns === 9 && integer(r.score, 9, 120);
   }
-  const api = { SCHEMA, VERSION, GAMES, TARGET, create, legalActions, apply, result, valid, record, validRecord, clues, mask, solution, diceScore };
+  const api = { SCHEMA, VERSION, GAMES, LEVELS, TARGET, create, legalActions, apply, result, valid, record, validRecord, clues, mask, solution, diceScore, reverseSettings };
   if (typeof module !== 'undefined') module.exports = api;
   root.SoloCore = api;
 })(typeof window === 'undefined' ? globalThis : window);

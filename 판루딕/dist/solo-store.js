@@ -24,6 +24,15 @@
       const raw = storage.getItem(k);
       if (raw && !storage.getItem(`${k}.backup`)) storage.setItem(`${k}.backup`, raw);
     }
+    function legacyLights() {
+      const read = get('panludiq.lights.v1');
+      if (read.error || !read.raw) return { rows: [], error: read.error };
+      try {
+        const rows = JSON.parse(read.raw);
+        if (!Array.isArray(rows)) throw Error();
+        return { rows: rows.filter(r => r && Number.isInteger(r.moves) && r.moves > 0 && typeof r.time === 'string' && Number.isFinite(Date.parse(r.time))).slice(0, 100), error: '' };
+      } catch { return { rows: [], error: '이전 자유 모드 기록을 읽지 못했습니다. 원본은 변경하지 않았습니다.' }; }
+    }
     function save(s) {
       if (!Core.valid(s)) return { ok: false, error: '유효하지 않은 진행은 저장하지 않았습니다.' };
       try {
@@ -42,7 +51,7 @@
         return { ok: true, error: '' };
       } catch { return { ok: false, error: '진행 또는 완료 기록을 저장하지 못했습니다. 이 페이지에서는 계속 플레이할 수 있습니다.' }; }
     }
-    return { load, save, records, sessionKey: key, historyKey: HISTORY };
+    return { load, save, records, legacyLights, sessionKey: key, historyKey: HISTORY };
   }
   const api = { create, PREFIX, HISTORY };
   if (typeof module !== 'undefined') module.exports = api;

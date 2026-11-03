@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f0f6fc"><meta name="description" content="판루딕 코드 브레이커, 리버스 타일, 전략 주사위. 세 가지 싱글게임과 이 브라우저에 저장되는 나의 도전 기록.">
+  <meta name="theme-color" content="#f0f6fc"><meta name="description" content="판루딕 코드 브레이커, 불빛 뒤집기, 전략 주사위. 세 가지 싱글게임과 이 브라우저에 저장되는 나의 도전 기록.">
   <title>싱글게임 | 판루딕</title>
   <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="solo.css"><link rel="stylesheet" href="sound.css">
 </head>
@@ -10,7 +10,7 @@
   <a class="skip-link" href="#play">게임으로 바로 이동</a>
   <header class="solo-header"><a href="index.html#games" aria-label="판루딕 게임 목록"><img src="assets/logo-v2.png" alt="판루딕" width="128" height="52"></a><a class="back-home" href="index.html#games">← 게임 목록</a><button data-guest>게스트 입장</button></header>
   <main class="solo-shell">
-    <nav class="game-tabs" aria-label="싱글게임 선택"><a href="solo.html?game=code" data-game-link="code">코드 브레이커</a><a href="solo.html?game=reverse" data-game-link="reverse">리버스 타일</a><a href="solo.html?game=dice" data-game-link="dice">전략 주사위</a></nav>
+    <nav class="game-tabs" aria-label="싱글게임 선택"><a href="solo.html?game=code" data-game-link="code">코드 브레이커</a><a href="solo.html?game=lights" data-game-link="reverse">불빛 뒤집기</a><a href="solo.html?game=dice" data-game-link="dice">전략 주사위</a></nav>
     <div class="solo-heading"><div><p class="eyebrow" id="game-tag"></p><h1 id="game-title"></h1><p id="game-description"></p></div><div class="solo-tools"><button id="open-rules">방법 보기</button><button id="open-records">내 기록</button><button id="new-game">새 도전</button></div></div>
     <p id="save-warning" class="save-warning" role="status" hidden></p>
     <p id="save-status" class="save-status"></p>
@@ -19,7 +19,7 @@
     <p class="solo-footnote">시간 제한 없음 · 게임별 진행 자동 저장 · 완료 기록은 이 브라우저에만 보관됩니다.</p>
   </main>
   <dialog id="solo-rules" aria-labelledby="rules-heading"><div class="dialog-head"><span>HOW TO PLAY</span><button data-close="solo-rules" aria-label="방법 닫기">닫기</button></div><h2 id="rules-heading"></h2><ol id="rules-list" class="rules"></ol></dialog>
-  <dialog id="solo-records" aria-labelledby="records-heading"><div class="dialog-head"><span>MY RECORDS</span><button data-close="solo-records" aria-label="기록 닫기">닫기</button></div><h2 id="records-heading">새 게임 3종 · 공통 기록</h2><p class="note">최근 100경기를 보관하고 저장된 기록 안에서 게임별 최고 기록을 비교합니다. 기존 숫자야구·불빛 뒤집기 기록은 홈의 내 기록에 그대로 남아 있습니다. 경과 시간에는 페이지를 닫아둔 시간도 포함됩니다.</p><p id="records-warning" role="status"></p><div id="record-summary"></div><h3>최근 완료한 도전</h3><div id="record-list"></div></dialog>
+  <dialog id="solo-records" aria-labelledby="records-heading"><div class="dialog-head"><span>MY RECORDS</span><button data-close="solo-records" aria-label="기록 닫기">닫기</button></div><h2 id="records-heading">싱글게임 공통 기록</h2><p class="note">최근 100경기를 보관하고 저장된 기록 안에서 게임별 최고 기록을 비교합니다. 이전 불빛 뒤집기와 리버스 타일 기록은 구분해서 보존합니다. 숫자야구 기록은 홈의 내 기록에 남아 있습니다. 경과 시간에는 페이지를 닫아둔 시간도 포함됩니다.</p><p id="records-warning" role="status"></p><div id="record-summary"></div><h3>최근 완료한 도전</h3><div id="record-list"></div></dialog>
   <dialog id="solo-confirm" aria-labelledby="confirm-heading"><h2 id="confirm-heading">새 도전으로 바꿀까요?</h2><p>현재 진행은 새 문제로 교체됩니다. 중단한 경기는 완료 기록에 넣지 않습니다. 이전 완료 기록은 유지됩니다.</p><div class="actions"><button id="cancel-new">계속 플레이</button><button id="confirm-new" class="primary">새 도전 시작</button></div></dialog>
   <script src="guest.js"></script><script src="sound.js"></script><script src="solo-core.js"></script><script src="solo-store.js"></script><script src="solo-ui.js"></script>
 </body>

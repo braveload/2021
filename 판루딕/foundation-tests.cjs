@@ -118,4 +118,52 @@ let failHistory = true; const partialStorage = memory(), ordinarySet = partialSt
 partialStorage.setItem = function (key, value) { if (key === S.HISTORY && failHistory) { failHistory = false; throw Error('quota'); } ordinarySet.call(this, key, value); };
 const partial = S.create(partialStorage); assert(!partial.save(eighthWin).ok); assert.equal(partial.records().rows.length, 0);
 assert(partial.load('code').state); assert(partial.save(eighthWin).ok); assert.equal(partial.records().rows.length, 1); assert(partial.save(eighthWin).ok); assert.equal(partial.records().rows.length, 1);
-console.log('PASS: shared 3-game lifecycle, code input/clues/eighth-attempt boundaries; 65,536 reverse patterns/500 generated solutions; dice scoring/300 deterministic runs; isolated sessions, deduped history, corrupt backups and denied/quota storage');
+// Difficulty is checked against an independent exhaustive shortest-solution map.
+const minimumReference = new Map();
+for (let presses = 0; presses < 65536; presses++) {
+  let board = C.TARGET, count = 0;
+  for (let i = 0; i < 16; i++) if (presses & 1 << i) { board = refPress(board, i); count++; }
+  if (!minimumReference.has(board) || count < minimumReference.get(board)) minimumReference.set(board, count);
+}
+const histogram = {};
+for (const [board, count] of minimumReference) { histogram[count] = (histogram[count] || 0) + 1; let p = C.solution(board), n = 0; while (p) { p &= p - 1; n++; } assert.equal(n, count); }
+assert.deepEqual(histogram, { 0: 1, 1: 16, 2: 120, 3: 560, 4: 1387, 5: 1440, 6: 540, 7: 32 });
+for (const [difficulty, band] of Object.entries(C.LEVELS)) {
+  for (let seed = 1; seed <= 500; seed++) {
+    let s = C.create('reverse', { seed: seed * 9187, mode: 'challenge', difficulty });
+    assert.equal(s.ruleVersion, '1.1.0'); assert.equal(s.data.difficulty, difficulty);
+    assert(s.data.minimumMoves >= band.min && s.data.minimumMoves <= band.max);
+    assert.equal(s.data.minimumMoves, minimumReference.get(s.data.initialBoard));
+    let moves = C.solution(s.data.board);
+    for (let i = 0; i < 16; i++) if (moves & 1 << i) s = step(s, { type: 'press', index: i }).state;
+    assert.equal(s.status, 'won'); assert(C.validRecord(C.record(s))); assert.equal(C.record(s).difficulty, difficulty);
+  }
+}
+let free = C.create('reverse', { ...fixed, mode: 'free' });
+assert(free.data.minimumMoves >= 2); // this fixed seed is nontrivial
+for (let i = 0; i < 26; i++) free = step(free, { type: 'press', index: 0 }).state;
+assert.equal(free.status, 'playing'); assert.equal(free.data.moves, 26); assert.equal(C.reverseSettings(free).limit, null);
+const freeSolution = C.solution(free.data.board);
+for (let i = 0; i < 16; i++) if (freeSolution & 1 << i) free = step(free, { type: 'press', index: i }).state;
+assert.equal(free.status, 'won'); assert.equal(C.record(free).stars, 0); assert.equal(C.record(free).mode, 'free'); assert(C.validRecord(C.record(free)));
+assert.throws(() => C.create('reverse', { mode: 'unknown' }), RangeError);
+assert.throws(() => C.create('reverse', { difficulty: 'unknown' }), RangeError);
+// Legacy save/record acceptance, no reassignment of past difficulty and no raw rewrites.
+let old = C.create('reverse', fixed); old.ruleVersion = '1.0.0'; delete old.data.mode; delete old.data.difficulty; delete old.data.minimumMoves;
+assert(C.valid(old)); assert.equal(C.reverseSettings(old).difficulty, 'legacy');
+old = step(old, { type: 'press', index: 0 }).state; const oldCopy = JSON.parse(JSON.stringify(old));
+const legacyStorage = memory(), compatible = S.create(legacyStorage);
+legacyStorage.setItem('panludiq.lights.v1', '[{"moves":9,"time":"2026-11-03T00:00:00.000Z"}]');
+legacyStorage.setItem(compatible.sessionKey('reverse'), JSON.stringify(oldCopy));
+const oldRaw = legacyStorage.getItem(compatible.sessionKey('reverse'));
+assert.deepEqual(compatible.load('reverse').state, oldCopy); assert.equal(legacyStorage.getItem(compatible.sessionKey('reverse')), oldRaw);
+assert.equal(compatible.legacyLights().rows[0].moves, 9);
+const oldFreeRaw = legacyStorage.getItem('panludiq.lights.v1'); assert(compatible.save(free).ok); assert.equal(legacyStorage.getItem('panludiq.lights.v1'), oldFreeRaw);
+const oldRecord = { schema: 1, id: 'old-reverse-win', game: 'reverse', ruleVersion: '1.0.0', finishedAt: 2000, elapsedMs: 1000, terminal: true, outcome: 'won', score: null, moves: 7, stars: 3 };
+assert(C.validRecord(oldRecord)); assert(!Object.hasOwn(oldRecord, 'difficulty'));
+legacyStorage.setItem(compatible.historyKey, JSON.stringify([oldRecord])); assert.deepEqual(compatible.records().rows, [oldRecord]);
+let oldWon = oldCopy; const oldSolution = C.solution(oldWon.data.board);
+for (let i = 0; i < 16; i++) if (oldSolution & 1 << i) oldWon = step(oldWon, { type: 'press', index: i }).state;
+assert.equal(C.record(oldWon).ruleVersion, '1.0.0'); assert.equal(C.record(oldWon).difficulty, 'legacy'); assert(C.validRecord(C.record(oldWon)));
+assert(!C.valid({ ...free, data: { ...free.data, minimumMoves: 999 } }));
+console.log('PASS: shared 3-game lifecycle, code input/clues/eighth-attempt boundaries; 65,536 reverse patterns/500 generated solutions; dice scoring/300 deterministic runs; isolated sessions/records/storage, all difficulty minima, 1,500 level puzzles, unlimited free mode and legacy compatibility');
