@@ -22,3 +22,11 @@ Status: implementation and local verification complete; deployment pending.
 - `individual-browser-tests.cjs` passes: original three popups, correct dedicated URLs/no tabs, all three completion/new-open/reload behaviors, mode preservation, legacy redirects, one-shot records deep link and390/320px layouts.
 - Screenshots reviewed locally. A dedicated production test browser has unfinished snapshots of all three games and three old completion records saved before deployment.
 - Next: deploy on existing auto-deploy branch and verify raw progress/records survive across the URL change, complete all three games and reopen to fresh boards. No deck-builder assets or code enabled.
+
+## Production completion
+- Product commit52627f5ebef31066c5e24a96278962aaac10492a, Render deploydep-dbku1g8ae00c7380nnug, live2026-11-03 22:25:38 KST.
+- Public dedicated pages code-breaker.html / lights.html / dice-strategy.html match release assets;10public files verified. No game-switch tabs remain on these pages.
+- Actual pre-deploy unfinished snapshots for all3games restored unchanged through new URLs. Three old completion rows preserved and three new completions appended, total6. Fresh home entry starts a new run only after saving the completed result; result reload does not duplicate it.
+- Full production individual-page, foundation and light-mode browser suites passed. Original baseball/triple/memory popups retained. Legacy links redirect, record deep-link consumed once, storage failure retains unrecorded result,390/320px layouts checked.
+- Rules/core/store and storage schemas unchanged. Deck-builder remains held. Evidence under individual-upgrade/ and individual-production/ in the chat visualization directory. Physical devices and screen readers not certified.
+- Documentation-only final commit uses[skip render]; no additional product rollout.
