@@ -1,0 +1,2 @@
+# Entire hero scene containment
+2026-11-03. User still observes scene clipping. Replace cover/cropped background with source scaled to full hero height (auto100%) and right alignment, with left-to-right pale gradient behind copy. Entire source fits vertically and logo/panel/ornaments are no longer height-cropped. Preserve compact hero height. Source image unchanged. Desktop1834/1280 screenshots reviewed; browser production checks pending.

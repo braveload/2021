@@ -82,3 +82,12 @@ a.brand-motion{position:relative;display:inline-flex;align-items:center;isolatio
 }
 
 @media(min-width:1450px){.home-v2 .masthead{background-size:1450px auto}}
+
+/* Fit the entire hero source, including the panel and lower ornaments. */
+@media(min-width:721px){
+ .home-v2 .masthead{background-size:auto 100%;background-position:right center;background-color:#edf4fa}
+ .home-v2 .masthead::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#edf4fa 0%,#edf4fa 35%,#edf4fa00 68%);z-index:0}
+ .home-v2 .hero{z-index:1}
+}
+
+@media(min-width:721px){.home-v2 .masthead{background-image:linear-gradient(90deg,#edf4fa 0%,#edf4fa 55%,#edf4fa00 76%),url('assets/hero-scene-v2.webp');background-size:100% 100%,auto 100%;background-position:center,right center}.home-v2 .masthead::before{display:none}}
