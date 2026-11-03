@@ -71,7 +71,7 @@ async function run() {
   assert.deepEqual(await page.evaluate(() => [localStorage.getItem('panludiq.baseball.v1'), localStorage.getItem('panludiq.lights.v1')]), legacy);
   await page.goto(base + '/index.html'); await page.getByRole('button', { name: '내 기록', exact: true }).first().click();
   assert(await page.locator('.suite-record-link').isVisible()); await page.locator('.suite-record-link').click();
-  assert(await page.locator('#solo-records').isVisible()); await page.locator('[data-close="solo-records"]').click();
+  await page.locator('#solo-records').waitFor({ state: 'visible' }); assert(await page.locator('#solo-records').isVisible()); await page.locator('[data-close="solo-records"]').click();
   // Mobile layouts, keyboard movement and complete history persist across games.
   await page.setViewportSize({ width: 390, height: 844 });
   for (const game of ['code', 'reverse', 'dice']) {

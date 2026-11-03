@@ -24,4 +24,18 @@ Push one fast-forward release commit to the existing branch; let configured Rend
 
 Rollback trigger: missing/broken existing game, legacy-record mutation, new game unplayable, or new save/restore failure. Rollback is a forward revert of this isolated release commit to the prior live tree and deployment; browser records are never cleared.
 
-Production outcome: pending deployment; append the final deploy/verification evidence after completion.
+## Production outcome
+
+- Release commit: `0178834c6c58f06ee77b93a9e81b66656a563744`.
+- Render deploy: `dep-dbkt9mqvcj2c739tddbg`, status `live`, finished 2026-11-03 21:34:49 KST.
+- Public code/assets: 13 public files match release sources after line-ending normalization, including existing engines/profile/audio/online scripts. Paused `deck-engine.js` returns404.
+- Dedicated pre/post deployment browser roundtrip passed: original baseball/lights records, hidden Nine fixture, guest and sound values remained byte-for-byte identical. New code/reverse/dice games completed, each restored mid-game via reload, three completion records remained exactly three after terminal reload/revisit.
+- Actual sample outcomes (automated validation, not human playtimes): code900points/2attempts; reverse6moves/3stars; dice56points/9placements.
+- Full production Chromium suite passed: input validation, success/failure, record dedupe, reverse solving, dice placement, sequential cross-tab progress, record links,390/320px layouts, keyboard, storage refusal/corruption handling.
+- Existing online service `/health` returned `{ok:true}`; its deployment/configuration was not changed.
+- Initial remote-browser checks needed an explicit wait for record-dialog navigation and a clean game tab before reloading the records deep-link. Test procedure was corrected; no product-source change or extra deploy was needed.
+- Screenshots/results are local in this chat's visualization directory under `production-verification` and `production-browser`. They contain only isolated test-browser state. Actual personal browser storage was not accessed.
+
+## Final handoff
+
+Deployment and requested play/save/restore verification complete. Documentation/test-only follow-up uses `[skip render]`; live product commit remains0178834. Deck-builder remains held in the original local checkout/stash and absent from the release tree. Real physical phones and screen-reader certification remain untested. Existing local-only records still do not sync between devices. Do not clear or migrate old record keys.
