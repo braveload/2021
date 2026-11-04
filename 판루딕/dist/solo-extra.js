@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const VERSION = '1.0.0', names = { chain: { name: '숫자 연쇄', tag: '카드 연결', version: VERSION }, line: { name: '라인 컨트롤', tag: '영역 전략 · AI', version: VERSION } };
+  const VERSION = '1.0.0', names = { chain: { name: '숫자 연쇄', tag: '카드 연결', version: '1.1.0' }, line: { name: '라인 컨트롤', tag: '영역 전략 · AI', version: VERSION } };
   const clone = x => JSON.parse(JSON.stringify(x)), int = (n, a, b) => Number.isInteger(n) && n >= a && n <= b;
   const isExtra = s => s && Object.hasOwn(names, s.game);
   const card = id => ({ color: Math.floor(id / 9), number: id % 9 + 1 });
@@ -33,11 +33,15 @@
   }
   function create(game, options = {}) {
     const now = Number.isFinite(options.now) ? options.now : Date.now(), seed = (Number(options.seed ?? now) >>> 0) || 1;
-    const s = { schema: 1, game, ruleVersion: VERSION, id: options.id || `${game}-${seed}-${now}`, seed, rng: seed, status: 'playing', revision: 0, startedAt: now, updatedAt: now, finishedAt: null };
+    const s = { schema: 1, game, ruleVersion: options.ruleVersion ?? names[game].version, id: options.id || `${game}-${seed}-${now}`, seed, rng: seed, status: 'playing', revision: 0, startedAt: now, updatedAt: now, finishedAt: null };
     if (game === 'chain') {
       const deck = Array.from({ length: 36 }, (_, i) => i);
       for (let i = 35; i > 0; i--) { const j = Math.floor(random(s) * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
       s.data = { chain: [deck.shift()], offer: deck.splice(0, 3), deck, discarded: [], turns: 0, redraws: 2, score: 0, actions: [] };
+      if (s.ruleVersion === '1.1.0' && !legalActions(s).some(a => a.type === 'place')) {
+        const index = s.data.deck.findIndex(id => connects(id, s.data.chain[0]));
+        [s.data.offer[0], s.data.deck[index]] = [s.data.deck[index], s.data.offer[0]];
+      }
     } else {
       const difficulty = options.difficulty ?? 'normal', starter = options.starter ?? 'human';
       if (!['easy', 'normal', 'hard'].includes(difficulty) || !['human', 'ai'].includes(starter)) throw new RangeError('선후공과 난이도를 선택해주세요.');
@@ -72,17 +76,17 @@
     return { terminal, outcome: s.status, score: human.total, humanPoints: human.total, aiPoints: ai.total, turns: d.moves.length, difficulty: d.difficulty, starter: d.starter, breakdown: [human, ai] };
   }
   function valid(s) {
-    if (!s || s.schema !== 1 || !isExtra(s) || s.ruleVersion !== VERSION || typeof s.id !== 'string' || !s.id || s.id.length > 160 || !int(s.seed, 1, 4294967295) || !int(s.rng, 1, 4294967295) || !int(s.revision, 0, 20) || !Number.isFinite(s.startedAt) || !Number.isFinite(s.updatedAt) || s.updatedAt < s.startedAt || !s.data) return false;
+    if (!s || s.schema !== 1 || !isExtra(s) || ![names[s.game].version, VERSION].includes(s.ruleVersion) || typeof s.id !== 'string' || !s.id || s.id.length > 160 || !int(s.seed, 1, 4294967295) || !int(s.rng, 1, 4294967295) || !int(s.revision, 0, 20) || !Number.isFinite(s.startedAt) || !Number.isFinite(s.updatedAt) || s.updatedAt < s.startedAt || !s.data) return false;
     try {
       const log = s.game === 'chain' ? s.data.actions : s.data.moves;
       if (!Array.isArray(log) || log.length > (s.game === 'chain' ? 14 : 20)) return false;
-      let replay = create(s.game, { now: s.startedAt, seed: s.seed, id: s.id, difficulty: s.data.difficulty, starter: s.data.starter });
+      let replay = create(s.game, { now: s.startedAt, seed: s.seed, id: s.id, ruleVersion: s.ruleVersion, difficulty: s.data.difficulty, starter: s.data.starter });
       for (const entry of log) { const next = apply(replay, s.game === 'chain' ? entry : { type: 'place', index: entry }, s.updatedAt); if (next.error) return false; replay = next.state; }
       return JSON.stringify(replay.data) === JSON.stringify(s.data) && replay.rng === s.rng && replay.revision === s.revision && replay.status === s.status && (s.status === 'playing' ? s.finishedAt === null : s.finishedAt === s.updatedAt);
     } catch { return false; }
   }
   function validRecord(r) {
-    if (!r || r.schema !== 1 || !isExtra(r) || r.ruleVersion !== VERSION || typeof r.id !== 'string' || !r.id || r.id.length > 160 || r.terminal !== true || !Number.isFinite(r.finishedAt) || !Number.isFinite(r.elapsedMs) || r.elapsedMs < 0) return false;
+    if (!r || r.schema !== 1 || !isExtra(r) || ![names[r.game].version, VERSION].includes(r.ruleVersion) || typeof r.id !== 'string' || !r.id || r.id.length > 160 || r.terminal !== true || !Number.isFinite(r.finishedAt) || !Number.isFinite(r.elapsedMs) || r.elapsedMs < 0) return false;
     if (r.game === 'chain') return int(r.turns, 0, 12) && int(r.score, r.turns * 2, r.turns * 3) && r.outcome === (r.turns === 12 ? 'completed' : 'lost') && r.stars === (r.score >= 30 ? 3 : r.score >= 20 ? 2 : r.score > 0 ? 1 : 0);
     return r.turns === 20 && ['easy', 'normal', 'hard'].includes(r.difficulty) && ['human', 'ai'].includes(r.starter) && int(r.humanPoints, 0, 153) && int(r.aiPoints, 0, 153) && r.score === r.humanPoints && r.outcome === (r.humanPoints > r.aiPoints ? 'won' : r.humanPoints < r.aiPoints ? 'lost' : 'draw');
   }
@@ -121,7 +125,7 @@
       create: (game, options) => Object.hasOwn(names, game) ? create(game, options) : base.create(game, options),
       legalActions: s => isExtra(s) ? legalActions(s) : base.legalActions(s), apply: (s, a, now) => isExtra(s) ? apply(s, a, now) : base.apply(s, a, now),
       result: s => isExtra(s) ? result(s) : base.result(s), valid: s => isExtra(s) ? valid(s) : base.valid(s),
-      record: s => isExtra(s) ? (!valid(s) || s.status === 'playing' ? null : { schema: 1, id: s.id, game: s.game, ruleVersion: VERSION, finishedAt: s.finishedAt, elapsedMs: Math.max(0, s.finishedAt - s.startedAt), ...result(s) }) : base.record(s),
+      record: s => isExtra(s) ? (!valid(s) || s.status === 'playing' ? null : { schema: 1, id: s.id, game: s.game, ruleVersion: s.ruleVersion, finishedAt: s.finishedAt, elapsedMs: Math.max(0, s.finishedAt - s.startedAt), ...result(s) }) : base.record(s),
       validRecord: r => isExtra(r) ? validRecord(r) : base.validRecord(r) };
   }
   const api = { extend }; if (typeof module !== 'undefined') module.exports = api; root.SoloExtra = api;

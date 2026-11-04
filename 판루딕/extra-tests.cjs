@@ -68,3 +68,7 @@ assert.equal(store.records().rows.length, 3); assert.equal(memory.get(store.sess
 assert(!store.save({ ...C.create('chain', options), status: 'won' }).ok);
 console.log('PASS: two extra engines, 1000 chain games/card conservation/redraw boundaries, 144 complete AI games, line windows/crossings/center/turns, replay validation and deduplicated shared storage');
 console.log(JSON.stringify({ chain: { completed: full, blocked, redraws }, aiProbeAgainstScriptedPlacementsOnly: report }));
+
+for(let seed=1;seed<=10000;seed++){const s=C.create('chain',{seed,now:1000});assert(C.legalActions(s).some(a=>a.type==='place'));assert(C.valid(s));}
+let old=C.create('chain',{seed:1,now:1000,ruleVersion:'1.0.0'});assert(C.valid(old));while(old.status==='playing')old=C.apply(old,C.legalActions(old)[0]).state;assert(C.valid(old));assert(C.validRecord(C.record(old)));assert.equal(C.record(old).ruleVersion,'1.0.0');
+console.log('PASS: 10000 first offers have legal placement; v1.0 sessions/results retain replay compatibility');
