@@ -23,3 +23,16 @@ solo-extra.js: 두 게임의 순수엔진/AI/재생검증을 SoloCore API에 추
 2단계 완료: number-chain.html / line-control.html 독립화, 홈페이지8카드/방법보기, 공통5게임 기록, 선후공/난이도 변경확인, pending AI저장·복구, 모바일/키보드 지원. 새모듈 스크립트는 games2 쿼리로 캐시 구분. 추가UI 브라우저 검사 통과(1280/390/320): 양게임 완주·부분/결과 새로고침·완료재입장 새게임·기록1회 저장·기존기록바이트불변·AI턴1회복구. 기존3팝업/3독립게임 회귀검사도 모두통과. 증거 two-games-local/extra-results.json 및 old-games-regression/individual-results.json (현재 시각화 출력 폴더). 스크린샷 육안검수 완료. 고급AI의 실제사람 상대 승률은 미실측.
 
 재개: 1단계 커밋 f5828fd, 2단계 UI 연결 완료. 현재 로컬검수완료·미배포. 배포 후 정확한live커밋과 같은 브라우저 검사를 실행한다. 자동배포서비스와 기존서버설정은 변경하지 않는다.
+
+
+## 3단계 배포 결과 · 완료
+2026-11-04 20:54 KST, e7dc659392cad564ea3814c7151caaeef70cc15b / Render dep-dblhq10473hc73b7ksc0 live 확인.
+- 실제URL: https://panludiq.onrender.com/number-chain.html / line-control.html
+- production extra-browser-tests: PC1280·모바일390/320, 홈8카드/방법보기, 양게임 완주, 중간/결과 새로고침, 완료후 재진입 새게임, AI선공/AI대기 복구정확히1수, 변경취소, 완료기록중복없음, 이전기록원본불변, 브라우저예외0: 통과.
+- production individual-browser-tests: 기존3팝업, 코드/불빛/주사위, 저장복구/새게임/레거시경로/저장실패처리: 통과.
+- 공개HTML/버전쿼리JS8개가 로컬배포소스와 동일(줄바꿈정규화) 확인. PC/모바일 스크린샷 육안확인.
+- 첫 production 검사2건은 이동 직후 상태를 먼저 읽어 실패. 제목/새게임ID 로드완료를 기다리도록 검사만 수정한 후 재검사통과. 제품 추가수정 불필요.
+- 증거: 현재시각화경로 two-games-production/extra-results.json, old-games-production-after-extra/individual-results.json 및 스크린샷.
+
+완료: 개발·배포·플레이·저장·복구. 미실측: 사람상대 AI 난이도/승률 및 장기 재도전율. 이는 출시후 조정대상이며 이번검사의 성공보장으로 보고하지 않음. 기존서버와 덱빌더는 수정하지 않음.
+재개 캡슐: 제품live e7dc659, 작업마지막 문서커밋은 skip render. 다음 작업은 사용자의 새 지시를 따른다. 테스트 서버127.0.0.1:4191은 배포출력폴더를 제공한다.

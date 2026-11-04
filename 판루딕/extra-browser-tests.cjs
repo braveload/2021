@@ -22,6 +22,7 @@ let browser;
   const seed = C.create('chain', { seed: 11, now: 1000, id: 'browser-chain' });
   await p.evaluate(({ k, state }) => localStorage.setItem(k, JSON.stringify(state)), { k: key('chain'), state: seed });
   await p.getByRole('link', { name: '숫자 연쇄 바로 플레이', exact: true }).click();
+  await p.waitForURL('**/number-chain.html'); await p.waitForFunction(() => document.querySelector('#game-title')?.textContent === '숫자 연쇄');
   assert.equal(await p.locator('#game-title').innerText(), '숫자 연쇄');
   const getState = game => p.evaluate(k => JSON.parse(localStorage.getItem(k)), key(game));
   async function chainMove() {
@@ -40,6 +41,7 @@ let browser;
   const history = () => p.evaluate(() => JSON.parse(localStorage.getItem('panludiq.solo.records.v1') || '[]'));
   assert.equal((await history()).filter(r => r.id === doneChain.id).length, 1);
   await p.goto(base + '/index.html'); await p.getByRole('link', { name: '숫자 연쇄 바로 플레이', exact: true }).click();
+  await p.waitForURL('**/number-chain.html'); await p.waitForFunction(id => JSON.parse(localStorage.getItem('panludiq.solo.chain.session.v1'))?.id !== id, doneChain.id);
   assert.notEqual((await getState('chain')).id, doneChain.id); assert.equal((await getState('chain')).data.turns, 0);
   let line = C.create('line', { seed: 99, now: 1000, id: 'browser-line', starter: 'ai', difficulty: 'normal' });
   await p.evaluate(({ k, state }) => localStorage.setItem(k, JSON.stringify(state)), { k: key('line'), state: line });
