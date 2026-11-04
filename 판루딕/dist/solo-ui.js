@@ -7,8 +7,16 @@
   try { storage = localStorage; } catch { storage = { getItem() { throw Error(); }, setItem() { throw Error(); } }; }
   const store = SoloStore.create(storage);
   const rules = window.SoloRules;
-  const descriptions = { code: '숫자 네 개, 여덟 번의 기회. 단서로 암호를 좁혀보세요.', reverse: '불빛을 모두 끄세요. 자유롭게 풀거나, 난이도를 골라 25회에 도전하세요.', dice: '두 눈 중 하나를 고르고, 아홉 칸의 조합을 완성하세요.' };
-  let state, draft = '', pendingSettings = null;
+  const descriptions = { chain: '같은 색 또는 이웃 숫자. 양쪽 끝에 연결해 12번의 연쇄를 완성하세요.', line: '연속 세 칸을 만들고 중앙을 확보하세요. AI와 열 번씩 놓는 한 판.', code: '숫자 네 개, 여덟 번의 기회. 단서로 암호를 좁혀보세요.', reverse: '불빛을 모두 끄세요. 자유롭게 풀거나, 난이도를 골라 25회에 도전하세요.', dice: '두 눈 중 하나를 고르고, 아홉 칸의 조합을 완성하세요.' };
+  let state, draft = '', pendingSettings = null, chainSelected = null, aiTimer = null;
+  function scheduleAI() {
+    clearTimeout(aiTimer);
+    if (game !== 'line' || state.status !== 'playing' || state.data.turn !== 2) return;
+    aiTimer = setTimeout(() => {
+      if (document.querySelector('dialog[open]')) { scheduleAI(); return; }
+      const action = C.lineAI(state); if (action) execute(action, '#phase-heading');
+    }, 250);
+  }
   function warn(message) { if (message) { $('#save-warning').hidden = false; $('#save-warning').textContent = message; } }
   function save() {
     const saved = store.save(state);
@@ -22,7 +30,8 @@
     if (globalThis.crypto?.getRandomValues) { crypto.getRandomValues(value); seed = value[0]; }
     const previous = game === 'reverse' && state ? C.reverseSettings(state) : { mode: 'free', difficulty: 'easy' };
     const lightOptions = game === 'reverse' ? { mode: settings.mode ?? previous.mode, difficulty: settings.difficulty ?? (previous.difficulty === 'legacy' || previous.difficulty === null ? 'easy' : previous.difficulty) } : {};
-    state = C.create(game, { seed, ...lightOptions }); pendingSettings = null; draft = ''; save(); render();
+    const extraOptions = game === 'line' ? { difficulty: settings.difficulty ?? state?.data.difficulty ?? 'easy', starter: settings.starter ?? state?.data.starter ?? 'human' } : {};
+    chainSelected = null; state = C.create(game, { seed, ...lightOptions, ...extraOptions }); pendingSettings = null; draft = ''; save(); render();
     $('#move-message').textContent = '새 도전을 시작했습니다.'; focus(game === 'code' ? '#code-guess' : '#phase-heading');
   }
   function execute(action, focusSelector) {
@@ -32,11 +41,11 @@
       if (game === 'code') { $('#code-guess')?.setAttribute('aria-invalid', 'true'); focus('#code-guess'); }
       return;
     }
-    state = result.state; if (game === 'code') draft = ''; save(); render();
+    state = result.state; chainSelected = null; if (game === 'code') draft = ''; save(); render();
     const r = C.result(state);
-    if (r.terminal) { $('#move-message').textContent = state.status === 'lost' ? '이번 도전이 끝났습니다. 결과와 기록을 확인하세요.' : '도전을 완료했습니다. 결과와 기록을 확인하세요.'; Sound.play(state.status === 'lost' ? 'lose' : 'win'); focus('#phase-heading'); }
+    if (r.terminal) { $('#move-message').textContent = state.status === 'lost' ? '이번 도전이 끝났습니다. 결과와 기록을 확인하세요.' : '도전을 완료했습니다. 결과와 기록을 확인하세요.'; Sound.play(state.status === 'lost' ? 'lose' : state.status === 'draw' ? 'select' : 'win'); focus('#phase-heading'); }
     else {
-      $('#move-message').textContent = game === 'code' ? `위치 일치 ${state.data.attempts.at(-1).exact}개 · 숫자만 일치 ${state.data.attempts.at(-1).misplaced}개. ${8 - state.data.attempts.length}회 남았습니다.` : game === 'reverse' ? `${state.data.moves}회 조작 · 꺼진 불 ${brightCount()}/16` : action.type === 'select' ? `${state.data.pair[state.data.selected]}을 선택했습니다. 빈칸에 놓으세요.` : `${state.data.turns}/9칸 배치 · 현재 ${r.score}점. 다음 주사위를 선택하세요.`;
+      $('#move-message').textContent = game === 'chain' ? (action.type === 'redraw' ? '새 공개 카드를 뽑았습니다. 배치 횟수는 그대로입니다.' : `${state.data.turns}/12회 연결 · ${r.score}점`) : game === 'line' ? (state.data.turn === 1 ? 'AI가 놓았습니다. 내 차례입니다.' : '돌을 놓았습니다. AI 차례입니다.') : game === 'code' ? `위치 일치 ${state.data.attempts.at(-1).exact}개 · 숫자만 일치 ${state.data.attempts.at(-1).misplaced}개. ${8 - state.data.attempts.length}회 남았습니다.` : game === 'reverse' ? `${state.data.moves}회 조작 · 꺼진 불 ${brightCount()}/16` : action.type === 'select' ? `${state.data.pair[state.data.selected]}을 선택했습니다. 빈칸에 놓으세요.` : `${state.data.turns}/9칸 배치 · 현재 ${r.score}점. 다음 주사위를 선택하세요.`;
       Sound.play('select'); if (focusSelector) focus(focusSelector);
     }
   }
@@ -69,7 +78,7 @@
     const d = state.data, playing = state.status === 'playing';
     return `${banner()}${playing ? '<h2 id="phase-heading" tabindex="-1" class="visually-hidden">주사위 배치</h2>' : ''}<div class="play-status"><span>배치 <strong>${d.turns}<small> / 9</small></strong></span><span>현재 점수 <strong class="score-number">${C.diceScore(d.board).total}<small>점</small></strong></span></div><div class="dice-layout"><div><p class="short-rule">눈의 합 + 완성된 가로·세로·대각선 보너스</p><div class="dice-board" role="group" aria-label="3행 3열 주사위 배치판">${d.board.map((n, i) => `<button class="dice-cell ${n === null ? '' : 'filled'}" data-place="${i}" aria-label="${Math.floor(i / 3) + 1}행 ${i % 3 + 1}열 ${n === null ? '빈칸에 배치' : `주사위 ${n}` }" ${n !== null || !playing ? 'disabled' : ''}>${n === null ? '<span aria-hidden="true">＋</span>' : n}</button>`).join('')}</div></div><div>${playing ? `<section class="dice-offer" aria-label="이번 턴 주사위"><h3>${d.turns + 1}턴 · 하나를 고르세요</h3><p>선택 후 빈칸을 누르면 배치됩니다.</p><div class="dice-pair">${d.pair.map((n, i) => `<button data-select="${i}" aria-pressed="${d.selected === i}" aria-label="${i + 1}번 주사위 ${n} 선택"><span>${n}</span><small>${i + 1}번 주사위</small></button>`).join('')}</div><p class="dice-selection">${d.selected === null ? '아직 선택하지 않았습니다.' : `${d.pair[d.selected]} 선택 중 · 배치 전에는 바꿀 수 있어요.`}</p></section>` : ''}${breakdown()}<details class="dice-breakdown"><summary>보너스 조건</summary><p>가로줄 합 10~14: +10점</p><p>세로줄 세 숫자 모두 다름: +8점</p><p>대각선 세 숫자 모두 홀수/짝수: +6점</p></details></div></div>`;
   }
-  function render() { $('#play').innerHTML = game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); }
+  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); scheduleAI(); }
   function openRecords() {
     const read = store.records(), legacy = store.legacyLights(); $('#records-warning').textContent = [read.error, legacy.error].filter(Boolean).join(' ');
     $('#record-summary').innerHTML = Object.entries(C.GAMES).map(([id, g]) => {
@@ -83,16 +92,27 @@
           return `<p>${name} · ${successes.length}회 성공 / ${matches.length}경기 · 최소 ${successes.length ? Math.min(...successes.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
         }).join('');
         detail += `<p>이전 불빛 뒤집기 · 자유 모드 ${legacy.rows.length}회 성공 · 최소 ${legacy.rows.length ? Math.min(...legacy.rows.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
+      } else if (id === 'line') {
+        detail = ['easy','normal','hard'].flatMap(level => ['human','ai'].map(first => {
+          const matches = rows.filter(r => r.difficulty === level && r.starter === first);
+          return `<p>${SoloExtraUI.levels[level]} · ${first === 'human' ? '내 선공' : 'AI 선공'} · ${matches.filter(r=>r.outcome==='won').length}승 ${matches.filter(r=>r.outcome==='draw').length}무 ${matches.filter(r=>r.outcome==='lost').length}패</p>`;
+        })).join('');
       } else detail = `<p>${id === 'code' ? `${wins.length}승 / ${rows.length}경기 · 최고 ${wins.length ? Math.max(...wins.map(r => r.score)) + '점' : '기록 없음'}` : `${rows.length}회 완료 · 최고 ${rows.length ? Math.max(...rows.map(r => r.score)) + '점' : '기록 없음'}`}</p>`;
       return `<section class="record-summary"><h3>${g.name}</h3>${detail}</section>`;
     }).join('');
-    const currentRows = read.rows.slice(0, 20).map(r => `<div class="suite-record"><b>${C.GAMES[r.game].name}</b> · ${r.outcome === 'won' ? '성공' : r.outcome === 'lost' ? '실패' : '완료'} · ${r.game === 'reverse' ? `${lightLabel(r)} · ${r.moves}회${r.stars ? ' / 별 ' + r.stars : ''}` : `${r.score}점${r.game === 'code' ? ` / ${r.attempts}회` : ''}`}<small>${escape(new Date(r.finishedAt).toLocaleString('ko-KR'))} · 경과 ${Math.floor(r.elapsedMs / 60000)}분 ${Math.floor(r.elapsedMs / 1000) % 60}초</small></div>`).join('');
+    const currentRows = read.rows.slice(0, 20).map(r => `<div class="suite-record"><b>${C.GAMES[r.game].name}</b> · ${r.outcome === 'won' ? '성공' : r.outcome === 'lost' ? (r.game === 'chain' ? '막힘 종료' : '패배/실패') : r.outcome === 'draw' ? '무승부' : '완료'} · ${r.game === 'reverse' ? `${lightLabel(r)} · ${r.moves}회${r.stars ? ' / 별 ' + r.stars : ''}` : `${r.score}점${r.game === 'line' ? ` : AI ${r.aiPoints}점 · ${SoloExtraUI.levels[r.difficulty]} · ${r.starter === 'human' ? '내 선공' : 'AI 선공'}` : r.game === 'chain' ? ` / ${r.turns}회 · 별 ${r.stars}` : ''}${r.game === 'code' ? ` / ${r.attempts}회` : ''}`}<small>${escape(new Date(r.finishedAt).toLocaleString('ko-KR'))} · 경과 ${Math.floor(r.elapsedMs / 60000)}분 ${Math.floor(r.elapsedMs / 1000) % 60}초</small></div>`).join('');
     const oldRows = legacy.rows.slice(0, 10).map(r => `<div class="legacy-light-record"><b>불빛 뒤집기 · 이전 자유 모드</b> · 성공 · ${r.moves}회<small>${escape(new Date(r.time).toLocaleString('ko-KR'))}</small></div>`).join('');
     $('#record-list').innerHTML = (currentRows || '<p class="note">아직 새 모드에서 완료한 도전이 없습니다.</p>') + (oldRows ? '<h3>보존된 이전 자유 모드 기록</h3>' + oldRows : '');
     if (!$('#solo-records').open) $('#solo-records').showModal();
   }
   function requestNew() { pendingSettings = null; if (state.status === 'playing') $('#solo-confirm').showModal(); else newState(); }
   $('#play').addEventListener('change', event => {
+    if (['line-level','line-starter'].includes(event.target.id)) {
+      const options = { difficulty: $('#line-level').value, starter: $('#line-starter').value };
+      if (state.status === 'playing' && state.data.moves.length) { pendingSettings = options; $('#solo-confirm').showModal(); }
+      else newState(options);
+      return;
+    }
     if (!['lights-mode', 'lights-level'].includes(event.target.id)) return;
     const options = { mode: $('#lights-mode').value, difficulty: Object.hasOwn(C.LEVELS, $('#lights-level').value) ? $('#lights-level').value : 'easy' };
     if (state.status === 'playing' && state.data.moves > 0) { pendingSettings = options; $('#solo-confirm').showModal(); }
@@ -102,7 +122,11 @@
   $('#play').addEventListener('input', event => { if (event.target.id === 'code-guess') draft = event.target.value; });
   $('#play').addEventListener('click', event => {
     const b = event.target.closest('button'); if (!b || b.disabled) return;
-    if (b.hasAttribute('data-press')) execute({ type: 'press', index: Number(b.dataset.press) }, `[data-press="${b.dataset.press}"]`);
+    if (b.hasAttribute('data-chain-card')) { chainSelected = Number(b.dataset.chainCard); render(); $('#move-message').textContent = '왼쪽 또는 오른쪽의 놓기 버튼을 선택하세요.'; focus(`[data-chain-card="${chainSelected}"]`); }
+    else if (b.hasAttribute('data-chain-side')) execute({ type: 'place', index: chainSelected, side: b.dataset.chainSide }, '#phase-heading');
+    else if (b.hasAttribute('data-chain-redraw')) execute({ type: 'redraw' }, '#phase-heading');
+    else if (b.hasAttribute('data-line-cell') && state.data.turn === 1) execute({ type: 'place', index: Number(b.dataset.lineCell) }, '#phase-heading');
+    else if (b.hasAttribute('data-press')) execute({ type: 'press', index: Number(b.dataset.press) }, `[data-press="${b.dataset.press}"]`);
     else if (b.hasAttribute('data-select')) execute({ type: 'select', index: Number(b.dataset.select) }, `[data-select="${b.dataset.select}"]`);
     else if (b.hasAttribute('data-place')) execute({ type: 'place', index: Number(b.dataset.place) }, '[data-select="0"]');
     else if (b.hasAttribute('data-digit')) { const input = $('#code-guess'); if (input.value.length < 4) input.value += b.dataset.digit; draft = input.value; input.focus(); }
@@ -110,8 +134,8 @@
     else if (b.hasAttribute('data-records')) openRecords();
   });
   $('#play').addEventListener('keydown', event => {
-    const b = event.target.closest('[data-press],[data-place]'); if (!b) return;
-    const size = b.hasAttribute('data-press') ? 4 : 3, index = Number(b.dataset.press ?? b.dataset.place), field = size === 4 ? 'press' : 'place';
+    const b = event.target.closest('[data-press],[data-place],[data-line-cell]'); if (!b) return;
+    const size = b.hasAttribute('data-line-cell') ? 5 : b.hasAttribute('data-press') ? 4 : 3, index = Number(b.dataset.press ?? b.dataset.place ?? b.dataset.lineCell), field = size === 5 ? 'line-cell' : size === 4 ? 'press' : 'place';
     const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -size, ArrowDown: size };
     if (!Object.hasOwn(offsets, event.key)) return; event.preventDefault();
     let next = index + offsets[event.key];
@@ -128,7 +152,7 @@
   window.addEventListener('storage', event => {
     if (event.key === store.sessionKey(game)) {
       const read = store.load(game); if (read.error) { warn(read.error); return; }
-      if (read.state) { state = read.state; draft = ''; render(); $('#move-message').textContent = '다른 탭의 최신 진행을 반영했습니다.'; }
+      if (read.state) { state = read.state; draft = ''; chainSelected = null; render(); $('#move-message').textContent = '다른 탭의 최신 진행을 반영했습니다.'; }
     }
     if (event.key === store.historyKey && $('#solo-records').open) openRecords();
   });
@@ -149,7 +173,7 @@
         render();
         $('#move-message').textContent = '이전 완료 기록을 저장하지 못해 결과를 유지했습니다. 저장 상태를 확인한 뒤 새 도전을 선택해주세요.';
       }
-    } else { save(); render(); $('#move-message').textContent = '저장된 진행을 불러왔습니다. 새 문제나 주사위를 다시 뽑지 않았습니다.'; }
+    } else { save(); render(); $('#move-message').textContent = '저장된 진행을 그대로 불러왔습니다.'; }
   } else newState();
   if (requested && requested !== 'lights' && !Object.hasOwn(C.GAMES, requested)) $('#move-message').textContent = '요청한 게임을 찾지 못해 코드 브레이커를 열었습니다.';
   if (params.get('records') === '1') {
