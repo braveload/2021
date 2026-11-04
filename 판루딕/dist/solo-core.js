@@ -194,6 +194,8 @@
     return r.outcome === 'completed' && r.turns === 9 && integer(r.score, 9, 120);
   }
   const api = { SCHEMA, VERSION, GAMES, LEVELS, TARGET, create, legalActions, apply, result, valid, record, validRecord, clues, mask, solution, diceScore, reverseSettings };
+  const extra = typeof module !== 'undefined' ? require('./solo-extra.js') : root.SoloExtra;
+  Object.assign(api, extra.extend({ ...api }));
   if (typeof module !== 'undefined') module.exports = api;
   root.SoloCore = api;
 })(typeof window === 'undefined' ? globalThis : window);
