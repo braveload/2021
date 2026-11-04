@@ -10,3 +10,13 @@
 
 
 단계2 완료: responsive.css 공통PC/모바일 정리.320~2400px 14너비×7페이지=98화면 가로넘침없음, PC양쪽레일/상단배경경계통과. PC1920에80/90/100/110/125/150%가 만드는CSS너비를검사(실제브라우저확대UI조작아님). 체스고정최소폭제거, 모바일싱글상단압축/설정두열, 연쇄배치버튼을카드아래로이동, SVG3개한줄보장, 홈기록5종요약추가로전체8종한화면, 싱글닉네임선택화(온라인은유지), 예정메뉴비활성, 이어하기표시. 안정화/반응형/팝업완주/기존독립3종/신규2종브라우저검사 모두통과, 예외0. 증거 stability-local 및 stability-extra-local/stability-old-local 출력. 미배포. 다음 단계:현재정확한commit live 및실제URL재검증.
+
+
+단계3 완료·배포검증:
+- 2026-11-04 22:10 KST / 5b6bddb9d6c6e50fd4ab5518936a930281145ff9 / dep-dblit75ckfvc73fk9c2g live.
+- 실제URL stability-browser-tests / responsive-browser-tests(98레이아웃) / popup-completion-tests / extra-browser-tests / individual-browser-tests 모두통과, 예외0.
+- 온라인검수2게스트: 방생성·준비·착수2수동기화·새로고침복구·퇴장 통과.활성보드1280/390/320 문서폭=뷰포트폭 확인.백엔드미변경.
+- 초기 실서비스기록요약과 온라인320폭실패는 일부HTML URL의5분공유캐시가 이전배포를 반환해서발생. Cache-Control s-maxage=300 / Last-Modified 이전값확인. 캐시만료후새HTML응답으로동일검사모두통과. 불필요한추가제품수정은하지않음.
+- 공개소스10개줄바꿈정규화일치확인. 증거 stability-production/responsive-results.json,release-source-check.json 및 stability-extra-production/stability-old-production, site-review-20261104/online-after-responsive.json. PC/모바일스크린샷검토완료.
+- 한계: Chromium기반화면너비검사. 실제PC확대버튼80~150%조작이아닌동등CSS뷰포트검사. 실기기Safari/스크린리더는미검증. 실제사용자재도전율·AI밸런스는별도.
+재개캡슐: 제품live5b6bddb, 다음커밋은검증문서만 skip render. 수정요청범위완료. 기존완료기록/보류게임/온라인서버설정보존.
