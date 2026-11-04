@@ -2,7 +2,7 @@
   'use strict';
   const list = document.getElementById('game-list'); if (!list) return;
   const games = [
-    ['code', '코드 브레이커', '암호 추리 · 8회 도전', 'code-breaker.html'],
+    ['code', '코드 브레이커', '0~7 · 4자리 · 8회', 'code-breaker.html'],
     ['dice', '전략 주사위', '배치 전략 · 9턴', 'dice-strategy.html'],
     ['chain', '숫자 연쇄', '카드 연결 · 12턴', 'number-chain.html'],
     ['line', '라인 컨트롤', '영역 전략 · AI 대전', 'line-control.html']

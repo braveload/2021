@@ -1,0 +1,36 @@
+const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const base = process.env.SOLO_TEST_URL || 'http://127.0.0.1:4191', out = process.env.SOLO_TEST_OUTPUT || __dirname;
+let browser;
+(async () => {
+  fs.mkdirSync(out, { recursive: true }); browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_EXECUTABLE });
+  const p = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' }), errors = []; p.on('pageerror', e => errors.push(e.message));
+  const launch = name => p.getByRole('button', { name: name + ' 바로 플레이', exact: true }).click();
+  await p.goto(base); await launch('트리플 코드'); await p.locator('.triple .tile').first().click();
+  const oldPuzzle = await p.evaluate(() => JSON.stringify(state.puzzle));
+  await p.locator('#popup-restart').click(); const clock = await p.locator('#clock').innerText(); await p.waitForTimeout(1500); assert.equal(await p.locator('#clock').innerText(), clock);
+  await p.locator('#confirm-cancel').click(); assert.equal(await p.locator('.triple .tile[aria-pressed=true]').count(), 1);
+  await p.locator('#popup-restart').click(); await p.locator('#confirm-accept').click(); assert.notEqual(await p.evaluate(() => JSON.stringify(state.puzzle)), oldPuzzle); assert.equal(await p.evaluate(() => state.score), 0);
+  await p.locator('.triple .tile').first().click(); await p.locator('#modal .close').click(); await p.locator('#confirm-accept').click();
+  assert.equal(await p.evaluate(() => localStorage.getItem('panludiq.popup.active.v1')), null); await p.reload(); assert.equal(await p.locator('#modal').isVisible(), false);
+  await launch('트리플 코드'); assert.equal(await p.locator('.triple .tile[aria-pressed=true]').count(), 1);
+  await p.locator('#modal .close').click(); await p.locator('#confirm-accept').click();
+  const corrupt = '{bad-json'; await p.evaluate(raw => localStorage.setItem('panludiq.popup.memory.v1', raw), corrupt); await launch('기억의 짝');
+  assert.equal(await p.evaluate(() => localStorage.getItem('panludiq.popup.memory.v1.backup')), corrupt);
+  await p.locator('.memory .tile').first().click(); const oldDeck = await p.evaluate(() => state.deck.join(',')); await p.locator('#popup-restart').click(); await p.locator('#confirm-accept').click(); assert.notEqual(await p.evaluate(() => state.deck.join(',')), oldDeck);
+  await p.locator('#modal .close').click(); await launch('숫자야구'); const secret = await p.evaluate(() => state.game.secret);
+  await p.locator('#baseball-guess').fill(secret === '012' ? '013' : '012'); await p.locator('#baseball-form button').click();
+  const saved = await p.evaluate(() => localStorage.getItem('panludiq.popup.baseball.v1'));
+  await p.evaluate(() => { const original = Storage.prototype.setItem; Storage.prototype.setItem = function(k, v) { if(k === 'panludiq.baseball.v1') throw new DOMException('quota','QuotaExceededError'); return original.call(this,k,v); }; });
+  await p.locator('#baseball-guess').fill(secret); await p.locator('#baseball-form button').click();
+  assert.deepEqual(await p.evaluate(() => JSON.parse(localStorage.getItem('panludiq.popup.baseball.v1')).state), JSON.parse(saved).state); assert((await p.locator('#content').innerText()).includes('이전 진행을 보존'));
+  await p.reload(); assert.equal(await p.locator('#modal').isVisible(), false); await launch('숫자야구'); assert.equal(await p.locator('#baseball-count').innerText(), '1/10');
+  await p.locator('#baseball-guess').fill(secret); await p.locator('#baseball-form button').click(); assert.equal(await p.evaluate(() => JSON.parse(localStorage.getItem('panludiq.baseball.v1')).length), 1); assert.equal(await p.evaluate(() => localStorage.getItem('panludiq.popup.baseball.v1')), null);
+  await p.goto(base + '/dice-strategy.html'); assert((await p.locator('.dice-goal').innerText()).includes('첫 목표'));
+  for (let i=0;i<9;i++) { await p.locator('[data-select="0"]').click(); await p.locator(`[data-place="${i}"]`).click(); }
+  const score = await p.evaluate(() => JSON.parse(localStorage.getItem('panludiq.solo.records.v1'))[0].score); assert((await p.locator('.dice-goal').innerText()).includes('최고 ' + score + '점'));
+  await p.goto(base); assert((await p.locator('.game-card.baseball .tags').innerText()).includes('0~9')); assert((await p.locator('.game-card.code .tags').innerText()).includes('0~7'));
+  await p.screenshot({ path: path.join(out, 'followup-home-mobile.png'), fullPage: true }); assert.deepEqual(errors, []);
+  const result = { passed: true, base, timedGamesCanRestart: true, cancellationPreservesProgress: true, explicitCloseStaysClosedAfterReload: true, resumeStillWorks: true, malformedProgressBackedUp: true, failedRecordWritePreservesProgressAndRetriesOnce: true, diceFirstAndPersonalBestGoals: true, guessingGameDifferencesVisible: true, errors };
+  fs.writeFileSync(path.join(out, 'followup-results.json'), JSON.stringify(result,null,2)); console.log(JSON.stringify(result)); await browser.close();
+})().catch(async e => { console.error(e); await browser?.close(); process.exitCode = 1; });

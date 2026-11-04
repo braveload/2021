@@ -5,10 +5,23 @@
   let pausedMs = null, pauseAt = 0, expired = null, tick = null, finishing = false, storageError = false;
   const original = { start, cleanup, finish, finishBaseball, showGameRules, showRecords };
   function note() {
-    let el = document.getElementById('popup-save-status');
-    if (!el) { el = document.createElement('p'); el.id = 'popup-save-status'; el.className = 'note'; el.setAttribute('role', 'status'); document.getElementById('content').before(el); }
-    el.hidden = !active || !ids.includes(state?.id);
-    el.textContent = storageError ? '진행을 저장하지 못했습니다. 현재 페이지에서는 계속할 수 있습니다.' : '진행 자동 저장 · 설명/다른 탭에서는 시간 정지';
+    let tools = document.getElementById('popup-progress-tools');
+    if (!tools) {
+      tools = document.createElement('div'); tools.id = 'popup-progress-tools'; tools.className = 'popup-progress-tools';
+      tools.innerHTML = '<p id="popup-save-status" class="note" role="status"></p><button id="popup-restart" type="button">새 도전</button>';
+      document.getElementById('content').before(tools); document.getElementById('popup-restart').addEventListener('click', restartPopup);
+    }
+    tools.hidden = !active || !ids.includes(state?.id);
+    document.getElementById('popup-save-status').textContent = storageError ? '진행을 저장하지 못했습니다. 현재 페이지에서는 계속할 수 있습니다.' : '진행 자동 저장 · 설명/다른 탭에서는 시간 정지';
+    document.getElementById('popup-restart').hidden = state?.id === 'baseball';
+  }
+  function restartPopup() {
+    if (!active || !['triple','memory'].includes(state?.id)) return;
+    const id = state.id;
+    askGameChange('현재 진행을 새 게임으로 바꿀까요? 완료 기록은 유지됩니다.', () => {
+      finishing = true; try { cleanup(); } finally { finishing = false; }
+      write(key(id), null); original.start(id); save(); badge();
+    });
   }
   function write(k, value) { try { if (value === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(value)); } catch { storageError = true; } }
   function valid(x, id) {
@@ -36,11 +49,11 @@
       && Array.isArray(p.answer) && p.answer.length === 3 && new Set(p.answer).size === 3 && p.answer.every(i => Number.isInteger(i) && i >= 0 && i < 9) && E.matches(p.cards, p.answer, p.target);
   }
   function read(id) {
-    try {
-      const raw = localStorage.getItem(key(id)); if (!raw) return null;
-      const x = JSON.parse(raw); if (valid(x, id)) return x;
-      if (!localStorage.getItem(key(id) + '.backup')) localStorage.setItem(key(id) + '.backup', raw);
-    } catch { storageError = true; }
+    let raw;
+    try { raw = localStorage.getItem(key(id)); } catch { storageError = true; return null; }
+    if (!raw) return null;
+    try { const x = JSON.parse(raw); if (valid(x, id)) return x; } catch { /* Preserve malformed JSON before replacement too. */ }
+    try { if (!localStorage.getItem(key(id) + '.backup')) localStorage.setItem(key(id) + '.backup', raw); } catch { storageError = true; }
     return null;
   }
   function badge() {
@@ -64,9 +77,20 @@
   remaining = () => Math.max(0, Math.ceil((pausedMs ?? (state.deadline - Date.now())) / 1000));
   function pause() { if (!active || state?.id === 'baseball' || !expired || pausedMs !== null) return; pausedMs = Math.max(0, state.deadline - Date.now()); pauseAt = Date.now(); clearInterval(timer); tick?.(); save(); }
   function resume() { if (!active || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
-  cleanup = function () { if (active) { if (finishing) write(key(state.id), null); else save(); } pausedMs = null; expired = tick = null; original.cleanup(); note(); badge(); };
+  cleanup = function () { if (active && !finishing) save(); pausedMs = null; expired = tick = null; original.cleanup(); write('panludiq.popup.active.v1', null); note(); badge(); };
   for (const name of ['finish', 'finishBaseball']) {
-    const wrapped = (...args) => { finishing = true; try { return original[name](...args); } finally { finishing = false; badge(); } };
+    const wrapped = (...args) => {
+      const id = state?.id, recordKey = name === 'finishBaseball' ? 'panludiq.baseball.v1' : 'panludiq.records.v1';
+      let before; try { before = localStorage.getItem(recordKey); } catch {}
+      finishing = true;
+      try {
+        const value = original[name](...args); let recorded = false;
+        try { recorded = localStorage.getItem(recordKey) !== before; } catch {}
+        if (recorded) write(key(id), null);
+        else if (ids.includes(id)) document.getElementById('content').insertAdjacentHTML('beforeend', '<p class="note">기록 저장을 확인하지 못해 이전 진행을 보존했습니다. 저장 공간을 확보한 뒤 같은 게임에서 다시 완료할 수 있습니다.</p>');
+        return value;
+      } finally { finishing = false; badge(); }
+    };
     if (name === 'finish') finish = wrapped; else finishBaseball = wrapped;
   }
   showGameRules = function (...args) { pause(); return original.showGameRules(...args); };

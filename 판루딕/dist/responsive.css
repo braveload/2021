@@ -22,3 +22,7 @@
   .home-v2 .game-navigation{font-size:12px}.home-v2 .surface .section-title{gap:8px}
 }
 @media(max-width:350px){.triple-symbol{width:17px;height:25px}.solo-heading h1{font-size:23px}.line-cell{font-size:22px}.mini-title{gap:8px}.mini-title button{padding:8px;font-size:11px}}
+
+.popup-progress-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.popup-progress-tools .note{margin:0;min-width:0}.popup-progress-tools button{flex:none;font-size:12px;padding:8px 12px;min-height:44px}.popup-progress-tools[hidden],.popup-progress-tools button[hidden]{display:none}
+.dice-goal{font-size:13px;color:#315f73;padding:12px 14px;background:#edf6f3;border:1px solid #d7e9e1;border-radius:11px;margin:0 0 16px}
+@media(max-width:720px){.popup-progress-tools .note{font-size:10px}.popup-progress-tools{gap:6px}.dice-goal{font-size:12px;padding:10px}}
