@@ -1,0 +1,24 @@
+/* PC-first refinements; side rails keep the existing hero boundary and gutters. */
+.triple-symbols{width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3px;max-width:100%}
+.triple .tile>.triple-symbols{flex-direction:row}
+.triple-symbol{display:block;width:32px;height:35px;flex:none}.triple-symbols .pattern{flex-basis:100%;font-size:12px}
+.triple .tile{min-width:0;padding:9px 4px}.board.triple{grid-template-columns:repeat(3,minmax(0,1fr))}
+.all-game-records{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.all-game-records .record-summary{margin:0}.all-game-records>.note{grid-column:1/-1}
+.chain-placement{display:flex;justify-content:center;gap:12px;max-width:430px;margin:0 auto 20px}.chain-placement button{flex:1;min-height:44px;padding:10px 6px;font-size:13px}
+.chain-ends{gap:15px;margin:15px auto}.chain-offer{margin-bottom:12px}
+.mini-layout>*{min-width:0}.chess-board{width:100%;grid-template-columns:repeat(3,minmax(0,1fr))}.square{min-width:0}.mini-main,.solo-shell{min-width:0}
+.home-v2 .modes button:disabled{opacity:.65}.home-v2 .home-header nav button:disabled{font-weight:500;opacity:.55;cursor:default}
+@media(min-width:721px) and (max-width:1100px){.mini-layout{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}.play-panel{padding:16px}.mini-title h1{font-size:30px}}
+@media(max-width:720px){
+  .solo-header{padding:8px 12px;gap:10px;min-height:58px}.solo-header img{width:94px;height:38px}.solo-header [data-guest]{padding:8px;font-size:10px;min-height:40px}
+  .solo-page>.sound-toolbar{position:absolute;top:66px;right:14px;padding:0;margin:0;z-index:6}
+  .solo-shell{padding:12px 14px 24px}.solo-heading{margin-top:0}.solo-heading h1{font-size:26px;max-width:calc(100% - 100px);margin:3px 0 6px}.solo-heading .eyebrow{display:none}.solo-heading p:not(.eyebrow){font-size:12px;line-height:1.5;margin:6px 0}.solo-tools{margin-top:10px;gap:6px}.solo-tools button{padding:8px 6px;min-height:44px}
+  .save-status{margin:8px 0 6px;min-height:16px;font-size:10px}.play-surface{padding:14px;min-height:0}.play-status{gap:8px;margin-bottom:12px;padding-bottom:12px;font-size:11px}.play-status strong{font-size:20px}.play-status small{font-size:10px}.short-rule{font-size:12px;line-height:1.6}
+  .light-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.light-settings label{font-size:11px;min-width:0;width:auto;flex-basis:auto}.light-settings select{min-width:0;padding:8px 5px;font-size:11px;min-height:44px}.mode-note{font-size:11px;margin:7px 0 12px}
+  .line-board{width:min(100%,310px);margin:12px auto}.line-turn{margin:10px 0}.line-details{padding:10px}.reverse-board{margin:15px auto}.dice-layout{gap:14px}.dice-offer{padding:12px}
+  .chain-ends{margin:12px auto;gap:12px}.chain-ends section{gap:7px}.chain-ends h3{font-size:12px}.chain-card{min-height:76px;width:62px}.chain-card b{font-size:27px}.chain-card small{font-size:11px;margin-top:4px}.offer-title{margin:16px 0 8px;font-size:14px}.chain-offer{margin:8px auto 10px}.chain-offer>button{padding:9px 2px;gap:5px}.chain-offer .chain-card{min-height:76px}.chain-placement{gap:7px;margin-bottom:14px}.chain-placement button{font-size:12px}.chain-history{margin-top:12px}
+  .mini-layout{grid-template-columns:minmax(0,1fr)}.mini-title{margin-bottom:15px}.mini-title h1{font-size:25px}.mini-title p:not(.eyebrow){line-height:1.5}.play-panel{padding:12px}.square{min-height:0;aspect-ratio:1.1;padding:4px 1px}.piece .glyph{font-size:clamp(25px,8vw,37px)}.piece .piece-name{font-size:9px}.chess-board{gap:5px;padding:7px}.pocket{min-height:48px;margin:9px 0;padding:8px}.pocket .pocket-title{min-width:82px}
+  .all-game-records{grid-template-columns:1fr}.triple-symbol{width:24px;height:29px}.triple-symbols .pattern{font-size:10px}.triple .tile{padding:7px 2px}
+  .home-v2 .game-navigation{font-size:12px}.home-v2 .surface .section-title{gap:8px}
+}
+@media(max-width:350px){.triple-symbol{width:17px;height:25px}.solo-heading h1{font-size:23px}.line-cell{font-size:22px}.mini-title{gap:8px}.mini-title button{padding:8px;font-size:11px}}

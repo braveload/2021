@@ -44,6 +44,9 @@
     return null;
   }
   function badge() {
+    for (const [game, cls] of [['code','code'],['reverse','lights'],['dice','dice'],['chain','chain'],['line','line']]) {
+      try { const s = JSON.parse(localStorage.getItem(`panludiq.solo.${game}.session.v1`)); const el = document.querySelector(`.game-card.${cls} .card-play`); if (el) el.textContent = s && SoloCore.valid(s) && s.status === 'playing' && s.revision > 0 ? '이어서 플레이 →' : '바로 플레이 →'; } catch {}
+    }
     for (const id of ids) { const el = document.querySelector(`.game-card.${id} .card-play`); if (el) el.textContent = read(id) ? '이어서 플레이 →' : '바로 플레이 →'; }
   }
   function save() {
@@ -99,6 +102,7 @@
   setInterval(save, 500);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); else resume(); });
   window.addEventListener('pagehide', () => { pause(); save(); });
+  window.addEventListener('pageshow', resume);
   showRecords = function () {
     original.showRecords();
     const link = document.querySelector('.suite-record-link'); if (!link) return;
@@ -112,6 +116,6 @@
     link.replaceWith(panel);
     const button = document.querySelector('[onclick="clearRecords()"]'); if (button) { button.textContent = '기존 점수·숫자야구·이전 불빛 기록 지우기'; button.insertAdjacentHTML('afterend', '<p class="note">위 삭제 버튼은 독립 싱글 5종의 기록과 진행을 지우지 않습니다.</p>'); }
   };
-  badge();
+  badge(); window.addEventListener('load', badge);
   try { const id = JSON.parse(localStorage.getItem('panludiq.popup.active.v1')); if (performance.getEntriesByType('navigation')[0]?.type === 'reload' && ids.includes(id)) { const x = read(id); if (x) restore(x); } } catch { /* No recoverable popup. */ }
 })();
