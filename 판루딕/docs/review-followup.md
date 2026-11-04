@@ -10,4 +10,8 @@
 - 전략주사위목표부족: 첫판은9칸완성, 이후저장된개인최고점도전. 근거없는등급/기준점수추가없음.
 
 검증: 전체빌드/엔진통과, followup-browser-tests(새판/취소/닫기/복구/손상JSON원본/저장실패후재시도/목표문구)통과, stability와popup-completion 통과,98레이아웃통과, 기존독립3게임회귀통과. 첫추가검사에서입력까지보존된것을입력전원문과동일해야한다고검사한오류가있어게임상태비교로보완후통과. 제품오류로집계하지않음.
-배포전. 다음: 현재배포경로로반영후최신HTML/JS응답과동일검사확인. 기존완료기록/온라인서버/보류게임보존.
+배포 완료: caf20672170b153040b0176c985f9c7b52809518, Render dep-dblj63fb9u1s73biffcg (2026-11-04 22:29 KST).
+실제 사이트에서 followup, stability, popup-completion 검사가 통과했다. index.html, home-progress.js, solo-ui.js, solo-entry.js, app.js, responsive.css, dice-strategy.html은 줄바꿈 정규화 후 로컬 수정본과 일치했다.
+배포 직후 CDN이 일부 이전 파일을 제공하여 첫 followup 검사에서 코드 카드 문구 검사가 실패했다. 이전 응답의 Last-Modified/Age를 확인하고 캐시 만료 후 최신 파일 일치 및 동일 검사 통과를 확인했다. 제품 수정으로 오인하거나 재배포하지 않았다.
+기존 완료 기록, 온라인 서버와 보류 게임은 유지했다. 검증 자료: followup-production 폴더.
+`n최신 responsive.css 응답 확인 후 실제 사이트의 14개 너비·98개 배치 검사도 다시 통과했다. 브라우저 확대 UI 직접 조작이나 실물 모바일 기기 검사는 포함하지 않았다.
