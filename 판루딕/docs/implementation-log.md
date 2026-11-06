@@ -13,7 +13,18 @@ Project is not in the available code graph; targeted source inspection is used. 
 ## Phase status
 - Implementation: complete. Static schema generator integrated into Render build; verification includes schema assertions.
 - Local validation: PASS build-render.cjs, all six engine suites, schema tests (8 pages, 16 game nodes across pages), 28 browser layouts (actual widths 1440, 1102, 720, 320), no horizontal overflow, desktop rail boundaries, home popup rules and baseball entry. Layout evidence: design-schema-layouts.json.
-- Deployment/production verification: next. Publish this exact commit via existing deployment branch, then verify live assets and schema validator. No architecture migration; new static JSON-LD generation runs before existing verification/build.
+- Deployment: LIVE, commit 57d9445ddfe9c58add1dbe90771c9045a46ad704, Render dep-dbmu158n74is73bgot90. Finished 2026-11-06 23:14 KST. Root URL and all 11 checked files return HTTP 200 and match deployed source after normalizing inter-tag whitespace. Canonical root and legacy noindex verified. Architecture remains static frontend plus unchanged online backend.
 
 ## Resume
 Source is dist; scripts/structured-data.cjs is the structured-data source of truth. Run node scripts/structured-data.cjs and node schema-tests.cjs, then node verify.cjs. Deploy frontend service srv-dbispkks728c7387c150 only. Online service is separate and does not require a deployment.
+
+## Production validation / phase 2
+- Schema.org Validator: index.html (home graph including all nine games), code-breaker.html, chess.html, lights.html, number-chain.html, line-control.html, online.html each show 0 errors / 0 warnings. Dice URL and code-input attempts encountered the validator's own markup-processing error; do not report this as a pass or a site schema error. Dice JSON-LD syntax, required internal assertions, matching deployed source, and schema vocabulary shared with passing game pages were verified locally.
+- Live home shows 8 game cards, 8 short descriptions, retained glass blur(5px), correct heading and static JSON-LD. Actual local-chess move B1 to A2 survives refresh with 1/100 move count. Home baseball rules dialog opens correctly. Online backend /health returns {ok:true}; online engine/HTTP tests passed pre-deploy; no online backend redeployment or production room creation was needed.
+- CDN temporarily served the prior root and dice documents after deployment. Waited through the 300-second cache lifetime; both now contain schema/design. Initial raw source comparison differed by generator-inserted inter-tag whitespace only; normalized comparisons now all pass. No duplicate deployment was triggered.
+- Browser viewport overrides in the extra live run returned an actual 1280px viewport despite requested sizes. Only claim those live observations at 1280px; the separate local 28-layout evidence records actual widths 1440, 1102, 720, 320. Physical mobile/Safari testing was not performed.
+- Initial commit failed because author identity was unset; retried with existing repository author's identity as command-local configuration, then push succeeded. No global Git settings changed.
+- Evidence: design-schema-layouts.json, design-schema-production.json, schema-validator-results.json and captured screenshots where present.
+
+## Final resume capsule
+Implementation and deployment are complete. Remaining limitation: external validator service error for dice; local/production source checks pass. Google search appearance and indexing are not verified or guaranteed. Do not invent ratings/reviews to obtain app rich results. Existing originals and previous local design CSS versions are retained. Generated panludiq-public directories remain untracked and excluded.

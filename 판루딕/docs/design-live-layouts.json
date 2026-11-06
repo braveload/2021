@@ -1,0 +1,100 @@
+[
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/index.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/lights.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/code-breaker.html",
+    "width": 1280
+  },
+  {
+    "design": false,
+    "hasSchema": false,
+    "overflow": false,
+    "route": "/dice-strategy.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/number-chain.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/line-control.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/chess.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/index.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/lights.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/code-breaker.html",
+    "width": 1280
+  },
+  {
+    "design": false,
+    "hasSchema": false,
+    "overflow": false,
+    "route": "/dice-strategy.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/number-chain.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/line-control.html",
+    "width": 1280
+  },
+  {
+    "design": true,
+    "hasSchema": true,
+    "overflow": false,
+    "route": "/chess.html",
+    "width": 1280
+  }
+]

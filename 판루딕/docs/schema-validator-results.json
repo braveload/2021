@@ -1,0 +1,45 @@
+[
+  {
+    "route": "code-breaker.html",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "route": "index.html",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "route": "chess.html",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "summary": [
+      "오류 0개\n경고 0개"
+    ],
+    "url": "#url=https%3A%2F%2Fpanludiq.onrender.com%2Flights.html%3Fschema-check%3D20261106"
+  },
+  {
+    "summary": [
+      "오류 0개\n경고 0개"
+    ],
+    "url": "#url=https%3A%2F%2Fpanludiq.onrender.com%2Fnumber-chain.html"
+  },
+  {
+    "summary": [
+      "오류 0개\n경고 0개"
+    ],
+    "url": "#url=https%3A%2F%2Fpanludiq.onrender.com%2Fline-control.html"
+  },
+  {
+    "summary": [
+      "오류 0개\n경고 0개"
+    ],
+    "url": "#url=https%3A%2F%2Fpanludiq.onrender.com%2Fonline.html"
+  },
+  {
+    "route": "dice-strategy.html",
+    "status": "External validator service error for URL and code input; local schema validation and deployed-source comparison passed."
+  }
+]

@@ -1,0 +1,115 @@
+{
+  "deployment": "dep-dbmu158n74is73bgot90",
+  "commit": "57d9445ddfe9c58add1dbe90771c9045a46ad704",
+  "rootSchema": true,
+  "results": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "CollectionPage",
+        "ItemList",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "lights.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "code-breaker.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "dice-strategy.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "number-chain.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "line-control.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "chess.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "online.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [
+        "WebSite",
+        "WebPage",
+        "VideoGame"
+      ]
+    },
+    {
+      "file": "solo.html",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": [],
+      "legacyNoindex": true
+    },
+    {
+      "file": "refinement.css",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": []
+    },
+    {
+      "file": "reference-blend.js",
+      "status": 200,
+      "matchesSourceIgnoringIntertagWhitespace": true,
+      "schemaTypes": []
+    }
+  ]
+}
