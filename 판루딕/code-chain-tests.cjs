@@ -1,0 +1,8 @@
+const assert=require('node:assert/strict'),C=require('./dist/solo-core.js'),L=require('./dist/learning-core.js');
+let comparisons=0,connections=0;
+for(const p of L.codeLessons){for(let a=0;a<8;a++)for(let b=0;b<8;b++)for(let c=0;c<8;c++)for(let d=0;d<8;d++){const guess=''+a+b+c+d;if(new Set(guess).size!==4)continue;const result=L.codeComparison(p.secret,guess),actual=C.clues(p.secret,guess);assert.equal(result.filter(x=>x.kind==='exact').length,actual.exact);assert.equal(result.filter(x=>x.kind==='misplaced').length,actual.misplaced);comparisons++;}}
+for(let a=0;a<36;a++)for(let b=0;b<36;b++){const r=L.chainConnection(a,b,C.card);assert.equal(r.ok,C.card(a).color===C.card(b).color||Math.abs(C.card(a).number-C.card(b).number)===1);assert.equal(r.points,r.ok?2+(r.near?1:0):0);connections++;}
+for(const p of L.chainLessons){const saved=JSON.stringify(p),ends=[p.chain[0],p.chain.at(-1)],possible=offer=>offer.some(id=>ends.some(end=>L.chainConnection(id,end,C.card).ok));assert.equal(possible(p.offer),p.goal!=='redraw');if(p.goal==='redraw')assert.ok(possible(p.replacement));if(p.side==='right'&&p.chain.length>1){assert.equal(L.chainConnection(p.offer[1],ends[0],C.card).ok,false);assert.equal(L.chainConnection(p.offer[1],ends[1],C.card).ok,true);}assert.equal(JSON.stringify(p),saved);}
+assert.equal(L.chainConnection(3,12,C.card).ok,false); // Same number, different color is not enough.
+assert.equal(L.chainConnection(8,9,C.card).ok,false); // 9 and 1 do not wrap.
+console.log(JSON.stringify({passed:true,codeComparisons:comparisons,chainConnections:connections,codeLessons:3,chainLessons:4}));
