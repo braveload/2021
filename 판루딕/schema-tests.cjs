@@ -28,7 +28,18 @@ for (const file of fs.readdirSync(root).filter(f => f.endsWith('.html'))) {
     }
   }
   if (file === 'index.html') assert.equal(graph.find(x => x['@type'] === 'ItemList').numberOfItems, 9);
-  else assert.equal(graph.filter(x => x['@type'] === 'VideoGame').length, 1);
+  else {
+    assert.equal(graph.filter(x => x['@type'] === 'VideoGame').length, 1);
+    const crumbs = graph.filter(x => x['@type'] === 'BreadcrumbList');
+    assert.equal(crumbs.length, 1, file + ': one breadcrumb');
+    assert.equal(page.breadcrumb['@id'], crumbs[0]['@id']);
+    assert.equal(crumbs[0].itemListElement.length, 2);
+    assert.equal(crumbs[0].itemListElement[0].item, origin + '/');
+    assert.equal(crumbs[0].itemListElement[1].item, page.url);
+    assert.equal(crumbs[0].itemListElement[1].name, games.find(g => g[0] === file)[1]);
+    assert.equal((html.match(/class="page-breadcrumb"/g) || []).length, 1);
+    assert(html.includes('aria-current="page">' + crumbs[0].itemListElement[1].name + '</li>'));
+  }
   pages++;
 }
 console.log(JSON.stringify({ passed: true, pages, gameEntities: entities, legacyRedirectNoindex: true, fabricatedReviews: false }));

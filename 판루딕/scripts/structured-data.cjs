@@ -28,7 +28,8 @@ function entity(g) {
 function generate() {
   for (const file of fs.readdirSync(root).filter(f => f.endsWith('.html'))) {
     let html = fs.readFileSync(path.join(root, file), 'utf8');
-    html = html.replace(/<script id="page-schema" type="application\/ld\+json">[\s\S]*?<\/script>\s*/g, '')
+    html = html.replace(/<nav class="page-breadcrumb"[\s\S]*?<\/nav>/g, '')
+      .replace(/<script id="page-schema" type="application\/ld\+json">[\s\S]*?<\/script>\s*/g, '')
       .replace(/<link rel="canonical"[^>]*>\s*/g, '')
       .replace(/<meta name="robots" content="noindex,follow">\s*/g, '');
     if (file === 'solo.html') {
@@ -46,8 +47,17 @@ function generate() {
         const entries = games.slice(0, 9).map(entity);
         graph.push({ '@type': 'ItemList', '@id': origin + '/#games-list', name: '판루딕 게임 목록', numberOfItems: entries.length,
           itemListElement: entries.map((item, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@id': item['@id'] } })) }, ...entries);
-      } else graph.push(game);
-      html = html.replace(/<meta name="description"[^>]*>/, '');
+      } else {
+        const breadcrumb = { '@type': 'BreadcrumbList', '@id': url + '#breadcrumb', itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '판루딕', item: origin + '/' },
+          { '@type': 'ListItem', position: 2, name: g[1], item: url }
+        ] };
+        page.breadcrumb = { '@id': breadcrumb['@id'] };
+        graph.push(game, breadcrumb);
+        const nav = '<nav class="page-breadcrumb" aria-label="탐색경로"><ol><li><a href="' + origin + '/">판루딕</a></li><li aria-current="page">' + g[1] + '</li></ol></nav>';
+        html = html.replace(/(<main\b[^>]*>)/, '$1' + nav);
+      }
+      html = html.replace(/<meta name="description"[^>]*>\s*/g, '');
       const head = '<link rel="canonical" href="' + url + '"><meta name="description" content="' + page.description + '">\n<script id="page-schema" type="application/ld+json">' + JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c') + '</script>\n';
       html = html.replace('</head>', head + '</head>');
     }

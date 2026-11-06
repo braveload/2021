@@ -35,3 +35,11 @@
 @media(min-width:1101px) and (max-width:1279px){.home-v2 .game-list{grid-template-columns:repeat(3,minmax(0,1fr))}.home-v2 .hero h1{font-size:33px}}
 @media(max-width:720px){.home-v2 .surface{padding-top:20px;border-radius:18px}.home-v2 .section-title{padding-top:12px}.home-v2 .section-title h2{font-size:21px}.home-v2 .game-list{gap:17px 12px;margin-bottom:28px}.home-v2 .game-launch .card-body{padding:13px 11px 9px;min-height:158px}.home-v2 .game-launch .game-name{font-size:17px}.home-v2 .game-card .game-intro{font-size:11px;line-height:1.7;min-height:36px;margin-bottom:9px}.home-v2 .hero-copy{padding:18px 16px;border-radius:14px}.home-v2 .hero h1{font-size:27px;letter-spacing:-1.2px}.home-v2 .hero .lead{font-size:13px}.home-v2 .modes{gap:5px}.home-v2 .modes button,.home-v2 .mode-link{min-height:100px}.retained-review{gap:12px;font-size:11px}.mini-layout{gap:18px}}
 @media(prefers-reduced-motion:reduce){.home-v2 .game-card{transition:none}}.home-v2 .surface{backdrop-filter:none;-webkit-backdrop-filter:none}
+/* Visible site hierarchy mirrors BreadcrumbList on individual game pages. */
+.page-breadcrumb{display:block;margin:4px 0 21px;font-size:12px;font-weight:400;line-height:1.7;color:#63768d}
+.page-breadcrumb ol{display:flex;align-items:center;gap:0;flex-wrap:wrap;list-style:none;margin:0;padding:0}
+.page-breadcrumb li{display:flex;align-items:center;min-height:28px}
+.page-breadcrumb li+li:before{content:'›';margin:0 10px;color:#8fa1b5}
+.page-breadcrumb a{text-decoration:underline;text-underline-offset:3px;color:#496c93}
+.page-breadcrumb [aria-current=page]{color:#334f70}
+@media(max-width:720px){.page-breadcrumb{font-size:11px;margin-bottom:15px}.page-breadcrumb li+li:before{margin:0 8px}}
