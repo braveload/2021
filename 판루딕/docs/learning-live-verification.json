@@ -1,0 +1,31 @@
+{
+  "schemaResults": [
+    {
+      "page": "dice-strategy.html",
+      "summary": [
+        "오류 0개\n경고 0개"
+      ]
+    },
+    {
+      "page": "/",
+      "summary": [
+        "오류 0개\n경고 0개"
+      ]
+    }
+  ],
+  "googleResult": {
+    "url": "https://search.google.com/test/rich-results/result?id=9laZBw_ayt3T4F6q0VVJTw",
+    "validItems": 1,
+    "type": "BreadcrumbList",
+    "crawl": "2026-11-07 08:26:51 KST"
+  },
+  "existingRecordSummaryUnchanged": true,
+  "existingHistoryUnchanged": true,
+  "livePreview": {
+    "filled": 0,
+    "message": "1행 1열 · 현재 0점 → 예상 1점 (+1점). 눈의 합 +1점 · 새로 완성되는 보너스 없음",
+    "status": "배치 0 / 9\n현재 점수 0점"
+  },
+  "practiceScoring": false,
+  "deployment": "dep-dbn63clckfvc73fse5ag"
+}

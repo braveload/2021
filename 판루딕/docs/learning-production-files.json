@@ -1,0 +1,56 @@
+[
+  {
+    "file": "index.html",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "dice-strategy.html",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "app.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "home-progress.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "solo-ui.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "solo-rules.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "refinement.css",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "learning-core.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  },
+  {
+    "file": "triple-practice.js",
+    "status": 200,
+    "matches": true,
+    "modified": "Fri, 06 Nov 2026 23:24:54 UTC"
+  }
+]
