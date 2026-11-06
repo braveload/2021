@@ -1,0 +1,37 @@
+/* Combine reference 1's readable rhythm with reference 2's branded artwork. */
+.home-v2{background:#f4f7fb}
+.home-v2 .surface{padding-top:36px;padding-bottom:36px;background:linear-gradient(145deg,#ffffffdf,#ffffffa3);backdrop-filter:blur(10px);border:1px solid #fff;border-radius:24px;box-shadow:0 12px 40px #20366407}
+.home-v2 .hero-copy{padding:25px 28px;background:#eef3f64d;border:1px solid #ffffffa6;box-shadow:0 8px 28px #17264208;backdrop-filter:blur(5px);border-radius:18px}
+.home-v2 .hero h1{font-size:clamp(30px,3.1vw,46px);line-height:1.32;letter-spacing:-1.8px;font-weight:750;margin-bottom:15px}
+.home-v2 .hero .lead{font-size:15px;line-height:1.85;letter-spacing:-.25px;max-width:340px;margin-bottom:18px}
+.home-v2 .hero .eyebrow{letter-spacing:2.5px;font-size:10px;color:#48647a}
+.home-v2 .hero .button{border-radius:12px;box-shadow:none}
+.home-v2 .primary{background:#246cf0}
+.home-v2 .section-title{padding-top:16px;border-top:1px solid #adbdce;margin-bottom:13px;align-items:baseline}
+.home-v2 .section-title h2{font-size:25px;font-weight:700;letter-spacing:-.8px}
+.home-v2 .game-navigation{font-size:13px;line-height:1.8;margin-bottom:24px}
+.home-v2 .game-list{gap:28px 21px;margin-bottom:42px}
+.home-v2 .game-card{--game-accent:#829db9;border-radius:15px;border:1px solid #dbe4ed;background:#ffffffa6;box-shadow:0 3px 14px #29476a05;position:relative;overflow:hidden;transition:box-shadow .18s}
+.home-v2 .game-card:before{content:'';position:absolute;inset:0 0 auto;height:3px;background:var(--game-accent);z-index:1;pointer-events:none}
+.home-v2 .game-card.lights{--game-accent:#c5aa62}.home-v2 .game-card.baseball{--game-accent:#79b9bc}.home-v2 .game-card.triple{--game-accent:#8c98d5}.home-v2 .game-card.memory{--game-accent:#db9fb0}.home-v2 .game-card.code{--game-accent:#8eb4c8}.home-v2 .game-card.dice{--game-accent:#a69cd2}.home-v2 .game-card.chain{--game-accent:#9ebf9b}.home-v2 .game-card.line{--game-accent:#c4a578}
+.home-v2 .game-card:hover{transform:none;box-shadow:0 7px 22px #29476a13}
+.home-v2 .game-launch .card-body{padding:17px 16px 12px;min-height:145px}
+.home-v2 .game-launch .game-name{font-weight:750;font-size:20px;line-height:1.4;margin-bottom:7px;letter-spacing:-.6px}
+.home-v2 .game-card .game-intro{display:block;margin:0 0 11px;font-size:12px;line-height:1.8;color:#62758b;font-weight:400;letter-spacing:-.2px}
+.home-v2 .tags{gap:5px;flex-wrap:wrap}
+.home-v2 .game-card .tags span{font-size:10px;line-height:1.6;border-radius:4px}
+.home-v2 .card-rules{min-height:44px;letter-spacing:0;background:#ffffffa8;border-top:1px solid #e1e8f0;color:#486b8c;font-size:12px;font-weight:550}
+.home-v2 .game-launch .card-play{margin-top:9px;min-height:28px;font-weight:650}
+.home-v2 .home-header{background:#ffffffb8;backdrop-filter:blur(14px);border:1px solid #ffffffd9;box-shadow:0 5px 22px #20366409;overflow-x:hidden}
+.home-v2 .home-header>*{max-width:100%;min-width:0}.home-v2 .home-header nav>a,.home-v2 .home-header nav>button{font-weight:600}
+.home-v2 .modes{gap:12px;margin-bottom:32px}.home-v2 .modes button,.home-v2 .mode-link{background:#edf2f8a6;border:1px solid #ffffffb8;box-shadow:inset 0 1px 0 #ffffffb3;min-height:136px}
+.home-v2 .benefits{margin:28px 0;background:#f1f5f9a6;border-radius:16px;backdrop-filter:blur(8px)}
+.home-v2 .banner{border-radius:16px;margin-top:28px}.home-v2 .classic-entry{margin-top:29px;padding:24px;border-radius:16px}
+.home-v2 .haru-ad{box-shadow:0 4px 14px #765e3b08}
+.mini-card{box-shadow:0 5px 18px #10234404}.mini-card h2{font-weight:700;line-height:1.5}.mini-layout{gap:28px}.controls button{min-height:44px}
+.retained-review{display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;background:#e9eff5;color:#435d78;font-size:12px;padding:9px 16px;position:relative;z-index:6}.retained-review a{text-decoration:underline;text-underline-offset:3px}
+.onboarding-preview{border-top:1px solid #dce4ec;margin-top:22px;padding-top:18px}.onboarding-preview h2{font-size:17px;margin-bottom:8px}.onboarding-preview p{font-size:13px;color:#65748b}.king-diagram{display:grid;grid-template-columns:repeat(3,35px);gap:3px;margin:15px 0}.king-diagram span{display:grid;place-items:center;height:35px;background:#e8eef9;border-radius:4px;font-size:22px;color:#246cf0}.king-diagram span:nth-child(5){background:#dceaff;font-size:28px}
+@media(min-width:1101px){.home-v2 .game-list{grid-template-columns:repeat(4,minmax(0,1fr))}.home-v2 .hero-copy{max-width:540px}.home-v2 .hero h1{font-size:39px}}
+@media(min-width:1101px) and (max-width:1279px){.home-v2 .game-list{grid-template-columns:repeat(3,minmax(0,1fr))}.home-v2 .hero h1{font-size:33px}}
+@media(max-width:720px){.home-v2 .surface{padding-top:20px;border-radius:18px}.home-v2 .section-title{padding-top:12px}.home-v2 .section-title h2{font-size:21px}.home-v2 .game-list{gap:17px 12px;margin-bottom:28px}.home-v2 .game-launch .card-body{padding:13px 11px 9px;min-height:158px}.home-v2 .game-launch .game-name{font-size:17px}.home-v2 .game-card .game-intro{font-size:11px;line-height:1.7;min-height:36px;margin-bottom:9px}.home-v2 .hero-copy{padding:18px 16px;border-radius:14px}.home-v2 .hero h1{font-size:27px;letter-spacing:-1.2px}.home-v2 .hero .lead{font-size:13px}.home-v2 .modes{gap:5px}.home-v2 .modes button,.home-v2 .mode-link{min-height:100px}.retained-review{gap:12px;font-size:11px}.mini-layout{gap:18px}}
+@media(prefers-reduced-motion:reduce){.home-v2 .game-card{transition:none}}.home-v2 .surface{backdrop-filter:none;-webkit-backdrop-filter:none}
