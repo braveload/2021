@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-07",
+  "page": "https://panludiq.onrender.com/dice-strategy.html",
+  "richResults": {
+    "url": "https://search.google.com/test/rich-results/result?id=HHCIY4Fq4CpeMNTwDCE5rA",
+    "result": "No rich results detected",
+    "crawledKST": "2026-11-07 05:45:28",
+    "renderedHtmlContainsVideoGame": true
+  },
+  "schemaOrg": {
+    "status": "passed",
+    "url": "https://validator.schema.org/#url=https%3A%2F%2Fpanludiq.onrender.com%2Fdice-strategy.html",
+    "errors": 0,
+    "warnings": 0,
+    "types": [
+      "WebPage",
+      "WebSite",
+      "VideoGame"
+    ],
+    "verifiedDate": "2026-11-07"
+  },
+  "productionHttp": 200
+}

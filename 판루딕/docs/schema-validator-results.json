@@ -40,6 +40,10 @@
   },
   {
     "route": "dice-strategy.html",
-    "status": "External validator service error for URL and code input; local schema validation and deployed-source comparison passed."
+    "date": "2026-11-07",
+    "errors": 0,
+    "warnings": 0,
+    "status": "passed",
+    "url": "https://validator.schema.org/#url=https%3A%2F%2Fpanludiq.onrender.com%2Fdice-strategy.html"
   }
 ]
