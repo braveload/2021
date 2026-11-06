@@ -1,0 +1,170 @@
+[
+  {
+    "file": "lights.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/lights.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "불빛 뒤집기",
+          "item": "https://panludiq.onrender.com/lights.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "code-breaker.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/code-breaker.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "코드 브레이커",
+          "item": "https://panludiq.onrender.com/code-breaker.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "dice-strategy.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/dice-strategy.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "전략 주사위",
+          "item": "https://panludiq.onrender.com/dice-strategy.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "number-chain.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/number-chain.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "숫자 연쇄",
+          "item": "https://panludiq.onrender.com/number-chain.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "line-control.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/line-control.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "라인 컨트롤",
+          "item": "https://panludiq.onrender.com/line-control.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "chess.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/chess.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "12칸 미니 체스",
+          "item": "https://panludiq.onrender.com/chess.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  },
+  {
+    "file": "online.html",
+    "status": 200,
+    "visible": true,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "@id": "https://panludiq.onrender.com/online.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "판루딕",
+          "item": "https://panludiq.onrender.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "12칸 미니 체스 온라인 친구 대전",
+          "item": "https://panludiq.onrender.com/online.html"
+        }
+      ]
+    },
+    "reviewAdded": false
+  }
+]
