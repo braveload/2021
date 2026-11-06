@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-07",
+  "source": "Direct Google Rich Results Test URL submissions and expanded breadcrumb details",
+  "results": [
+    {
+      "route": "lights.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=t6dBQfa9rUWQBDGlSwjQLg",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:01:42에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:01:42에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/lights.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n불빛 뒤집기\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/lights.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "route": "code-breaker.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=YvBDwnpSIItrziAp2oS3Vw",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:02:19에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:02:19에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/code-breaker.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n코드 브레이커\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/code-breaker.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "route": "number-chain.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=Lp-nnb8PuI865WZQoG3qMg",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:02:57에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:02:57에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/number-chain.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n숫자 연쇄\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/number-chain.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "route": "line-control.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=IpAWzq8pbcPD_YzoSk_gfw",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:03:21에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:03:21에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/line-control.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n라인 컨트롤\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/line-control.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "route": "chess.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=9HseurENpmF0iMqcmmBDXg",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:03:41에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:03:41에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/chess.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n12칸 미니 체스\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/chess.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "route": "online.html",
+      "resultUrl": "https://search.google.com/test/rich-results/result?id=aplVUSf2chJens0SrC3nng",
+      "overview": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:04:01에 크롤링 완료\n\n감지된 구조화 데이터\ncheck_circle\n탐색경로\n유효한 항목 1개 감지됨\n\n추가 자료\n\n사이트 전체의 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "details": "리치 검색결과 테스트\n\n로그인\n\n\n\n테스트 결과\n\n탐색경로\n\n공유\ncheck_circle\n유효한 항목 1개 감지됨\n유효한 항목이 Google 검색의 리치 결과에 표시됩니다. 자세히 알아보기\n테스트된 페이지 보기\n결과 미리보기\n상세정보\n크롤링\ncheck_circle\n2026. 11. 7. 오전 7:04:01에 크롤링 완료\n\n감지된 항목 수\ncheck_circle\n이름 없는 항목\n\ntype\nBreadcrumbList\nid\nhttps://panludiq.onrender.com/online.html#breadcrumb\nitemListElement\ntype\nListItem\nposition\n1\nname\n판루딕\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/\nitemListElement\ntype\nListItem\nposition\n2\nname\n12칸 미니 체스 온라인 친구 대전\nitem\ntype\nThing\nid\nhttps://panludiq.onrender.com/online.html\n추가 자료\n\n사이트 전체의 탐색경로 리치 결과 모니터링\nSEARCH CONSOLE로 이동\n개인정보처리방침약관\n리치 검색결과 테스트 - Google Search Console",
+      "validItems": 1,
+      "errors": 0,
+      "warnings": 0
+    }
+  ]
+}
