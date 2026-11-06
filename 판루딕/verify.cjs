@@ -3,6 +3,7 @@ require('./schema-tests.cjs');
 require('./learning-tests.cjs');
 require('./lights-line-tests.cjs');
 require('./code-chain-tests.cjs');
+require('./board-practice-tests.cjs');
 const root=path.join(__dirname,'dist');for(const name of fs.readdirSync(root)){if(name.endsWith('.js'))cp.execFileSync(process.execPath,['--check',path.join(root,name)]);if(name.endsWith('.html')){let s=fs.readFileSync(path.join(root,name),'utf8');for(const m of s.matchAll(/(?:src|href)="([^"#]+)"/g)){let ref=m[1].split(/[?#]/)[0];if(!/^(https?:|data:)/.test(ref))assert(fs.existsSync(path.join(root,ref)),`${name}: missing ${ref}`)}assert(s.includes('guest.js'),`${name}: guest entry missing`)}}
 for(const t of ['tests.cjs','solo-tests.cjs','mini-tests.cjs','online-tests.cjs','foundation-tests.cjs','extra-tests.cjs'])cp.execFileSync(process.execPath,[path.join(__dirname,t)],{stdio:'inherit'});
 console.log('PASS: scripts, local asset links, guest entry on both pages and game engines');

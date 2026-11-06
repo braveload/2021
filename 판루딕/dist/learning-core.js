@@ -55,7 +55,20 @@
     return [...guess].map((digit,index)=>({digit,index,kind:digit===secret[index]?'exact':secret.includes(digit)?'misplaced':'absent',target:secret.indexOf(digit)}));
   }
   function chainConnection(id,end,card){const a=card(id),b=card(end),same=a.color===b.color,near=Math.abs(a.number-b.number)===1;return {same,near,ok:same||near,points:same||near?2+(near?1:0):0};}
-  const api = { lessons, feedback, previewDice, lightLessons, lineFeedback, codeLessons, chainLessons, codeComparison, chainConnection };
+  const diceLessons = [
+    {title:'주사위를 고르고 배치 점수 확인',cells:[],pair:[2,5],target:4,goal:'base',guide:'주사위 하나 → 표시된 빈칸 → 배치 확정 순서로 눌러보세요. 눈의 수가 기본점수예요.'},
+    {title:'가로 합 10~14는 +10점',cells:[[0,3],[1,4]],pair:[1,5],target:2,goal:'rows',guide:'3 + 4 + ? · 5를 골라 첫 가로줄을 완성해보세요.'},
+    {title:'세로 세 숫자가 모두 다르면 +8점',cells:[[0,1],[3,2]],pair:[1,3],target:6,goal:'columns',guide:'첫 세로줄은 1, 2, ? · 3을 고르면 모두 다른 숫자가 돼요.'},
+    {title:'대각선이 모두 홀수 또는 짝수면 +6점',cells:[[0,1],[4,3]],pair:[4,5],target:8,goal:'diagonals',guide:'대각선 1, 3, ? · 홀수 5로 완성해보세요. 모두 짝수여도 같은 보너스예요.'}
+  ];
+  const lineLessons = [
+    {title:'세 칸을 이으면 +3점',human:[10,11],ai:[0,4],target:12,goal:3,guide:'● 두 개 옆, 표시된 칸에 하나 더 놓아 가로 세 칸을 완성해보세요.'},
+    {title:'네 칸 연속은 겹치는 두 구간',human:[10,11,12],ai:[0,4],target:13,goal:3,guide:'이미 있는 3점에 새 구간 3점을 더해요. 네 번째 칸에 놓아 총 6점을 만들어보세요.'},
+    {title:'한 수로 교차하면 두 구간 +6점',human:[7,11,13,17],ai:[0,4],target:12,goal:6,guide:'가운데에 놓으면 가로와 세로가 동시에 완성돼요. 각 3점씩 모두 더합니다.'},
+    {title:'중앙 보너스는 경기 종료 때 합산',human:[6,12],ai:[7,18],target:16,goal:'center',guide:'연한 중앙 9칸에 놓고 종료 계산을 눌러보세요. 자기 돌마다 +1점이에요. 본게임은 총 20수 뒤 합산합니다.'}
+  ];
+  const lessonBoard=(cells,size,empty)=>{const board=Array(size).fill(empty);cells.forEach(([i,n])=>board[i]=n);return board;};
+  const api = { lessons, feedback, previewDice, lightLessons, lineFeedback, codeLessons, chainLessons, codeComparison, chainConnection, diceLessons, lineLessons, lessonBoard };
   if (typeof module !== 'undefined') module.exports = api;
   root.LearningCore = api;
 })(typeof window === 'undefined' ? globalThis : window);
