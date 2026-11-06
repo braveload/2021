@@ -19,4 +19,6 @@
     line.textContent = description;
     title.after(line);
   });
+  const lights=document.querySelector('.game-card.lights');
+  if(lights&&!lights.querySelector('.lights-practice-link')){const link=document.createElement('a');link.href='lights.html?practice=1';link.className='card-rules practice-entry lights-practice-link';link.textContent='시간제한 없는 그림 연습';lights.appendChild(link);}
 })();

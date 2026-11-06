@@ -71,3 +71,22 @@
 .dice-preview-panel small{display:block;font-size:11px;line-height:1.8;color:#5b718a;margin-top:10px}
 .dice-preview-panel button{width:100%;font-size:14px;min-height:44px}
 @media(max-width:720px){#triple-practice{padding:17px}#triple-practice h2{font-size:20px}.practice-board{gap:6px}.practice-board .tile{min-height:80px;padding:6px}.practice-board .triple-symbol{width:22px;height:22px}.practice-check{grid-template-columns:35px 1fr;gap:5px}.practice-check>span:last-child{grid-column:2}.practice-values{justify-content:flex-start}.practice-values>span{min-width:42px}.practice-actions>*{flex:1}.practice-challenge>button{width:100%}.practice-note{font-size:12px}.dice-preview-panel{padding:13px}.dice-preview-gain{font-size:12px}}
+.light-practice-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#526b85}
+.practice-light-board{max-width:340px;gap:8px}
+.practice-light-board .reverse-tile{position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:58px;box-shadow:none}
+.practice-light-board .reverse-tile small{font-size:10px}.practice-light-board .will-flip{outline:2px dashed #207d73;outline-offset:2px}
+.practice-light-board .practice-light-hint{border:3px solid #246cf0}.practice-light-board button:disabled{opacity:1}
+.light-practice-status{font-size:14px;line-height:1.8;padding:12px;background:#edf6ff;border-radius:10px}
+.light-return{margin-top:18px;width:100%}.lights-practice-link{display:flex;justify-content:center}
+.line-board-wrap{position:relative;max-width:440px;width:100%;margin:20px auto}
+.line-board-wrap .line-board{max-width:none;width:100%;margin:0}
+.line-score-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.score-connection{stroke:#2074bd;stroke-width:1.2;stroke-linecap:round;opacity:.6}
+.score-connection.player-2{stroke:#a26024;stroke-dasharray:3 2}
+.score-connection.recent-score{stroke-width:2;opacity:.9}
+.line-score-explanation{padding:16px;border:1px solid #d6e4f2;border-radius:14px;background:#f6faff;margin:14px 0}
+.line-score-explanation h3{font-size:16px;margin:0 0 8px}.line-score-legend{font-size:12px;color:#5b718a;line-height:1.8}
+.line-score-event{padding:10px 12px;margin:10px 0;border-left:3px solid #2074bd;background:#edf5ff;border-radius:7px;font-size:13px}
+.line-score-event.player-2{border-left:3px dashed #a26024;background:#fff6ec}.line-score-event p{font-size:12px;line-height:1.85;margin:6px 0}
+.line-score-event small{font-size:11px;line-height:1.8;color:#63748b}.center-score-reason{font-size:12px;line-height:1.85;color:#48647f;margin-bottom:0}
+@media(max-width:720px){.practice-light-board{max-width:280px;gap:6px}.practice-light-board .reverse-tile{min-height:48px}.line-score-explanation{padding:12px}.line-score-event{padding:9px}.light-practice-status{font-size:13px}}

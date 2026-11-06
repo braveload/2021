@@ -103,7 +103,7 @@
     panel.innerHTML = `<h3>배치 점수 미리보기</h3><p id="dice-preview-message" role="status" aria-live="polite">${p ? dicePreviewText(p) : state.data.selected===null?'주사위를 먼저 고르면 빈칸마다 점수 증가량이 표시돼요.':'빈칸의 +점수는 눈의 합과 이번 배치로 완성되는 보너스의 합이에요. 칸을 눌러 상세 내역을 확인하세요.'}</p>${p?'<button type="button" class="primary" data-confirm-place="'+p.index+'">이 칸에 배치하기</button>':''}<small>미리보기는 기록·배치 횟수·다음 주사위를 바꾸지 않아요. 아직 완성되지 않은 줄의 미래 보너스는 포함하지 않아요.</small>`;
     board.after(panel);
   }
-  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview(); scheduleAI(); }
+  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview(); if (game === 'line' && window.LineFeedback) LineFeedback.decorate(state, C); scheduleAI(); }
   function openRecords() {
     const read = store.records(), legacy = store.legacyLights(); $('#records-warning').textContent = [read.error, legacy.error].filter(Boolean).join(' ');
     $('#record-summary').innerHTML = Object.entries(C.GAMES).map(([id, g]) => {
