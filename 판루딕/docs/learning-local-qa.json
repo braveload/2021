@@ -1,0 +1,57 @@
+{
+  "beforeConfirm": {
+    "badges": 9,
+    "filled": 0,
+    "preview": "1행 1열 · 현재 0점 → 예상 4점 (+4점). 눈의 합 +4점 · 새로 완성되는 보너스 없음",
+    "status": "배치 0 / 9\n현재 점수 0점"
+  },
+  "afterConfirm": {
+    "confirm": false,
+    "filled": 1,
+    "status": "배치 1 / 9\n현재 점수 4점"
+  },
+  "pausedClock": "40",
+  "placementChecks": [
+    {
+      "cell": 0,
+      "expected": 8,
+      "actual": 8
+    },
+    {
+      "cell": 1,
+      "expected": 12,
+      "actual": 12
+    },
+    {
+      "cell": 2,
+      "expected": 25,
+      "actual": 25
+    },
+    {
+      "cell": 3,
+      "expected": 31,
+      "actual": 31
+    },
+    {
+      "cell": 5,
+      "expected": 37,
+      "actual": 37
+    },
+    {
+      "cell": 6,
+      "expected": 50,
+      "actual": 50
+    },
+    {
+      "cell": 7,
+      "expected": 53,
+      "actual": 53
+    },
+    {
+      "cell": 8,
+      "expected": 66,
+      "actual": 66
+    }
+  ],
+  "recordSummary": "코드 브레이커\n\n0승 / 0경기 · 최고 기록 없음\n\n불빛 뒤집기\n\n자유 모드 · 0회 성공 / 0경기 · 최소 기록 없음\n\n25회 도전 · 쉬움 · 0회 성공 / 0경기 · 최소 기록 없음\n\n25회 도전 · 보통 · 0회 성공 / 0경기 · 최소 기록 없음\n\n25회 도전 · 어려움 · 0회 성공 / 0경기 · 최소 기록 없음\n\n이전 리버스 타일 · 난이도 미분류 · 0회 성공 / 0경기 · 최소 기록 없음\n\n이전 불빛 뒤집기 · 자유 모드 0회 성공 · 최소 기록 없음\n\n전략 주사위\n\n1회 완료 · 최고 66점\n\n숫자 연쇄\n\n0회 완료 · 최고 기록 없음\n\n라인 컨트롤\n\n초급 · 내 선공 · 0승 0무 0패\n\n초급 · AI 선공 · 0승 0무 0패\n\n중급 · 내 선공 · 0승 0무 0패\n\n중급 · AI 선공 · 0승 0무 0패\n\n고급 · 내 선공 · 0승 0무 0패\n\n고급 · AI 선공 · 0승 0무 0패"
+}

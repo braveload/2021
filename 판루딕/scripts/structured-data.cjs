@@ -6,10 +6,10 @@ const website = { '@type': 'WebSite', '@id': origin + '/#website', url: origin +
 const games = [
   ['lights.html', '불빛 뒤집기', '누른 칸과 상하좌우의 불빛을 뒤집어 16칸을 모두 끄는 퍼즐입니다. 자유 모드와 난이도별 25회 도전을 제공합니다.', 'assets/lights-v2.svg', 'SinglePlayer', 1],
   [null, '숫자야구', '중복 없는 0~9 숫자를 3자리 또는 4자리로 추리합니다. 스트라이크와 볼을 단서로 시간제한 없이 10회 도전합니다.', 'assets/baseball-v2.svg', 'SinglePlayer', 1, 'baseball'],
-  [null, '트리플 코드', '9장의 카드 중 모양·개수·무늬가 목표 조건에 맞는 카드 3장을 고릅니다. 6라운드이며 라운드당 제한시간은 40초입니다.', null, 'SinglePlayer', 1, 'triple'],
+  [null, '트리플 코드', '시간제한 없는 그림 연습으로 모양·개수·무늬 조건을 익힌 뒤, 9장의 카드 중 조건에 맞는 3장을 고릅니다. 실제 도전은 6라운드이며 라운드당 제한시간은 40초입니다.', null, 'SinglePlayer', 1, 'triple'],
   [null, '기억의 짝', '카드 16장을 뒤집어 같은 그림 8쌍을 찾는 기억 게임입니다. 제한시간은 120초입니다.', null, 'SinglePlayer', 1, 'memory'],
   ['code-breaker.html', '코드 브레이커', '0~7 중 서로 다른 숫자 4개로 만든 암호를 위치 일치와 숫자 포함 단서로 추리합니다. 시간제한 없이 최대 8회 도전합니다.', 'assets/solo-code.svg', 'SinglePlayer', 1],
-  ['dice-strategy.html', '전략 주사위', '매 턴 주사위 두 개 중 하나를 골라 3×3 보드에 배치합니다. 9칸을 채운 뒤 눈의 합과 가로·세로·대각선 조건 보너스로 점수를 겨룹니다.', 'assets/solo-dice.svg', 'SinglePlayer', 1],
+  ['dice-strategy.html', '전략 주사위', '매 턴 주사위 두 개 중 하나를 고르고, 빈칸별 예상 점수와 보너스를 미리 확인한 뒤 3×3 보드에 배치를 확정합니다. 9칸을 채우면 눈의 합과 가로·세로·대각선 보너스로 최종 점수를 계산합니다.', 'assets/solo-dice.svg', 'SinglePlayer', 1],
   ['number-chain.html', '숫자 연쇄', '같은 색이거나 숫자 차이가 1인 카드를 양 끝에 연결합니다. 총 12회 배치하며 막혔을 때 최대 2회 재추첨할 수 있습니다.', 'assets/solo-chain.svg', 'SinglePlayer', 1],
   ['line-control.html', '라인 컨트롤', '5×5 보드에서 AI와 번갈아 각 10번 놓습니다. 연속 3칸 점수와 중앙 3×3 영역 보너스를 겨루며 AI 난이도와 선후공을 선택합니다.', 'assets/solo-line.svg', 'SinglePlayer', 1],
   ['chess.html', '12칸 미니 체스', '3열 4행 보드에서 한 기기로 번갈아 두는 로컬 2인 게임입니다. 상대 킹 포획 또는 상대 끝줄에 진입한 킹의 한 차례 생존으로 승리하며 잡은 말은 재투입할 수 있습니다.', null, 'MultiPlayer', 2],

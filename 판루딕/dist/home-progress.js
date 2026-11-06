@@ -73,10 +73,10 @@
     clearInterval(timer); const sid = session;
     timer = setInterval(() => { if (!active || sid !== session || pausedMs !== null) return; tick?.(); if (Date.now() >= state.deadline) { clearInterval(timer); expired?.(); } }, 100);
   }
-  clock = function (seconds, onExpired, onTick) { pausedMs = null; pauseAt = 0; expired = onExpired; tick = onTick; state.deadline = Date.now() + seconds * 1000; runClock(); if (document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open]')) pause(); };
+  clock = function (seconds, onExpired, onTick) { pausedMs = null; pauseAt = 0; expired = onExpired; tick = onTick; state.deadline = Date.now() + seconds * 1000; runClock(); if (document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open]')) pause(); };
   remaining = () => Math.max(0, Math.ceil((pausedMs ?? (state.deadline - Date.now())) / 1000));
   function pause() { if (!active || state?.id === 'baseball' || !expired || pausedMs !== null) return; pausedMs = Math.max(0, state.deadline - Date.now()); pauseAt = Date.now(); clearInterval(timer); tick?.(); save(); }
-  function resume() { if (!active || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
+  function resume() { if (!active || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
   cleanup = function () { if (active && !finishing) save(); pausedMs = null; expired = tick = null; original.cleanup(); write('panludiq.popup.active.v1', null); note(); badge(); };
   for (const name of ['finish', 'finishBaseball']) {
     const wrapped = (...args) => {
@@ -95,6 +95,8 @@
   }
   showGameRules = function (...args) { pause(); return original.showGameRules(...args); };
   document.getElementById('game-rules').addEventListener('close', resume);
+  document.getElementById('triple-practice')?.addEventListener('close', resume);
+  if (document.getElementById('triple-practice')) new MutationObserver(() => { if (document.getElementById('triple-practice').open) pause(); }).observe(document.getElementById('triple-practice'), { attributes: true, attributeFilter: ['open'] });
   document.getElementById('confirm-dialog').addEventListener('close', resume);
   new MutationObserver(() => { if (document.getElementById('confirm-dialog').open) pause(); }).observe(document.getElementById('confirm-dialog'), { attributes: true, attributeFilter: ['open'] });
   function restore(x) {

@@ -8,7 +8,7 @@
   const store = SoloStore.create(storage);
   const rules = window.SoloRules;
   const descriptions = { chain: '같은 색 또는 이웃 숫자. 양쪽 끝에 연결해 12번의 연쇄를 완성하세요.', line: '연속 세 칸을 만들고 중앙을 확보하세요. AI와 열 번씩 놓는 한 판.', code: '숫자 네 개, 여덟 번의 기회. 단서로 암호를 좁혀보세요.', reverse: '불빛을 모두 끄세요. 자유롭게 풀거나, 난이도를 골라 25회에 도전하세요.', dice: '두 눈 중 하나를 고르고, 아홉 칸의 조합을 완성하세요.' };
-  let state, draft = '', pendingSettings = null, chainSelected = null, aiTimer = null;
+  let state, draft = '', pendingSettings = null, chainSelected = null, aiTimer = null, dicePreviewIndex = null;
   function scheduleAI() {
     clearTimeout(aiTimer);
     if (game !== 'line' || state.status !== 'playing' || state.data.turn !== 2) return;
@@ -41,7 +41,7 @@
       if (game === 'code') { $('#code-guess')?.setAttribute('aria-invalid', 'true'); focus('#code-guess'); }
       return;
     }
-    state = result.state; chainSelected = null; if (game === 'code') draft = ''; save(); render();
+    state = result.state; chainSelected = null; dicePreviewIndex = null; if (game === 'code') draft = ''; save(); render();
     const r = C.result(state);
     if (r.terminal) { $('#move-message').textContent = state.status === 'lost' ? '이번 도전이 끝났습니다. 결과와 기록을 확인하세요.' : '도전을 완료했습니다. 결과와 기록을 확인하세요.'; Sound.play(state.status === 'lost' ? 'lose' : state.status === 'draw' ? 'select' : 'win'); focus('#phase-heading'); }
     else {
@@ -80,9 +80,30 @@
   }
   function diceView() {
     const d = state.data, playing = state.status === 'playing';
-    return `${banner()}${playing ? '<h2 id="phase-heading" tabindex="-1" class="visually-hidden">주사위 배치</h2>' : ''}<div class="play-status"><span>배치 <strong>${d.turns}<small> / 9</small></strong></span><span>현재 점수 <strong class="score-number">${C.diceScore(d.board).total}<small>점</small></strong></span></div>${diceGoal()}<div class="dice-layout"><div><p class="short-rule">눈의 합 + 완성된 가로·세로·대각선 보너스</p><div class="dice-board" role="group" aria-label="3행 3열 주사위 배치판">${d.board.map((n, i) => `<button class="dice-cell ${n === null ? '' : 'filled'}" data-place="${i}" aria-label="${Math.floor(i / 3) + 1}행 ${i % 3 + 1}열 ${n === null ? '빈칸에 배치' : `주사위 ${n}` }" ${n !== null || !playing ? 'disabled' : ''}>${n === null ? '<span aria-hidden="true">＋</span>' : n}</button>`).join('')}</div></div><div>${playing ? `<section class="dice-offer" aria-label="이번 턴 주사위"><h3>${d.turns + 1}턴 · 하나를 고르세요</h3><p>선택 후 빈칸을 누르면 배치됩니다.</p><div class="dice-pair">${d.pair.map((n, i) => `<button data-select="${i}" aria-pressed="${d.selected === i}" aria-label="${i + 1}번 주사위 ${n} 선택"><span>${n}</span><small>${i + 1}번 주사위</small></button>`).join('')}</div><p class="dice-selection">${d.selected === null ? '아직 선택하지 않았습니다.' : `${d.pair[d.selected]} 선택 중 · 배치 전에는 바꿀 수 있어요.`}</p></section>` : ''}${breakdown()}<details class="dice-breakdown"><summary>보너스 조건</summary><p>가로줄 합 10~14: +10점</p><p>세로줄 세 숫자 모두 다름: +8점</p><p>대각선 세 숫자 모두 홀수/짝수: +6점</p></details></div></div>`;
+    return `${banner()}${playing ? '<h2 id="phase-heading" tabindex="-1" class="visually-hidden">주사위 배치</h2>' : ''}<div class="play-status"><span>배치 <strong>${d.turns}<small> / 9</small></strong></span><span>현재 점수 <strong class="score-number">${C.diceScore(d.board).total}<small>점</small></strong></span></div>${diceGoal()}<div class="dice-layout"><div><p class="short-rule">눈의 합 + 완성된 가로·세로·대각선 보너스</p><div class="dice-board" role="group" aria-label="3행 3열 주사위 배치판">${d.board.map((n, i) => `<button class="dice-cell ${n === null ? '' : 'filled'}" data-place="${i}" aria-label="${Math.floor(i / 3) + 1}행 ${i % 3 + 1}열 ${n === null ? '빈칸에 배치' : `주사위 ${n}` }" ${n !== null || !playing ? 'disabled' : ''}>${n === null ? '<span aria-hidden="true">＋</span>' : n}</button>`).join('')}</div></div><div>${playing ? `<section class="dice-offer" aria-label="이번 턴 주사위"><h3>${d.turns + 1}턴 · 하나를 고르세요</h3><p>주사위 → 빈칸 미리보기 → 배치 확정 순서로 놓아요.</p><div class="dice-pair">${d.pair.map((n, i) => `<button data-select="${i}" aria-pressed="${d.selected === i}" aria-label="${i + 1}번 주사위 ${n} 선택"><span>${n}</span><small>${i + 1}번 주사위</small></button>`).join('')}</div><p class="dice-selection">${d.selected === null ? '아직 선택하지 않았습니다.' : `${d.pair[d.selected]} 선택 중 · 배치 전에는 바꿀 수 있어요.`}</p></section>` : ''}${breakdown()}<details class="dice-breakdown"><summary>보너스 조건</summary><p>가로줄 합 10~14: +10점</p><p>세로줄 세 숫자 모두 다름: +8점</p><p>대각선 세 숫자 모두 홀수/짝수: +6점</p></details></div></div>`;
   }
-  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); scheduleAI(); }
+  function previewAt(index) {
+    if (game !== 'dice' || state.status !== 'playing' || state.data.selected === null || !window.LearningCore) return null;
+    return LearningCore.previewDice(state.data.board, state.data.pair[state.data.selected], index, C.diceScore);
+  }
+  function dicePreviewText(p) {
+    return `${Math.floor(p.index/3)+1}행 ${p.index%3+1}열 · 현재 ${p.before}점 → 예상 ${p.total}점 (+${p.delta}점). 눈의 합 +${p.base}점${p.gains.length ? ' · '+p.gains.map(g=>`${g.label} 보너스 +${g.points}점`).join(' · ') : ' · 새로 완성되는 보너스 없음'}`;
+  }
+  function decorateDicePreview() {
+    if (game !== 'dice' || state.status !== 'playing' || !window.LearningCore) return;
+    const board = $('#play .dice-board');
+    board.querySelectorAll('[data-place]').forEach(b => {
+      const p = previewAt(Number(b.dataset.place)); if (!p) return;
+      const badge = document.createElement('small');badge.className='dice-preview-gain';badge.textContent=`+${p.delta}점`;b.appendChild(badge);
+      b.setAttribute('aria-label', dicePreviewText(p)+' · 누르면 상세 미리보기');
+      b.classList.toggle('preview-chosen',Number(b.dataset.place)===dicePreviewIndex);
+    });
+    const panel = document.createElement('section');panel.className='dice-preview-panel';panel.setAttribute('aria-label','배치 점수 미리보기');
+    const p = previewAt(dicePreviewIndex);
+    panel.innerHTML = `<h3>배치 점수 미리보기</h3><p id="dice-preview-message" role="status" aria-live="polite">${p ? dicePreviewText(p) : state.data.selected===null?'주사위를 먼저 고르면 빈칸마다 점수 증가량이 표시돼요.':'빈칸의 +점수는 눈의 합과 이번 배치로 완성되는 보너스의 합이에요. 칸을 눌러 상세 내역을 확인하세요.'}</p>${p?'<button type="button" class="primary" data-confirm-place="'+p.index+'">이 칸에 배치하기</button>':''}<small>미리보기는 기록·배치 횟수·다음 주사위를 바꾸지 않아요. 아직 완성되지 않은 줄의 미래 보너스는 포함하지 않아요.</small>`;
+    board.after(panel);
+  }
+  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview(); scheduleAI(); }
   function openRecords() {
     const read = store.records(), legacy = store.legacyLights(); $('#records-warning').textContent = [read.error, legacy.error].filter(Boolean).join(' ');
     $('#record-summary').innerHTML = Object.entries(C.GAMES).map(([id, g]) => {
@@ -132,10 +153,20 @@
     else if (b.hasAttribute('data-line-cell') && state.data.turn === 1) execute({ type: 'place', index: Number(b.dataset.lineCell) }, '#phase-heading');
     else if (b.hasAttribute('data-press')) execute({ type: 'press', index: Number(b.dataset.press) }, `[data-press="${b.dataset.press}"]`);
     else if (b.hasAttribute('data-select')) execute({ type: 'select', index: Number(b.dataset.select) }, `[data-select="${b.dataset.select}"]`);
-    else if (b.hasAttribute('data-place')) execute({ type: 'place', index: Number(b.dataset.place) }, '[data-select="0"]');
+    else if (b.hasAttribute('data-place')) {
+      if (!window.LearningCore) { execute({ type:'place', index:Number(b.dataset.place) }, '[data-select="0"]'); return; }
+      if (state.data.selected === null) { $('#move-message').textContent = '먼저 주사위 하나를 선택해주세요.'; return; }
+      dicePreviewIndex = Number(b.dataset.place); render(); focus('[data-confirm-place]');
+    }
+    else if (b.hasAttribute('data-confirm-place')) { const index=Number(b.dataset.confirmPlace); if (index===dicePreviewIndex && previewAt(index)) execute({ type: 'place', index }, '[data-select="0"]'); }
     else if (b.hasAttribute('data-digit')) { const input = $('#code-guess'); if (input.value.length < 4) input.value += b.dataset.digit; draft = input.value; input.focus(); }
     else if (b.hasAttribute('data-new')) newState();
     else if (b.hasAttribute('data-records')) openRecords();
+  });
+  for (const type of ['pointerover','focusin']) $('#play').addEventListener(type, event => {
+    if (dicePreviewIndex !== null) return;
+    const b = event.target.closest('[data-place]'); if (!b || b.disabled) return;
+    const p = previewAt(Number(b.dataset.place)); if (p) $('#dice-preview-message').textContent = dicePreviewText(p);
   });
   $('#play').addEventListener('keydown', event => {
     const b = event.target.closest('[data-press],[data-place],[data-line-cell]'); if (!b) return;

@@ -43,3 +43,31 @@
 .page-breadcrumb a{text-decoration:underline;text-underline-offset:3px;color:#496c93}
 .page-breadcrumb [aria-current=page]{color:#334f70}
 @media(max-width:720px){.page-breadcrumb{font-size:11px;margin-bottom:15px}.page-breadcrumb li+li:before{margin:0 8px}}
+/* Learning aids use the retained glass, card and blue/teal visual language. */
+.practice-entry{min-height:44px;font-size:13px;color:#2461a1;background:#eef5ff;border:1px solid #d7e5f5;border-radius:9px;padding:9px 14px}
+.home-v2 .practice-entry{background:#edf5ff;color:#2461a1;border-top:1px solid #dce6ed}
+#triple-practice{width:min(820px,calc(100% - 24px));padding:24px}
+#triple-practice h2{font-size:23px;line-height:1.4;margin:0 0 10px}
+.practice-note{font-size:13px;color:#5d728c;line-height:1.8}
+.practice-target{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#eef3ff;border-radius:12px}
+.practice-target span{font-size:13px;padding:3px 6px}.practice-target b{margin-right:6px}
+.practice-board{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.practice-board .tile{min-height:92px;padding:8px}.practice-board .triple-symbol{width:28px;height:28px}
+.practice-board .triple-symbols{display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+.practice-board .pattern{width:100%;font-size:11px}
+.practice-check{display:grid;grid-template-columns:48px 1fr minmax(110px,1fr);align-items:center;gap:10px;padding:12px 8px;border-bottom:1px solid #dce6ed;font-size:13px}
+.practice-values{display:flex;gap:10px;justify-content:center;min-width:0}
+.practice-values>span{display:flex;flex-direction:column;align-items:center;min-width:44px;gap:3px}
+.practice-values .triple-symbol{width:23px;height:23px}.practice-values .pattern{display:none}
+.practice-check small{display:block;font-size:11px;color:#61768d;line-height:1.7}
+.practice-check.is-correct{background:#edf8f2}.practice-check.is-wrong{background:#fff4e9}
+.practice-outcome{font-size:14px;line-height:1.8;font-weight:600}.practice-actions{flex-wrap:wrap}
+.practice-challenge{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px;padding-top:15px;border-top:1px solid #dce6ed}
+.practice-challenge small{font-size:12px;color:#61768d}
+.dice-cell{flex-direction:column;gap:6px}.dice-preview-gain{font-size:14px;font-weight:700;color:#2461a1;line-height:1.4}
+.dice-cell.preview-chosen{border:2px solid #246cf0;background:#e6f0ff}
+.dice-preview-panel{padding:16px;margin-top:16px;border:1px solid #ccdeef;background:#eff6ff;border-radius:14px}
+.dice-preview-panel h3{font-size:15px;margin:0 0 8px}.dice-preview-panel p{font-size:13px;line-height:1.85;min-height:48px;margin:0 0 10px}
+.dice-preview-panel small{display:block;font-size:11px;line-height:1.8;color:#5b718a;margin-top:10px}
+.dice-preview-panel button{width:100%;font-size:14px;min-height:44px}
+@media(max-width:720px){#triple-practice{padding:17px}#triple-practice h2{font-size:20px}.practice-board{gap:6px}.practice-board .tile{min-height:80px;padding:6px}.practice-board .triple-symbol{width:22px;height:22px}.practice-check{grid-template-columns:35px 1fr;gap:5px}.practice-check>span:last-child{grid-column:2}.practice-values{justify-content:flex-start}.practice-values>span{min-width:42px}.practice-actions>*{flex:1}.practice-challenge>button{width:100%}.practice-note{font-size:12px}.dice-preview-panel{padding:13px}.dice-preview-gain{font-size:12px}}
