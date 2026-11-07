@@ -20,6 +20,7 @@
     title.after(line);
   });
   for(const [name,url] of [['코드 브레이커','code-breaker.html'],['숫자 연쇄','number-chain.html'],['전략 주사위','dice-strategy.html'],['라인 컨트롤','line-control.html']]){const card=[...document.querySelectorAll('.game-card')].find(c=>c.querySelector('.game-name')?.textContent.trim()===name);if(card&&!card.querySelector('.picture-practice-link')){const a=document.createElement('a');a.href=url+'?practice=1';a.className='card-rules practice-entry picture-practice-link';a.textContent='시간제한 없는 그림 연습';card.appendChild(a);}}
+  const chess=document.querySelector('.classic-entry .actions');if(chess&&!chess.querySelector('.mini-practice-link')){const a=document.createElement('a');a.href='chess.html?practice=1';a.className='button practice-entry mini-practice-link';a.textContent='시간제한 없는 그림 연습';chess.appendChild(a);}
   const lights=document.querySelector('.game-card.lights');
   if(lights&&!lights.querySelector('.lights-practice-link')){const link=document.createElement('a');link.href='lights.html?practice=1';link.className='card-rules practice-entry lights-practice-link';link.textContent='시간제한 없는 그림 연습';lights.appendChild(link);}
 })();
