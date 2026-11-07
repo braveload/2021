@@ -68,7 +68,20 @@
     {title:'중앙 보너스는 경기 종료 때 합산',human:[6,12],ai:[7,18],target:16,goal:'center',guide:'연한 중앙 9칸에 놓고 종료 계산을 눌러보세요. 자기 돌마다 +1점이에요. 본게임은 총 20수 뒤 합산합니다.'}
   ];
   const lessonBoard=(cells,size,empty)=>{const board=Array(size).fill(empty);cells.forEach(([i,n])=>board[i]=n);return board;};
-  const api = { lessons, feedback, previewDice, lightLessons, lineFeedback, codeLessons, chainLessons, codeComparison, chainConnection, diceLessons, lineLessons, lessonBoard };
+  const baseballLessons=[
+    {title:'스트라이크 S · 숫자와 자리 모두 일치',secret:'037',guess:'038'},
+    {title:'볼 B · 숫자는 있지만 다른 자리',secret:'037',guess:'307'},
+    {title:'아웃 · 0S 0B는 포함된 숫자 없음',secret:'037',guess:'148'},
+    {title:'세 자리 숫자를 직접 맞혀보기',secret:'037',guess:null},
+    {title:'네 자리도 같은 방법으로',secret:'0379',guess:null}
+  ];
+  const memoryLessons=[
+    {title:'두 장을 뒤집어 같은 그림 찾기',deck:[0,0]},
+    {title:'서로 다르면 기억하고 다시 뒤집기',deck:[0,1,0,1]},
+    {title:'천천히 세 쌍을 모두 찾아보기',deck:[0,1,2,0,2,1]}
+  ];
+  function memoryFlip(s,index){if(!Number.isInteger(index)||index<0||index>=s.deck.length||s.open.length===2||s.open.includes(index)||s.matched.includes(index))return s;const out={...s,open:[...s.open,index],matched:s.matched.slice()};if(out.open.length===2){const [a,b]=out.open;if(s.deck[a]===s.deck[b]){out.matched.push(a,b);out.open=[];}else out.errors++;}return out;}
+  const api = { lessons, feedback, previewDice, lightLessons, lineFeedback, codeLessons, chainLessons, codeComparison, chainConnection, diceLessons, lineLessons, lessonBoard, baseballLessons, memoryLessons, memoryFlip };
   if (typeof module !== 'undefined') module.exports = api;
   root.LearningCore = api;
 })(typeof window === 'undefined' ? globalThis : window);

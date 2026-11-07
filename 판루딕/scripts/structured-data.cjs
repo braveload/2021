@@ -5,9 +5,9 @@ const origin = 'https://panludiq.onrender.com';
 const website = { '@type': 'WebSite', '@id': origin + '/#website', url: origin + '/', name: '판루딕', alternateName: 'PANLUDIQ', inLanguage: 'ko' };
 const games = [
   ['lights.html', '불빛 뒤집기', '그림 연습에서 함께 바뀌는 칸을 확인하고, 누른 칸과 상하좌우의 불빛을 뒤집어 16칸을 모두 끕니다. 기록과 분리된 연습, 자유 모드, 난이도별 25회 도전을 제공합니다.', 'assets/lights-v2.svg', 'SinglePlayer', 1],
-  [null, '숫자야구', '중복 없는 0~9 숫자를 3자리 또는 4자리로 추리합니다. 스트라이크와 볼을 단서로 시간제한 없이 10회 도전합니다.', 'assets/baseball-v2.svg', 'SinglePlayer', 1, 'baseball'],
+  [null, '숫자야구', '기록과 분리된 시간·횟수 제한 없는 그림 연습에서 스트라이크·볼·아웃과 3자리·4자리 입력을 배웁니다. 본게임은 중복 없는 0~9 숫자를 추리하며 시간제한 없이 10회 도전합니다.', 'assets/baseball-v2.svg', 'SinglePlayer', 1, 'baseball'],
   [null, '트리플 코드', '시간제한 없는 그림 연습으로 모양·개수·무늬 조건을 익힌 뒤, 9장의 카드 중 조건에 맞는 3장을 고릅니다. 실제 도전은 6라운드이며 라운드당 제한시간은 40초입니다.', null, 'SinglePlayer', 1, 'triple'],
-  [null, '기억의 짝', '카드 16장을 뒤집어 같은 그림 8쌍을 찾는 기억 게임입니다. 제한시간은 120초입니다.', null, 'SinglePlayer', 1, 'memory'],
+  [null, '기억의 짝', '기록과 분리된 시간·오답 제한 없는 그림 연습에서 카드를 뒤집고 짝을 찾습니다. 연습의 서로 다른 두 카드는 직접 닫습니다. 본게임은 카드 16장으로 같은 그림 8쌍을 찾으며 제한시간은 120초입니다.', null, 'SinglePlayer', 1, 'memory'],
   ['code-breaker.html', '코드 브레이커', '그림 연습에서 공개된 연습 정답과 입력을 비교하고, 본게임에서 0~7 중 서로 다른 숫자 4개의 암호를 위치 일치와 숫자 포함 단서로 추리합니다. 기록과 분리된 연습은 시간·횟수 제한이 없으며 본게임은 시간제한 없이 최대 8회 도전합니다.', 'assets/solo-code.svg', 'SinglePlayer', 1],
   ['dice-strategy.html', '전략 주사위', '기록과 분리된 시간·횟수 제한 없는 그림 연습에서 배치와 기본점수·가로·세로·대각선 보너스를 배웁니다. 본게임은 매 턴 주사위 두 개 중 하나를 고르고 예상 점수를 확인해 3×3 보드에 배치를 확정하며, 9칸의 눈의 합과 보너스로 최종 점수를 계산합니다.', 'assets/solo-dice.svg', 'SinglePlayer', 1],
   ['number-chain.html', '숫자 연쇄', '시간·횟수 제한 없는 그림 연습에서 같은 색·숫자 차이 1·양 끝 선택·재추첨을 배웁니다. 연습은 기록과 분리됩니다. 본게임은 카드를 양 끝에 총 12회 배치하며 막혔을 때 최대 2회 재추첨할 수 있습니다.', 'assets/solo-chain.svg', 'SinglePlayer', 1],
