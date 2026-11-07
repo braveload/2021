@@ -44,6 +44,16 @@ function generate() {
         isPartOf: { '@id': website['@id'] }, mainEntity: { '@id': home ? origin + '/#games-list' : game['@id'] } };
       const graph = [website, page];
       if (home) {
+        const organization = { '@type': 'Organization', '@id': origin + '/#organization',
+          name: '판루딕', alternateName: 'PANLUDIQ', url: origin + '/',
+          description: page.description,
+          logo: { '@type': 'ImageObject', '@id': origin + '/#logo',
+            url: origin + '/assets/logo-transparent-v3.png', contentUrl: origin + '/assets/logo-transparent-v3.png',
+            width: 1968, height: 799, caption: '판루딕 PANLUDIQ' } };
+        graph[0] = { ...website, publisher: { '@id': organization['@id'] } };
+        page.publisher = { '@id': organization['@id'] };
+        page.about = { '@id': organization['@id'] };
+        graph.push(organization);
         const entries = games.slice(0, 9).map(entity);
         graph.push({ '@type': 'ItemList', '@id': origin + '/#games-list', name: '판루딕 게임 목록', numberOfItems: entries.length,
           itemListElement: entries.map((item, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@id': item['@id'] } })) }, ...entries);

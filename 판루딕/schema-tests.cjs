@@ -27,7 +27,18 @@ for (const file of fs.readdirSync(root).filter(f => f.endsWith('.html'))) {
       entities++;
     }
   }
-  if (file === 'index.html') assert.equal(graph.find(x => x['@type'] === 'ItemList').numberOfItems, 9);
+  if (file === 'index.html') {
+    assert.equal(graph.find(x => x['@type'] === 'ItemList').numberOfItems, 9);
+    const org=graph.find(x=>x['@type']==='Organization'),site=graph.find(x=>x['@type']==='WebSite');
+    assert.equal(org.name,'판루딕');assert.equal(org.alternateName,'PANLUDIQ');assert.equal(org.url,origin+'/');
+    assert.equal(site.publisher['@id'],org['@id']);assert.equal(page.publisher['@id'],org['@id']);
+    assert.equal(org.logo.url,org.logo.contentUrl);assert(html.includes('src="assets/logo-transparent-v3.png"'));
+    const png=fs.readFileSync(path.join(root,'assets/logo-transparent-v3.png'));
+    assert.equal(org.logo.width,png.readUInt32BE(16));assert.equal(org.logo.height,png.readUInt32BE(20));
+    assert(org.logo.width>=112&&org.logo.height>=112);
+    for(const unsupported of ['aggregateRating','review','legalName','telephone','address','sameAs','taxID'])assert(!Object.hasOwn(org,unsupported));
+    assert(!graph.some(x=>x['@type']==='BreadcrumbList'),'Do not invent a homepage hierarchy');
+  }
   else {
     assert.equal(graph.filter(x => x['@type'] === 'VideoGame').length, 1);
     const crumbs = graph.filter(x => x['@type'] === 'BreadcrumbList');
