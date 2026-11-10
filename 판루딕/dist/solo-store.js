@@ -2,16 +2,19 @@
   'use strict';
   const Core = typeof module !== 'undefined' ? require('./solo-core.js') : root.SoloCore;
   const PREFIX = 'panludiq.solo.', HISTORY = `${PREFIX}records.v1`;
-  function create(storage) {
-    const key = game => `${PREFIX}${game}.session.v1`;
+  function create(storage, options = {}) {
+    const review = options.review === true, prefix = review ? 'panludiq.review.' : PREFIX, history = `${prefix}records.v1`;
+    const Replay = typeof module !== 'undefined' ? require('./replay-core.js') : root.ReplayCore;
+    const validState = s => Core.valid(s) && (review ? Replay.valid(s) : !s.reviewSource);
+    const key = game => `${prefix}${game}.session.v1`;
     function get(k) { try { return { raw: storage.getItem(k), error: '' }; } catch { return { raw: null, error: '브라우저 저장소에 접근할 수 없습니다.' }; } }
     function load(game) {
       const read = get(key(game)); if (read.error || !read.raw) return { state: null, error: read.error };
-      try { const s = JSON.parse(read.raw); if (s.game === game && Core.valid(s)) return { state: s, error: '' }; } catch {}
+      try { const s = JSON.parse(read.raw); if (s.game === game && validState(s)) return { state: s, error: '' }; } catch {}
       return { state: null, error: '저장된 진행의 형식이나 규칙 버전이 맞지 않습니다. 새 도전으로 시작해주세요.' };
     }
     function records() {
-      const read = get(HISTORY); if (read.error) return { rows: [], error: read.error, invalid: false };
+      const read = get(history); if (read.error) return { rows: [], error: read.error, invalid: false };
       if (!read.raw) return { rows: [], error: '', invalid: false };
       try {
         const rows = JSON.parse(read.raw); if (!Array.isArray(rows)) throw Error();
@@ -34,24 +37,26 @@
       } catch { return { rows: [], error: '이전 자유 모드 기록을 읽지 못했습니다. 원본은 변경하지 않았습니다.' }; }
     }
     function save(s) {
-      if (!Core.valid(s)) return { ok: false, error: '유효하지 않은 진행은 저장하지 않았습니다.' };
+      if (!validState(s)) return { ok: false, error: '유효하지 않은 진행은 저장하지 않았습니다.' };
       try {
         const previous = load(s.game); if (previous.error) backup(key(s.game));
         storage.setItem(key(s.game), JSON.stringify(s));
         const row = Core.record(s);
+        if (row && s.game === 'reverse') row.puzzleBoard = s.data.initialBoard;
+        if (row && review) { row.attemptType='review'; row.sourceId=s.reviewSource.id; }
         if (row) {
-          const marker = `${PREFIX}${s.game}.recorded.v1`;
-          const read = records(); if (read.invalid) backup(HISTORY);
+          const marker = `${prefix}${s.game}.recorded.v1`;
+          const read = records(); if (read.invalid) backup(history);
           const rows = read.rows;
           if ((read.invalid || storage.getItem(marker) !== row.id) && !rows.some(r => r.id === row.id && r.game === row.game)) {
-            rows.unshift(row); storage.setItem(HISTORY, JSON.stringify(rows.slice(0, 100)));
+            rows.unshift(row); storage.setItem(history, JSON.stringify(rows.slice(0, 100)));
           }
           storage.setItem(marker, row.id);
         }
         return { ok: true, error: '' };
       } catch { return { ok: false, error: '진행 또는 완료 기록을 저장하지 못했습니다. 이 페이지에서는 계속 플레이할 수 있습니다.' }; }
     }
-    return { load, save, records, legacyLights, sessionKey: key, historyKey: HISTORY };
+    return { load, save, records, legacyLights, sessionKey: key, historyKey: history };
   }
   const api = { create, PREFIX, HISTORY };
   if (typeof module !== 'undefined') module.exports = api;
