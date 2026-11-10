@@ -1,0 +1,10 @@
+(function(root){'use strict';const C=typeof module!=='undefined'?require('./arcade-core.js'):root.ArcadeCore;
+function create(storage){const prefix='panludiq.arcade.',historyKey=prefix+'records.v1',key=g=>prefix+g+'.session.v1';
+ function read(k){try{return {raw:storage.getItem(k),error:''};}catch{return{raw:null,error:'브라우저 저장소를 사용할 수 없습니다.'};}}
+ function backup(k,raw){if(raw&&!storage.getItem(k+'.backup'))storage.setItem(k+'.backup',raw);}
+ function load(g){const r=read(key(g));if(r.error||!r.raw)return {state:null,error:r.error};try{const s=JSON.parse(r.raw);if(s.game===g&&C.valid(s))return{state:s,error:''};}catch{}return{state:null,error:'진행 형식이 맞지 않습니다. 새 저장 시 원본을 별도 보존합니다.'};}
+ function records(){const r=read(historyKey);if(r.error)return{rows:[],error:r.error,invalid:false};if(!r.raw)return{rows:[],error:'',invalid:false};try{const a=JSON.parse(r.raw);if(!Array.isArray(a))throw Error();const valid=a.filter(C.validRecord);return{rows:valid.filter((r,i)=>valid.findIndex(x=>x.id===r.id&&x.game===r.game)===i).slice(0,100),invalid:valid.length!==a.length,error:valid.length!==a.length?'일부 기록은 표시하지 않았습니다. 원본은 보존합니다.':''};}catch{return{rows:[],invalid:true,error:'기록을 읽지 못했습니다. 원본은 별도 보존합니다.'};}}
+ function save(s){if(!C.valid(s))return{ok:false,error:'유효하지 않은 진행은 저장하지 않았습니다.'};try{const prev=load(s.game);if(prev.error)backup(key(s.game),storage.getItem(key(s.game)));storage.setItem(key(s.game),JSON.stringify(s));const row=C.record(s);if(row){const r=records();if(r.error&&!r.invalid)return{ok:false,error:r.error};if(r.invalid)backup(historyKey,storage.getItem(historyKey));if(!r.rows.some(x=>x.game===row.game&&x.id===row.id)){r.rows.unshift(row);storage.setItem(historyKey,JSON.stringify(r.rows.slice(0,100)));}}return{ok:true,error:''};}catch{return{ok:false,error:'진행 저장을 완료하지 못했습니다. 현재 페이지의 진행은 유지됩니다.'};}}
+ return {load,save,records,sessionKey:key,historyKey};}
+const api={create};if(typeof module!=='undefined')module.exports=api;root.ArcadeStore=api;
+})(typeof window==='undefined'?globalThis:window);

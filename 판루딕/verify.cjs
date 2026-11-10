@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),assert=require('node:assert/strict');
 require('./schema-tests.cjs');
 require('./replay-tests.cjs');
+require('./arcade-tests.cjs');
 require('./learning-tests.cjs');
 require('./lights-line-tests.cjs');
 require('./code-chain-tests.cjs');
