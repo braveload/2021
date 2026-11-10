@@ -17,3 +17,11 @@
 검증: 전체build/엔진/스키마·그림연습통과. keyboard-browser-tests(클릭없는본문시작/대소문자AD·화살표·Enter/Space/P/Esc/설명·게스트창보호/버튼Enter/조준저장복구)통과. playful-browser-tests 12페이지×5너비60배치,투명PNG모서리alpha0/몸체alpha>240·전페이지/3팝업루디·게임판밖배치·입체그림자·실제마우스누름이동과치수보존·가로넘침없음 통과. responsive98배치/레일경계,arcade4종플레이·완료·복구·저장거부재시도·기록보존, replay정규/복습분리·기존3종,individual기존진입/저장,stability시간정지/체스복구,popup-completion6라운드/8짝모두통과. 예외0. PC/모바일너비캡처확인.
 검수보완: 숫자연쇄선택버튼에초기입체그림자누락→전용선택자추가. 불빛페이지ID lights/규칙ID reverse 차이로루디가일반체스문구를보임→별칭정규화. 사천/주사위선택버튼의우선순위와primary컬러우선순위보완,블록팝문양대비강화. 상용캐릭터/브랜드복제없이생성이미지및코드도형사용.
 재개: 단계1 eca2a9e. 로컬검증끝. 다음단계커밋후기존Render경로로배포, 최신공개파일과루디바이너리해시확인후실서비스검사. 실제모바일기기/Safari/스크린리더/이용자만족도는미검증. 보류게임/온라인서버/미추적자료보존.
+
+## 3단계 · 배포 및 실제 사이트 검증 완료
+2026-11-10 16:08:10 KST, 제품 8e2268af5810aee9fdf9e7e5a1674e94fce689d1 / Render dep-dbpc5gh42hec73dbjle0 live. 기존배포브랜치 fast-forward 자동배포;새서버/온라인설정변경없음.
+공개변경파일17개일치확인,PNG는바이너리SHA-256까지동일. 실제URL keyboard-browser-tests 통과: 본문에서클릭없이시작·키보드이동/조준/발사·Space/P/Esc정지,게스트/설명창게임보호,버튼기본Enter유지,조준과진행복구. playful-browser-tests60배치(12페이지×1920/1280/768/390/320)·루디PNG실제투명alpha·3팝업마스코트·보드밖배치·입체버튼및누름3px/칸치수동일·밝은구슬/캔디배경·가로넘침없음 통과.
+실제URL arcade4종 플레이/완료/복구/저장실패1회재시도·정규/복습원본보존, replay3종기능/정규·복습분리, responsive14너비98배치/레일경계, individual기존진입/레거시/복구 모두통과. 예외0. PC/모바일너비이미지검토완료.
+증거: C:/Users/ygham/.codex/visualizations/2026/11/03/01a1a126-2f61-7472-ae42-ed7f2c1000b8/playful-production-20261110/ (keyboard-results.json, playful-results.json, arcade-results.json, replay-results.json, responsive-results.json, individual-results.json, source-check.json 및캡처).
+한계: Chromium 및브라우저너비검사. 실제물리모바일/Safari/스크린리더인증/실제이용자선호·장기재도전율은미측정. 마스코트단일원본1.3MB를공유참조하고CSS로축소;원본보존. 생성은내장이미지툴사용,프롬프트/저장경로는mascot-rudi.md. 기존코어/점수/규칙/정규·복습·오락실기록구조/보류게임미변경.
+최종재개: 요청범위구현·배포·실서비스검증완료. 제품live8e2268a,다음문서전용커밋skip render. 기존미추적자료보존. 로컬검증서버4194는종료.
