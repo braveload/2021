@@ -64,7 +64,7 @@
       if (game === 'code') { $('#code-guess')?.setAttribute('aria-invalid', 'true'); focus('#code-guess'); }
       return;
     }
-    state = result.state; chainSelected = null; dicePreviewIndex = null; if (game === 'code') draft = ''; save(); render();
+    state = result.state; if(game === 'dice' && action.type === 'place')state.view={...state.view,lastPlacement:action.index}; chainSelected = null; dicePreviewIndex = null; if (game === 'code') draft = ''; save(); render();
     const r = C.result(state);
     if (r.terminal) { $('#move-message').textContent = state.status === 'lost' ? '이번 도전이 끝났습니다. 결과와 기록을 확인하세요.' : '도전을 완료했습니다. 결과와 기록을 확인하세요.'; Sound.play(state.status === 'lost' ? 'lose' : state.status === 'draw' ? 'select' : 'win'); focus('#phase-heading'); }
     else {
@@ -139,7 +139,7 @@
     panel.innerHTML = `<h3>배치 점수 미리보기</h3><p id="dice-preview-message" role="status" aria-live="polite">${p ? dicePreviewText(p) : state.data.selected===null?'주사위를 먼저 고르면 빈칸마다 점수 증가량이 표시돼요.':'빈칸의 +점수는 눈의 합과 이번 배치로 완성되는 보너스의 합이에요. 칸을 눌러 상세 내역을 확인하세요.'}</p>${p?'<button type="button" class="primary" data-confirm-place="'+p.index+'">이 칸에 배치하기</button>':''}<small>미리보기는 기록·배치 횟수·다음 주사위를 바꾸지 않아요. 아직 완성되지 않은 줄의 미래 보너스는 포함하지 않아요.</small>`;
     board.after(panel);
   }
-  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview();
+  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview(); if(game==='code')GameUpgradeUI.notes(state,8,save,$('#play')); if(game==='dice' && Number.isInteger(state.view?.lastPlacement)){const cell=$('#play').querySelector(`[data-place="${state.view.lastPlacement}"]`);if(cell){cell.classList.add('last-placement');cell.setAttribute('aria-label',cell.getAttribute('aria-label')+' · 마지막 배치');}}
     if(reviewing) $('#play').insertAdjacentHTML('afterbegin','<p class="review-mode" role="status">복습 도전 · 정규 최고점 제외 · 진행과 완료 기록 별도 저장</p>');
     if (game === 'line' && window.LineFeedback) LineFeedback.decorate(state, C); scheduleAI(); }
   function openRecords() {
