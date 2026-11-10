@@ -25,8 +25,6 @@
     try { return !!localStorage.getItem('panludiq.popup.triple.v1') || JSON.parse(localStorage.getItem('panludiq.records.v1')||'[]').some(r=>r.id==='triple'); } catch { return true; }
   }
   launchGame = function(id) { if(id==='triple'&&!active&&!practiceFinished&&!previousPlay()){open();return;} return originalLaunch(id); };
-  const card=document.querySelector('.game-card.triple');
-  const button=document.createElement('button');button.type='button';button.className='card-rules practice-entry';button.textContent='시간제한 없는 그림 연습';button.addEventListener('click',open);card.appendChild(button);
   const rules = showGameRules;
   showGameRules = function(id){const value=rules(id);if(id==='triple'){const b=document.createElement('button');b.type='button';b.className='practice-entry';b.textContent='시간제한 없는 그림 연습';b.addEventListener('click',()=>{document.querySelector('#game-rules').close();open();});document.querySelector('#game-rules-content').appendChild(b);}return value;};
   window.TriplePractice={open};
