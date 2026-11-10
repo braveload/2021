@@ -1,0 +1,4 @@
+const assert=require('node:assert/strict'),U=require('./dist/upgrade-core.js'),C=require('./dist/arcade-core.js');
+assert.deepEqual(U.notes([1,8,2],4),[1,0,2,0]);assert.equal(U.cross(0).length,3);assert.deepEqual(U.cross(5),[1,4,5,6,9]);assert.equal(U.turns([[0,0],[1,0],[2,0],[2,1],[3,1]]),2);assert.equal(U.turns(null),0);
+const s=C.create('pop',42,1000),raw=JSON.stringify(s);let i=s.data.board.findIndex((_,i)=>C.popGroup(s.data.board,i).length>=2);const f=U.forecast(s,i,C),out=C.apply(s,{type:'remove',index:i},s.updatedAt);assert.equal(f.points,out.state.score-s.score);assert.equal(JSON.stringify(s),raw);
+s.data.board.fill(0);const all=U.forecast(s,0,C);assert.equal(all.points,64*63*5+500);assert.equal(all.remaining,0);assert.equal(all.groups,0);assert(!U.noteMarkup(null,10).includes('secret'));console.log('PASS: upgrade notes, cross preview, route turns and nonmutating exact score forecast');
