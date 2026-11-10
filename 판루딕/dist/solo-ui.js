@@ -5,7 +5,11 @@
   const escape = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let storage;
   try { storage = localStorage; } catch { storage = { getItem() { throw Error(); }, setItem() { throw Error(); } }; }
-  const store = SoloStore.create(storage);
+  const normalStore = SoloStore.create(storage), reviewStore = SoloStore.create(storage, {review:true});
+  const reviewKey = `panludiq.review.active.${game}.v1`;
+  let reviewing=false;
+  try { reviewing=['reverse','dice'].includes(game) && storage.getItem(reviewKey)==='review' && !!reviewStore.load(game).state; } catch {}
+  let store = reviewing ? reviewStore : normalStore;
   const rules = window.SoloRules;
   const descriptions = { chain: '같은 색 또는 이웃 숫자. 양쪽 끝에 연결해 12번의 연쇄를 완성하세요.', line: '연속 세 칸을 만들고 중앙을 확보하세요. AI와 열 번씩 놓는 한 판.', code: '숫자 네 개, 여덟 번의 기회. 단서로 암호를 좁혀보세요.', reverse: '불빛을 모두 끄세요. 자유롭게 풀거나, 난이도를 골라 25회에 도전하세요.', dice: '두 눈 중 하나를 고르고, 아홉 칸의 조합을 완성하세요.' };
   let state, draft = '', pendingSettings = null, chainSelected = null, aiTimer = null, dicePreviewIndex = null;
@@ -20,12 +24,17 @@
   function warn(message) { if (message) { $('#save-warning').hidden = false; $('#save-warning').textContent = message; } }
   function save() {
     const saved = store.save(state);
-    $('#save-status').textContent = saved.ok ? (state.status === 'playing' ? '이 브라우저에 진행을 저장했습니다.' : '완료 기록을 이 브라우저에 저장했습니다.') : '저장하지 못함 · 현재 페이지에서 플레이 가능';
+    $('#save-status').textContent = saved.ok ? (reviewing ? '복습 진행·기록은 별도 저장됩니다. 정규 최고점에는 포함되지 않습니다.' : state.status === 'playing' ? '이 브라우저에 진행을 저장했습니다.' : '완료 기록을 이 브라우저에 저장했습니다.') : '저장하지 못함 · 현재 페이지에서 플레이 가능';
     if (!saved.ok) warn(saved.error);
     return saved;
   }
   function focus(selector) { if (!document.querySelector('dialog[open]')) $(selector)?.focus({ preventScroll: true }); }
   function newState(settings = {}) {
+    if (state && state.status !== 'playing' && !save().ok) { warn('완료 기록을 저장하지 못해 결과를 유지합니다. 저장 공간을 확인해주세요.'); return; }
+    if (reviewing) {
+      try { storage.removeItem(reviewKey); } catch { warn('복습 전환 상태를 저장하지 못했습니다. 현재 진행을 유지합니다.'); return; }
+      reviewing=false; store=normalStore;
+    }
     const value = new Uint32Array(1); let seed = Date.now();
     if (globalThis.crypto?.getRandomValues) { crypto.getRandomValues(value); seed = value[0]; }
     const previous = game === 'reverse' && state ? C.reverseSettings(state) : { mode: 'free', difficulty: 'easy' };
@@ -33,6 +42,20 @@
     const extraOptions = game === 'line' ? { difficulty: settings.difficulty ?? state?.data.difficulty ?? 'easy', starter: settings.starter ?? state?.data.starter ?? 'human' } : {};
     chainSelected = null; state = C.create(game, { seed, ...lightOptions, ...extraOptions }); pendingSettings = null; draft = ''; save(); render();
     $('#move-message').textContent = '새 도전을 시작했습니다.'; focus(game === 'code' ? '#code-guess' : '#phase-heading');
+  }
+  function beginReview() {
+    if (state.status === 'playing' || !['reverse','dice'].includes(game) || !save().ok) return;
+    const next=ReplayCore.create(state);
+    const saved=reviewStore.save(next); if(!saved.ok){warn(saved.error);return;}
+    try { storage.setItem(reviewKey,'review'); } catch { warn('복습 상태를 저장하지 못해 기존 결과를 유지했습니다.'); return; }
+    state=next; reviewing=true;store=reviewStore;dicePreviewIndex=null;save();render();focus('#phase-heading');
+    $('#move-message').textContent=game==='reverse'?'같은 문제를 처음 상태부터 복습합니다.':'같은 9턴 주사위 순서로 복습합니다. 선택과 위치를 바꿔보세요.';
+  }
+  function lightResult() {
+    const settings=C.reverseSettings(state), source=state.reviewSource || state;
+    const rows=[...normalStore.records().rows,...reviewStore.records().rows].filter(r=>r.game==='reverse' && r.outcome==='won' && r.puzzleBoard===source.data.initialBoard);
+    const best=rows.length?Math.min(...rows.map(r=>r.moves)):null;
+    return `<section class="replay-feedback"><h3>이번 문제의 풀이</h3><p>내 조작 ${state.data.moves}회 · 최소 풀이 ${settings.minimumMoves}회</p><p>${state.status==='won'?`최소 풀이보다 ${state.data.moves-settings.minimumMoves}회 더 눌렀어요.`:'같은 문제에서 다른 순서로 다시 풀어볼 수 있어요.'}</p><p>같은 문제 최소 기록(정규·복습): ${best===null?'기록 없음':best+'회'}</p><small>같은 문제 복습은 정규 기록과 구분됩니다. 정답 순서는 공개하지 않아요.</small></section>`;
   }
   function execute(action, focusSelector) {
     const result = C.apply(state, action);
@@ -55,7 +78,7 @@
     const success = state.status !== 'lost';
     const heading = game === 'dice' ? '아홉 칸을 완성했어요!' : success ? (game === 'code' ? '암호를 찾았어요!' : '모든 불을 껐어요!') : (game === 'code' ? '여덟 번의 도전이 끝났어요.' : '25회 조작이 끝났어요.');
     const value = game === 'code' ? `${r.score}점` : game === 'reverse' ? (success ? `${r.stars ? '★'.repeat(r.stars) + ' · ' : ''}${r.moves}회` : `${r.moves}회 · 미완성`) : `${r.score}점`;
-    return `<div class="result-band ${success ? '' : 'failed'}"><h2 id="phase-heading" tabindex="-1">${heading}</h2><p class="result-value">${value}</p>${game === 'code' ? `<p>정답 <strong class="result-answer">${state.data.secret}</strong></p>` : ''}<div class="result-actions"><button class="primary" data-new>새 도전</button><button data-records>내 기록</button><a class="button" href="index.html#games">게임 목록</a></div></div>`;
+    return `<div class="result-band ${success ? '' : 'failed'}"><h2 id="phase-heading" tabindex="-1">${heading}</h2><p class="result-value">${value}</p>${game === 'code' ? `<p>정답 <strong class="result-answer">${state.data.secret}</strong></p>` : game==='reverse' ? lightResult() : ''}<div class="result-actions"><button class="primary" data-new>${game==='reverse'?'새 문제 도전':game==='dice'?'새 주사위로 도전':'새 도전'}</button>${['reverse','dice'].includes(game)?`<button data-review>${game==='reverse'?'같은 문제 다시 풀기':'같은 주사위로 전략 바꾸기'}</button>`:''}<button data-records>내 기록</button><a class="button" href="index.html#games">게임 목록</a></div></div>`;
   }
   function codeView() {
     const d = state.data, playing = state.status === 'playing';
@@ -71,11 +94,19 @@
     return `<div class="light-settings"><label for="lights-mode">모드<select id="lights-mode"><option value="free" ${mode === 'free' ? 'selected' : ''}>자유 모드 · 횟수 제한 없음</option><option value="challenge" ${mode === 'challenge' ? 'selected' : ''}>25회 도전</option></select></label><label for="lights-level">도전 난이도<select id="lights-level" ${mode === 'free' ? 'disabled' : ''}>${level === 'legacy' ? '<option value="legacy" selected disabled>이전 문제 · 난이도 미분류</option>' : ''}${Object.entries(C.LEVELS).map(([id, l]) => `<option value="${id}" ${level === id ? 'selected' : ''}>${l.name} · 최소 풀이 ${l.min}~${l.max}회</option>`).join('')}</select></label></div><p class="mode-note">${mode === 'free' ? '횟수 제한 없이 모든 불을 꺼보세요.' : level === 'legacy' ? '이전 리버스 타일의 진행을 그대로 이어갑니다. 새 난이도 기록과 구분합니다.' : `${C.LEVELS[level].name} · 실제 최소 풀이 ${C.LEVELS[level].min}~${C.LEVELS[level].max}회인 문제 · 제한 25회`}</p>${banner()}${playing ? '<h2 id="phase-heading" tabindex="-1" class="visually-hidden">불빛 뒤집기</h2>' : ''}<div class="play-status"><span>조작 <strong>${d.moves}<small>${settings.limit ? ' / 25' : '회 · 제한 없음'}</small></strong></span><span>꺼진 불 <strong>${brightCount()}<small> / 16</small></strong></span></div><p class="short-rule">한 칸과 상하좌우를 뒤집습니다. 모두 끄면 성공!</p><div class="reverse-board" role="group" aria-label="4행 4열 불빛 퍼즐">${Array.from({ length: 16 }, (_, i) => { const on = !(d.board & 1 << i); return `<button class="reverse-tile ${on ? 'is-light' : ''}" data-press="${i}" aria-pressed="${on}" aria-label="${Math.floor(i / 4) + 1}행 ${i % 4 + 1}열 ${on ? '켜짐' : '꺼짐'}, 누르면 상하좌우 반전" ${playing ? '' : 'disabled'}><span aria-hidden="true">${on ? '○' : '●'}</span></button>`; }).join('')}</div><div class="reverse-legend"><span><i></i>목표: 모두 꺼짐</span><span><i class="bright"></i>켜진 불</span></div>${settings.limit ? '<p class="reverse-limit">10회 ★★★ · 16회 ★★ · 25회 ★</p>' : ''}`;
   }
   function breakdown() {
-    const d = C.diceScore(state.data.board), labels = ['가로', '세로', '대각선'];
-    return `<details class="dice-breakdown" ${state.status === 'playing' ? '' : 'open'}><summary>현재 점수 계산 보기</summary><ul class="score-breakdown"><li><span>눈의 합</span><b>${d.base}점</b></li>${[d.rows, d.columns, d.diagonals].flatMap((list, axis) => list.map((score, i) => `<li><span>${labels[axis]} ${i + 1}</span><b>+${score}점</b></li>`)).join('')}<li><strong>합계</strong><strong>${d.total}점</strong></li></ul><p>빈칸이 있는 줄은 보너스 0점입니다.</p></details>`;
+    const board=state.data.board,d=C.diceScore(board),labels=['가로','세로','대각선'];
+    const groups=[d.rows,d.columns,d.diagonals], sum=a=>a.reduce((n,x)=>n+x,0);
+    const lines=groups.flatMap((list,axis)=>list.map((score,i)=>{
+      const ids=axis===0?[i*3,i*3+1,i*3+2]:axis===1?[i,i+3,i+6]:i===0?[0,4,8]:[2,4,6];
+      const values=ids.map(i=>board[i]),full=values.every(x=>x!==null);
+      const reason=!full?'아직 빈칸이 있어요':score?'달성':axis===0?`합계 ${sum(values)} · 목표 10~14 밖`:axis===1?'중복 숫자 · 모두 다른 숫자가 필요해요':'홀수·짝수 혼합 · 한 종류로 맞춰야 해요';
+      return `<li><span>${labels[axis]} ${i+1} · ${values.map(x=>x??'빈칸').join(' / ')}<small>${score?'달성':'미달성'} · ${reason}</small></span><b>+${score}점</b></li>`;
+    })).join('');
+    return `<details class="dice-breakdown" ${state.status==='playing'?'':'open'}><summary>현재 점수 계산 보기</summary><ul class="score-breakdown"><li><span>주사위 합</span><b>${d.base}점</b></li>${groups.map((a,i)=>`<li><span>${labels[i]} 보너스 합계</span><b>${sum(a)}점</b></li>`).join('')}<li><strong>합계</strong><strong>${d.total}점</strong></li></ul><h3>줄별 달성 이유</h3><ul class="score-breakdown">${lines}</ul><p>빈칸이 있는 줄은 보너스 0점입니다.</p></details>`;
   }
   function diceGoal() {
-    const rows = store.records().rows.filter(r => r.game === 'dice'), best = rows.length ? Math.max(...rows.map(r => r.score)) : null;
+    if(reviewing)return '<p class="dice-goal">복습에서는 배치를 바꿔보세요. 정규 최고점은 새 주사위 도전에서 갱신합니다.</p>';
+    const rows = normalStore.records().rows.filter(r => r.game === 'dice'), best = rows.length ? Math.max(...rows.map(r => r.score)) : null;
     return `<p class="dice-goal">${best === null ? '첫 목표: 주사위 9칸을 완성해 나의 첫 기록을 만드세요.' : `다음 목표: 나의 최고 ${best}점에 도전하세요.`}</p>`;
   }
   function diceView() {
@@ -103,9 +134,11 @@
     panel.innerHTML = `<h3>배치 점수 미리보기</h3><p id="dice-preview-message" role="status" aria-live="polite">${p ? dicePreviewText(p) : state.data.selected===null?'주사위를 먼저 고르면 빈칸마다 점수 증가량이 표시돼요.':'빈칸의 +점수는 눈의 합과 이번 배치로 완성되는 보너스의 합이에요. 칸을 눌러 상세 내역을 확인하세요.'}</p>${p?'<button type="button" class="primary" data-confirm-place="'+p.index+'">이 칸에 배치하기</button>':''}<small>미리보기는 기록·배치 횟수·다음 주사위를 바꾸지 않아요. 아직 완성되지 않은 줄의 미래 보너스는 포함하지 않아요.</small>`;
     board.after(panel);
   }
-  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview(); if (game === 'line' && window.LineFeedback) LineFeedback.decorate(state, C); scheduleAI(); }
+  function render() { $('#play').innerHTML = ['chain','line'].includes(game) ? SoloExtraUI.render(state, chainSelected, C) : game === 'code' ? codeView() : game === 'reverse' ? reverseView() : diceView(); decorateDicePreview();
+    if(reviewing) $('#play').insertAdjacentHTML('afterbegin','<p class="review-mode" role="status">복습 도전 · 정규 최고점 제외 · 진행과 완료 기록 별도 저장</p>');
+    if (game === 'line' && window.LineFeedback) LineFeedback.decorate(state, C); scheduleAI(); }
   function openRecords() {
-    const read = store.records(), legacy = store.legacyLights(); $('#records-warning').textContent = [read.error, legacy.error].filter(Boolean).join(' ');
+    const read = normalStore.records(), legacy = normalStore.legacyLights(), reviews=reviewStore.records(); $('#records-warning').textContent = [read.error, legacy.error,reviews.error].filter(Boolean).join(' ');
     $('#record-summary').innerHTML = Object.entries(C.GAMES).map(([id, g]) => {
       const rows = read.rows.filter(r => r.game === id), wins = rows.filter(r => r.outcome === 'won');
       let detail;
@@ -128,6 +161,7 @@
     const currentRows = read.rows.slice(0, 20).map(r => `<div class="suite-record"><b>${C.GAMES[r.game].name}</b> · ${r.outcome === 'won' ? '성공' : r.outcome === 'lost' ? (r.game === 'chain' ? '막힘 종료' : '패배/실패') : r.outcome === 'draw' ? '무승부' : '완료'} · ${r.game === 'reverse' ? `${lightLabel(r)} · ${r.moves}회${r.stars ? ' / 별 ' + r.stars : ''}` : `${r.score}점${r.game === 'line' ? ` : AI ${r.aiPoints}점 · ${SoloExtraUI.levels[r.difficulty]} · ${r.starter === 'human' ? '내 선공' : 'AI 선공'}` : r.game === 'chain' ? ` / ${r.turns}회 · 별 ${r.stars}` : ''}${r.game === 'code' ? ` / ${r.attempts}회` : ''}`}<small>${escape(new Date(r.finishedAt).toLocaleString('ko-KR'))} · 경과 ${Math.floor(r.elapsedMs / 60000)}분 ${Math.floor(r.elapsedMs / 1000) % 60}초</small></div>`).join('');
     const oldRows = legacy.rows.slice(0, 10).map(r => `<div class="legacy-light-record"><b>불빛 뒤집기 · 이전 자유 모드</b> · 성공 · ${r.moves}회<small>${escape(new Date(r.time).toLocaleString('ko-KR'))}</small></div>`).join('');
     $('#record-list').innerHTML = (currentRows || '<p class="note">아직 새 모드에서 완료한 도전이 없습니다.</p>') + (oldRows ? '<h3>보존된 이전 자유 모드 기록</h3>' + oldRows : '');
+    $('#record-list').insertAdjacentHTML('beforeend','<h3>복습 완료 기록 · 정규 최고점 제외</h3>'+ (reviews.rows.length?reviews.rows.slice(0,20).map(r=>`<div class="suite-record"><b>${C.GAMES[r.game].name} · 복습</b> · ${r.game==='reverse'?r.moves+'회 · '+(r.outcome==='won'?'성공':'미완성'):r.score+'점'}<small>${escape(new Date(r.finishedAt).toLocaleString('ko-KR'))}</small></div>`).join(''):'<p class="note">아직 완료한 복습이 없습니다.</p>'));
     if (!$('#solo-records').open) $('#solo-records').showModal();
   }
   function requestNew() { pendingSettings = null; if (state.status === 'playing') $('#solo-confirm').showModal(); else newState(); }
@@ -160,6 +194,7 @@
     }
     else if (b.hasAttribute('data-confirm-place')) { const index=Number(b.dataset.confirmPlace); if (index===dicePreviewIndex && previewAt(index)) execute({ type: 'place', index }, '[data-select="0"]'); }
     else if (b.hasAttribute('data-digit')) { const input = $('#code-guess'); if (input.value.length < 4) input.value += b.dataset.digit; draft = input.value; input.focus(); }
+    else if (b.hasAttribute('data-review')) beginReview();
     else if (b.hasAttribute('data-new')) newState();
     else if (b.hasAttribute('data-records')) openRecords();
   });
@@ -199,7 +234,7 @@
   if (read.state) {
     state = read.state;
     const navigation = performance.getEntriesByType('navigation')[0]?.type;
-    if (state.status !== 'playing' && navigation !== 'reload' && params.get('records') !== '1') {
+    if (!reviewing && state.status !== 'playing' && navigation !== 'reload' && params.get('records') !== '1') {
       const restored = save(); // Retry the previous completion before replacing it.
       if (restored.ok) {
         newState();

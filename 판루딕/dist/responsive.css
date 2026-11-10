@@ -26,3 +26,19 @@
 .popup-progress-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.popup-progress-tools .note{margin:0;min-width:0}.popup-progress-tools button{flex:none;font-size:12px;padding:8px 12px;min-height:44px}.popup-progress-tools[hidden],.popup-progress-tools button[hidden]{display:none}
 .dice-goal{font-size:13px;color:#315f73;padding:12px 14px;background:#edf6f3;border:1px solid #d7e9e1;border-radius:11px;margin:0 0 16px}
 @media(max-width:720px){.popup-progress-tools .note{font-size:10px}.popup-progress-tools{gap:6px}.dice-goal{font-size:12px;padding:10px}}
+
+/* Replay feedback stays within narrow game surfaces. */
+.replay-feedback{padding:16px;margin:16px 0;background:#f1f5fa;border:1px solid #dce5f0;border-radius:16px;color:#173353;text-align:left}
+.replay-feedback h3{margin:0 0 12px}.replay-feedback p{margin:8px 0}.replay-feedback small{display:block;line-height:1.6}
+.review-mode{padding:12px 16px;background:#fff2d8;border-radius:12px;color:#63400e;font-weight:700}
+.review-table-wrap{max-width:100%;overflow-x:auto;margin:12px 0 18px}
+.triple-review table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
+.triple-review th,.triple-review td{padding:9px 6px;border-bottom:1px solid #ccd8e6;overflow-wrap:anywhere;text-align:left}
+.score-breakdown small{display:block;font-weight:400;line-height:1.5}.score-breakdown b{white-space:nowrap}
+@media(max-width:480px){.result-actions{flex-wrap:wrap}.result-actions>*{max-width:100%}.triple-review{padding:12px}.triple-review table{font-size:12px}}
+
+@media(max-width:480px){.classic-entry .actions{flex-wrap:wrap}.classic-entry .actions .button{max-width:100%;white-space:normal;overflow-wrap:anywhere}}
+
+@media(max-width:480px){.result-actions{display:grid;grid-template-columns:minmax(0,1fr)}.result-actions>*{width:100%;min-height:44px;box-sizing:border-box;white-space:normal}}
+
+#content .triple .tile:disabled{opacity:1;cursor:default}

@@ -2,12 +2,13 @@ const assert = require('node:assert/strict'); const { chromium } = require(proce
 let browser;
 (async () => {
   browser = await chromium.launch({ headless: true, executablePath: process.env.CHROMIUM_EXECUTABLE }); const p = await browser.newPage({ viewport: { width: 390, height: 844 } }); const errors = []; p.on('pageerror', e => errors.push(e.message));
-  await p.goto(base); await p.getByRole('button', { name: '트리플 코드 바로 플레이', exact: true }).click();
+  await p.goto(base); await p.getByRole('button', { name: '트리플 코드 바로 플레이', exact: true }).click();if(await p.locator('#triple-practice[open]').count())await p.locator('[data-practice-challenge]').click();
   for (let round = 1; round <= 6; round++) {
     const answer = await p.evaluate(() => state.puzzle.answer);
-    for (const i of answer) await p.locator('.triple .tile').nth(i).click();
-    await p.reload(); assert.equal(await p.locator('.triple .tile[aria-pressed=true]').count(), 3);
+    for (const i of answer) await p.locator('#content .triple .tile').nth(i).click();
+    await p.reload(); assert.equal(await p.locator('#content .triple .tile[aria-pressed=true]').count(), 3);
     await p.locator('#submit').click(); await p.reload();
+    assert.equal(await p.locator('#triple-next').count(),1); await p.locator('#triple-next').click();
     if (round < 6) assert.equal(await p.evaluate(() => state.round), round + 1);
   }
   assert((await p.locator('#content h2').innerText()).includes('6라운드 완료'));

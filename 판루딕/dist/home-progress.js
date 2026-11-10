@@ -41,6 +41,9 @@
       const counts = s.matched.map(i => s.deck[i]); return counts.every(n => counts.filter(v => v === n).length === 2) && typeof s.locked === 'boolean';
     }
     const p = s.puzzle;
+    const indices=a=>Array.isArray(a)&&a.length<=3&&new Set(a).size===a.length&&a.every(i=>Number.isInteger(i)&&i>=0&&i<9);
+    if(s.lastSubmission!==undefined&&!indices(s.lastSubmission))return false;
+    if(s.roundReview){const r=s.roundReview;if(!s.locked||typeof r.correct!=='boolean'||!['정답','시간초과','3회 오답'].includes(r.reason)||!Number.isInteger(r.seconds)||r.seconds<0||r.seconds>40||!indices(r.selection)||r.earned!==(r.correct?E.tripleScore(r.seconds):0)||r.correct&&(r.selection.length!==3||!p||!E.matches(p.cards,r.selection,p.target)))return false;}
     return Number.isInteger(s.round) && s.round >= 1 && s.round <= 6 && Number.isInteger(s.score) && s.score >= 0 && s.score <= 840 && Number.isInteger(s.wrong) && s.wrong >= 0 && s.wrong <= 3 && typeof s.locked === 'boolean'
       && Array.isArray(s.log) && s.log.length <= 6 && s.log.every(v => typeof v === 'string' && v.length < 180 && !/[<>&]/.test(v))
       && Array.isArray(s.selection) && s.selection.length <= 3 && new Set(s.selection).size === s.selection.length && s.selection.every(i => Number.isInteger(i) && i >= 0 && i < 9)
@@ -75,16 +78,17 @@
   }
   clock = function (seconds, onExpired, onTick) { pausedMs = null; pauseAt = 0; expired = onExpired; tick = onTick; state.deadline = Date.now() + seconds * 1000; runClock(); if (document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open],#popup-picture-practice[open]')) pause(); };
   remaining = () => Math.max(0, Math.ceil((pausedMs ?? (state.deadline - Date.now())) / 1000));
-  function pause() { if (!active || state?.id === 'baseball' || !expired || pausedMs !== null) return; pausedMs = Math.max(0, state.deadline - Date.now()); pauseAt = Date.now(); clearInterval(timer); tick?.(); save(); }
-  function resume() { if (!active || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open],#popup-picture-practice[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
+  function pause() { if (!active || (state?.id==='triple'&&state.locked) || state?.id === 'baseball' || !expired || pausedMs !== null) return; pausedMs = Math.max(0, state.deadline - Date.now()); pauseAt = Date.now(); clearInterval(timer); tick?.(); save(); }
+  function resume() { if (!active || (state?.id==='triple'&&state.locked) || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open],#popup-picture-practice[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
   cleanup = function () { if (active && !finishing) save(); pausedMs = null; expired = tick = null; original.cleanup(); write('panludiq.popup.active.v1', null); note(); badge(); };
   for (const name of ['finish', 'finishBaseball']) {
     const wrapped = (...args) => {
-      const id = state?.id, recordKey = name === 'finishBaseball' ? 'panludiq.baseball.v1' : 'panludiq.records.v1';
+      const id = state?.id, tripleCorrect=id==='triple'?state.log.filter(x=>x.includes(' · 정답 · ')).length:0, tripleErrors=state?.errors, recordKey = name === 'finishBaseball' ? 'panludiq.baseball.v1' : 'panludiq.records.v1';
       let before; try { before = localStorage.getItem(recordKey); } catch {}
       finishing = true;
       try {
         const value = original[name](...args); let recorded = false;
+        if(id==='triple'&&name==='finish')document.querySelector('#content .result').insertAdjacentHTML('beforeend',`<p class="triple-goal">6라운드 중 ${tripleCorrect}라운드 정답 · 오답 ${tripleErrors}회</p><p class="triple-goal">${ReplayCore.tripleGoal(tripleCorrect,tripleErrors)}</p>`);
         try { recorded = localStorage.getItem(recordKey) !== before; } catch {}
         if (recorded) write(key(id), null);
         else if (ids.includes(id)) document.getElementById('content').insertAdjacentHTML('beforeend', '<p class="note">기록 저장을 확인하지 못해 이전 진행을 보존했습니다. 저장 공간을 확보한 뒤 같은 게임에서 다시 완료할 수 있습니다.</p>');
@@ -105,7 +109,7 @@
       if (state.game.attempts.length) document.getElementById('baseball-history').innerHTML = baseballHistory();
       document.getElementById('baseball-guess').value = x.draft; document.getElementById('baseball-message').textContent = '저장된 추리와 입력을 이어갑니다.';
     } else if (state.id === 'triple') {
-      if (state.locked) { tripleRound(); } else {
+      if (state.locked) { if(state.roundReview) renderTripleReview(); else tripleRound(); } else {
         tripleRender(); document.getElementById('score').textContent = state.score;
         document.querySelectorAll('.triple .tile').forEach((el, i) => { el.classList.toggle('selected', state.selection.includes(i)); el.setAttribute('aria-pressed', String(state.selection.includes(i))); });
         document.getElementById('submit').disabled = state.selection.length !== 3;
@@ -139,8 +143,13 @@
       return `<section class="record-summary"><h3>${g.name}</h3><p>${detail}</p></section>`;
     }).join('') + (readRecords.error ? '<p class="note">일부 기록을 읽지 못했습니다. 원본은 보존됩니다.</p>' : '') + '<p class="note">8종 게임의 기록을 한 화면에서 확인할 수 있습니다. 난이도별 상세 기록은 각 게임의 내 기록에서 확인하세요.</p>';
     link.replaceWith(panel);
+    try {
+      const rows=SoloStore.create(localStorage,{review:true}).records().rows;
+      const reviews=document.createElement('section');reviews.className='record-summary';reviews.innerHTML='<h3>복습 완료 기록 · 정규 최고점 제외</h3>'+['reverse','dice'].map(id=>`<p>${SoloCore.GAMES[id].name} · ${rows.filter(r=>r.game===id).length}회 복습 완료</p>`).join('');panel.after(reviews);
+    }catch{}
     const button = document.querySelector('[onclick="clearRecords()"]'); if (button) { button.textContent = '기존 점수·숫자야구·이전 불빛 기록 지우기'; button.insertAdjacentHTML('afterend', '<p class="note">위 삭제 버튼은 독립 싱글 5종의 기록과 진행을 지우지 않습니다.</p>'); }
   };
+  window.PopupProgress={save};
   badge(); window.addEventListener('load', badge);
   try { const id = JSON.parse(localStorage.getItem('panludiq.popup.active.v1')); if (performance.getEntriesByType('navigation')[0]?.type === 'reload' && ids.includes(id)) { const x = read(id); if (x) restore(x); } } catch { /* No recoverable popup. */ }
 })();

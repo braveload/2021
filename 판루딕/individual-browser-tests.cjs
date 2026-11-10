@@ -21,7 +21,7 @@ async function main() {
   }
   // The original individual popups remain on the home page.
   for (const [title, heading] of [['숫자야구', '숫자야구'], ['트리플 코드', '트리플 코드'], ['기억의 짝', '기억의 짝']]) {
-    await page.goto(base + '/index.html#games'); await page.getByRole('button', { name: title + ' 바로 플레이', exact: true }).click();
+    await page.goto(base + '/index.html#games'); await page.getByRole('button', { name: title + ' 바로 플레이', exact: true }).click();if(title==='트리플 코드'&&await page.locator('#triple-practice[open]').count())await page.locator('[data-practice-challenge]').click();
     assert(await page.locator('#modal').isVisible()); assert((await page.locator('#content h2').innerText()).includes(heading)); assert(page.url().includes('index.html'));
     await page.locator('#modal .close').click();
   }
@@ -38,7 +38,7 @@ async function main() {
   assert.equal((await state('reverse')).status, 'won'); await page.reload(); assert.equal((await state('reverse')).status, 'won');
   await launch('reverse'); const newLights = await state('reverse'); assert.equal(newLights.status, 'playing'); assert.notEqual(newLights.id, lights.id); assert.equal(newLights.data.mode, 'challenge'); assert.equal(newLights.data.difficulty, 'hard'); assert.equal(newLights.data.moves, 0);
   await launch('dice'); await page.screenshot({ path: path.join(out, 'individual-dice-desktop.png'), fullPage: true });
-  for (let i = 0; i < 9; i++) { await page.locator(`[data-select="${i % 2}"]`).click(); await page.locator(`[data-place="${i}"]`).click(); }
+  for (let i = 0; i < 9; i++) { await page.locator(`[data-select="${i % 2}"]`).click(); await page.locator(`[data-place="${i}"]`).click();await page.locator('[data-confirm-place]').click(); }
   const dice = await state('dice'); assert.equal(dice.status, 'completed'); await page.reload(); assert.equal((await state('dice')).status, 'completed');
   await launch('dice'); const newDice = await state('dice'); assert.notEqual(newDice.id, dice.id); assert.equal(newDice.status, 'playing'); assert.equal(newDice.data.turns, 0);
   const allRecords = await records(); assert.equal(allRecords.length, 3); assert(allRecords.some(r => r.id === codeRecord.id));
