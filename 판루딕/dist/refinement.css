@@ -116,3 +116,12 @@
 .home-v2 .game-card>.game-launch{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;flex:1}
 .home-v2 .game-card>.game-launch>.card-body{flex:1}
 .home-v2 .game-card>.card-rules{flex-shrink:0}
+
+/* Arcade entries share the established puzzle-card structure and spacing. */
+.home-v2 .game-card.brick{--game-accent:#82afd0;background:#f1f7fc}
+.home-v2 .game-card.shisen{--game-accent:#aaa0ce;background:#f5f2fc}
+.home-v2 .game-card.pop{--game-accent:#8bbcaf;background:#f0f8f3}
+.home-v2 .game-card.bubble{--game-accent:#9eb3d8;background:#f3f5fc}
+.home-v2 .arcade-card .game-launch{padding:0;margin:0;border:0;display:block;width:100%;border-radius:0;background:transparent}
+.home-v2 .arcade-card .card-cover{padding:0;margin:0;display:block;width:100%;border-radius:0;line-height:0}
+.home-v2 .arcade-card .card-cover img{display:block;width:100%;height:auto;aspect-ratio:326/130;object-fit:cover;margin:0;padding:0;border-radius:0}
