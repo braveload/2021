@@ -1,0 +1,64 @@
+/* Rudi's playroom: preserve board dimensions, information and selection states. */
+.playful{--play-ink:#2f3e59;--play-violet:#8270c8;--play-line:#e1ddf0;--play-cream:#fffcf6}
+.playful:not(.home-v2){background:linear-gradient(180deg,#f4f5fc 0,#f9f8ff 45%,#f1f9f6 100%);color:var(--play-ink)}
+.playful .play-surface,.playful .mini-card{border-color:#e2dff0;background:#fffefd;box-shadow:0 9px 28px #75639d0b;border-radius:26px}
+.playful #modal,.playful #game-rules,.playful #solo-rules,.playful #solo-records{border:1px solid #e6e2f1;border-radius:28px;background:#fffefd}
+.playful .solo-tools button,.playful .result-actions button,.playful .dialog-head button,.playful .arcade-controls button,.playful .actions>button,.playful .digit-pad button{border-radius:16px;box-shadow:0 3px 0 #e6e2f23b}
+.playful .primary{background:linear-gradient(135deg,#8a73d1,#677cd2);border-color:#796ccb;color:#fff}
+.playful button:focus-visible,.playful a:focus-visible,.playful summary:focus-visible{outline:3px solid #6a7bc9;outline-offset:3px}
+.playful .play-status,.playful .status{background:#f5f2fc;border-radius:16px;padding:12px 14px;border-bottom:0}
+.playful .result-band{border-radius:24px;background:linear-gradient(135deg,#edf9f1,#f3f5ff);border-color:#d7e9df}
+.playful .result-band.failed{background:linear-gradient(135deg,#fff3eb,#fff6fb);border-color:#eeddd8}
+.playful .reverse-board{background:#f6f2fd;padding:10px;border:1px solid #e6def2;border-radius:24px;box-sizing:border-box}
+.playful .reverse-tile{background:#737ba7;border-color:#626b99;border-radius:17px;color:#ecedf8;box-shadow:inset 0 -4px 0 #4c548a40,0 3px 0 #cbd0e75c}
+.playful .reverse-tile.is-light{background:linear-gradient(145deg,#fff5c6,#f7d985);border-color:#ddbf70;color:#846735;box-shadow:inset 0 -4px 0 #e0bb5d4d,0 2px 10px #f4d37330}
+.playful .reverse-legend i{background:#737ba7}.playful .reverse-legend .bright{background:#f7d985;border-color:#ddbf70}
+.playful .dice-cell{border-radius:19px;background:#fcfaff;border-color:#d9cfea;box-shadow:0 3px 0 #dfd6ef45}
+.playful .dice-cell.filled:nth-child(3n+1){background:#edf3ff}.playful .dice-cell.filled:nth-child(3n+2){background:#fff0f3}.playful .dice-cell.filled:nth-child(3n){background:#edf7f0}
+.playful .dice-pair button{border-radius:19px;background:#fffdf7}.playful .dice-pair button[aria-pressed=true]{background:#f0ebff;border-color:#8975c3}
+.playful .triple .tile{border-radius:17px;background:#fffdf8;box-shadow:0 3px 0 #ece5d94d}
+.playful .triple .tile.selected{background:#eef3ff;border-color:#6483c4;box-shadow:0 0 0 2px #6483c433}
+.playful .memory .tile{border-radius:18px;position:relative;box-shadow:0 4px 0 #b8a5dc55}
+.playful .memory .tile:not(.open):not(.matched){background:linear-gradient(145deg,#8797d8,#ab89cf);color:#fff}
+.playful .memory .tile:not(.open):not(.matched)::after{content:'✦';position:absolute;right:8px;bottom:5px;font-size:13px;color:#ffffff80}
+.playful .memory .tile.open{background:#fff7e8;color:#344663}.playful .memory .tile.matched{background:#e5f4e8;color:#237660;opacity:1}
+.playful .code-secret span,.playful .digit-pad button{border-radius:15px;background:#f3f6ff;border-color:#d8e0f2}
+.playful .chain-card{border-radius:17px;box-shadow:0 3px 0 #77719b1a}.playful .line-board{border-radius:22px;box-shadow:0 5px 0 #dce2f033}
+.playful .line-cell{border-radius:12px}.playful .chess-board{border-radius:24px;background:linear-gradient(135deg,#e6e8f7,#e2f1e9);border-color:#d6ddef;box-shadow:0 5px 0 #d5dfee4d}
+.playful .chess-board>button{border-radius:14px}
+.playful .arcade-canvas-wrap{background:#f6f8ff;border:2px solid #dedfee;border-radius:26px;box-shadow:0 5px 0 #dadced55}
+.playful .shisen-shell{background:linear-gradient(150deg,#f4f8ff,#fff9ee);border:1px solid #e2e5f0;border-radius:24px}
+.playful .shisen-grid .arcade-tile{background:linear-gradient(145deg,#fffefa,#f8f0e1);border-color:#e5d8bf;box-shadow:0 3px 0 #d6c8ad45;border-radius:12px;color:#48617b}
+.playful .shisen-grid .arcade-tile.chosen{background:#fff2c8;border-color:#d6ab4e;box-shadow:inset 0 0 0 2px #f2cc73}
+.playful .pop-grid{padding:8px;border:1px solid #e2e4f0;border-radius:22px;background:#f4f6fc;box-sizing:border-box}
+.playful .pop-grid .arcade-tile{border-radius:10px;box-shadow:inset 0 3px 0 #ffffff65,0 3px 0 #6d739e30}
+.rudi-buddy{display:flex;align-items:center;gap:10px;min-width:0;padding:6px 14px 6px 8px;margin:12px 0;border:1px solid #e4e4f1;border-radius:20px;background:linear-gradient(110deg,#faf5ff,#f1faf7);position:relative}
+.rudi-buddy img{width:64px;height:59px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 3px 2px #8a7ba315)}
+.rudi-buddy span:not(.rudi-sparkle){min-width:0}.rudi-buddy strong{display:block;color:#61527f;font-size:13px}.rudi-buddy small{display:block;font-size:12px;color:#536777;line-height:1.6;margin-top:2px}
+.rudi-sparkle{margin-left:auto;color:#c4a4e5;font-size:23px}.rudi-home{display:inline-block;width:52px;height:48px;object-fit:contain;vertical-align:middle;margin-left:12px;filter:drop-shadow(0 2px 1px #aab1c030)}
+.playful #content>.rudi-buddy{margin:0 0 14px}.playful .keyboard-hint{background:linear-gradient(110deg,#f5f2ff,#eff8f6);border-color:#dfe1f0;border-radius:18px}
+@media(max-width:480px){.rudi-buddy{padding:4px 9px;gap:8px;margin:9px 0;border-radius:16px}.rudi-buddy img{width:44px;height:41px}.rudi-buddy strong{font-size:11px}.rudi-buddy small{font-size:11px}.rudi-sparkle{font-size:16px}.rudi-home{width:38px;height:35px;margin-left:8px}.playful .play-surface{border-radius:22px}.playful .reverse-board{padding:8px}.playful .reverse-tile{border-radius:14px}.playful .triple .tile{border-radius:13px}.playful .memory .tile{border-radius:13px}.playful .arcade-tile,.playful .shisen-grid .arcade-tile{border-radius:7px}.playful .shisen-shell{border-radius:18px}.playful .pop-grid{padding:5px}.playful .chess-board>button{border-radius:10px}}
+@media(prefers-reduced-motion:reduce){.playful *{scroll-behavior:auto!important}}
+/* Raised toy-button surfaces. Shadows add depth without changing hit boxes. */
+.playful .solo-tools button,.playful .result-actions button,.playful .dialog-head button,.playful .arcade-controls button,.playful .actions>button,.playful .digit-pad button,.playful .card-rules,.playful .button{box-shadow:inset 0 1px 0 #ffffffed,inset 0 -2px 0 #d4d9ef55,0 4px 0 #cdd3e7,0 6px 10px #4c588015;background-image:linear-gradient(180deg,#ffffff9c,#ffffff00 70%);transition:transform .12s,box-shadow .12s}
+.playful .primary{box-shadow:inset 0 2px 0 #c1b8f3,inset 0 -2px 0 #544d9b60,0 4px 0 #5f579d,0 7px 12px #7066ac28}
+.playful .tile,.playful .dice-cell,.playful .reverse-tile,.playful .line-cell,.playful .arcade-tile,.playful .chess-board>button{box-shadow:inset 0 2px 0 #ffffffc9,inset 0 -3px 0 #59648b24,0 4px 0 #b9c5df,0 6px 8px #52607a14;transition:transform .12s,box-shadow .12s}
+.playful .reverse-tile{box-shadow:inset 0 2px 0 #b6bde9,inset 0 -4px 0 #525c8c99,0 4px 0 #535e8d,0 6px 8px #52607a14}
+.playful .reverse-tile.is-light{box-shadow:inset 0 3px 0 #fffce6,inset 0 -4px 0 #e9c566,0 4px 0 #c7a14f,0 6px 10px #e4c15f24}
+.playful .pop-grid .arcade-tile{background-image:linear-gradient(180deg,#ffffff33,#ffffff00 60%);box-shadow:inset 0 3px 0 #ffffff99,inset 0 -3px 0 #324d7a26,0 4px 0 #687ca94d,0 6px 8px #52607a12}
+.playful .memory .tile:not(.open):not(.matched){box-shadow:inset 0 2px 0 #d9c9fb,inset 0 -3px 0 #65519b40,0 4px 0 #9b85c0,0 6px 9px #52607a14}
+.playful .triple .tile.selected,.playful .dice-cell.preview-chosen,.playful .arcade-tile.chosen,.playful .chess-board>button.selected{box-shadow:inset 0 2px 0 #ffffffbd,inset 0 0 0 2px #7790cd,0 3px 0 #a6b6d7,0 5px 8px #52607a1a}
+.playful .memory .tile.matched{box-shadow:inset 0 1px 0 #fff,0 2px 0 #aacdb5;transform:none}
+@media(hover:hover){.playful button:not(:disabled):hover,.playful a.button:hover{transform:translateY(-1px)}}
+.playful button:not(:disabled):active,.playful a.button:active{transform:translateY(3px);box-shadow:inset 0 1px 3px #46527626,0 1px 0 #adb9d1}
+.playful button:disabled{cursor:default}
+@media(prefers-reduced-motion:reduce){.playful button,.playful a.button{transition:none}.playful button:not(:disabled):hover,.playful button:not(:disabled):active,.playful a.button:hover,.playful a.button:active{transform:none}}
+.playful button.primary,.playful a.button.primary{background:linear-gradient(160deg,#9280d8,#6e78ca);border-color:#7b6bc2;color:#fff}
+.playful [data-chain-card],.playful [data-chain-side],.playful [data-chain-redraw]{border-radius:17px;box-shadow:inset 0 2px 0 #ffffffd9,inset 0 -3px 0 #58658f20,0 4px 0 #c1cbe0,0 6px 9px #52607a14;background-image:linear-gradient(180deg,#ffffff70,#ffffff00 70%)}
+.playful [data-chain-card][aria-pressed=true]{box-shadow:inset 0 0 0 2px #7f8ac5,0 3px 0 #aeb9d7}
+
+.playful .shisen-grid .arcade-tile{box-shadow:inset 0 2px 0 #fffdf5,inset 0 -3px 0 #e4d8bd,0 4px 0 #d0c0a0,0 6px 7px #9c895820}
+.playful .shisen-grid .arcade-tile.chosen{box-shadow:inset 0 2px 0 #fffdf5,inset 0 0 0 2px #d7b45f,0 3px 0 #c6a358,0 5px 7px #9c895820}
+.playful .dice-pair button{box-shadow:inset 0 2px 0 #fff,inset 0 -3px 0 #ece3d0,0 4px 0 #d5cfdf,0 6px 8px #52607a14}
+.playful .dice-pair button[aria-pressed=true]{box-shadow:inset 0 0 0 2px #9b85cb,0 3px 0 #b4a3d4,0 5px 8px #52607a14}
+.playful .pop-grid .arcade-tile{color:#263c5c;text-shadow:0 1px 0 #ffffff70}

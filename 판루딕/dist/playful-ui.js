@@ -1,0 +1,8 @@
+/* Shared presentation only. Game state, records and hidden answers are untouched. */
+(()=>{'use strict';document.body.classList.add('playful');
+const asset='assets/mascot-rudi-v1.png',messages={brick:'← →로 움직이고 Enter로 시작해요.',bubble:'반짝이는 구슬, 벽도 활용해요.',reverse:'같은 문제에서 횟수를 줄여봐요.',dice:'다른 배치로 새 점수를 만들어봐요.',code:'단서를 모으면 답이 가까워져요.',shisen:'두 번 꺾어 이어지는 짝을 찾아요.',pop:'같은 색을 모아 시원하게 톡!',chain:'색과 숫자를 이어가요.',line:'세 칸 연결과 중앙을 살펴봐요.',triple:'모양·개수·무늬, 세 조건을 살펴봐요.',memory:'뒤집고 기억하고 짝을 찾아봐요.',baseball:'스트라이크와 볼을 차근차근.'};
+function buddy(id){if(id==='lights')id='reverse';const box=document.createElement('aside');box.className='rudi-buddy';box.setAttribute('aria-label','루디의 한마디');box.innerHTML=`<img src="${asset}" width="64" height="59" alt="판루딕 마스코트 루디" decoding="async"><span><strong>루디와 한 판!</strong><small>${messages[id]||'친구와 한 수씩 생각을 나눠요.'}</small></span><span class="rudi-sparkle" aria-hidden="true">✦</span>`;return box;}
+const heading=document.querySelector('.solo-heading,.mini-title');if(heading&&!document.querySelector('.rudi-buddy'))heading.after(buddy(document.body.dataset.arcadeGame||document.body.dataset.soloGame));
+const homeHeading=document.getElementById('games-heading');if(homeHeading){const image=document.createElement('img');image.src=asset;image.width=52;image.height=48;image.className='rudi-home';image.alt='손을 흔드는 판루딕 마스코트 루디';image.decoding='async';homeHeading.appendChild(image);}
+const popup=document.getElementById('content');if(popup){const decorate=()=>{if(typeof active==='undefined'||!active||typeof state==='undefined'||!['triple','memory','baseball'].includes(state?.id))return;if(!popup.querySelector('.rudi-buddy'))popup.prepend(buddy(state.id));};new MutationObserver(decorate).observe(popup,{childList:true});decorate();}
+})();
