@@ -25,3 +25,15 @@
 아키텍처: 정규키 panludiq.solo.* 그대로; 복습키 panludiq.review.*. active.<game>.v1은 어느 세션을 복구할지만 지정. 복습 세션에 유효한 완료 원본 reviewSource 포함; 코어 규칙/점수/난수 진행 변경 없음. 완료 원본과 복습 기록이 저장되지 않으면 새 판으로 덮어쓰지 않는다. 불빛 신기록 비교는 현재 보관 중인 기록의 puzzleBoard로 같은 보드만 비교(기존 식별정보 없는 기록은 추측해 연결하지 않음).
 
 재개: 로컬 검증 완료. 1단계08e4be4. 다음은 2단계 커밋 후 기존 Render 배포 브랜치로 fast-forward push, 최신 공개 파일 일치 및 실서비스 검사. 온라인 서버/덱빌더/숨긴 블러프/기존 미추적 파일은 변경 없음.
+
+## 3단계 · 배포 및 실제 사이트 검증 완료
+2026-11-10 14:51:49 KST, 제품 f48e509ba019533a30b38f5ff990a16dee0aab79, Render dep-dbpb1np5efls73b19eng live 확인. 기존 브랜치로 fast-forward push하여 자동배포; 추가 서비스/설정 변경 없음.
+
+- index/lights/dice HTML, replay-core/solo-store/solo-ui/app/home-progress/solo-rules JS, responsive.css 등 공개10파일이 로컬과 일치(줄바꿈 정규화).
+- 실제URL replay-browser-tests 전항목 통과: 최소 풀이/같은 문제, 주사위 다른 선택에서도 동일9쌍, 복습 중간/결과 reload, 정규 세션/기록 보존, 복습 별도·중복방지, 저장거부 후복구, 트리플 정답/오답/시간초과 설명·수동 다음·즉시 timeout저장복구·최종목표.
+- 실제URL popup-completion, responsive(14너비98화면), individual, stability 모두 통과. 브라우저 예외0. PC 및320/390px 스크린샷 확인. 설명 타이머정지/기억·숫자야구·로컬체스 기존동작 유지.
+- 검증 자료: C:/Users/ygham/.codex/visualizations/2026/11/03/01a1a126-2f61-7472-ae42-ed7f2c1000b8/replay-production-20261110/ (replay-results.json, source-check.json, responsive-results.json, individual-results.json 및 캡처).
+
+한계: Chromium 너비검사이며 실제 PC 확대UI/실물 iOS/스크린리더 인증은 미실시. 새 기능의 실제 이용자 재도전율 향상은 아직 측정하지 않음. 기존 상세 기록은 이전과 동일하게 최근100개 보관; 복습도 별도 최근100개. 계정/기기간 동기화 추가 없음. 테스트는 격리된 브라우저의 가상 기록으로 수행하여 개인 브라우저 저장소를 접근하거나 삭제하지 않음.
+
+최종 재개: 승인된1차 범위 구현/배포/검증완료. 제품live f48e509. 이후 문서전용 커밋은 skip render. 보류게임/온라인서버/미추적 기존파일 보존. 다음은 실제 이용자 반응을 확인하거나 사용자의 추가 지시에 따른다.
