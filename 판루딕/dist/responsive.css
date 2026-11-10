@@ -42,3 +42,5 @@
 @media(max-width:480px){.result-actions{display:grid;grid-template-columns:minmax(0,1fr)}.result-actions>*{width:100%;min-height:44px;box-sizing:border-box;white-space:normal}}
 
 #content .triple .tile:disabled{opacity:1;cursor:default}
+
+.triple-review #triple-next{margin:8px 0 14px;min-height:44px}.triple-correct-summary{line-height:1.7}.triple-review summary{min-height:44px;padding:10px 0;cursor:pointer}.review-comparison{line-height:1.7}

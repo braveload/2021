@@ -22,7 +22,7 @@ let browser;
  await p.locator('[data-review]').click();assert.equal(await p.locator('.review-mode').count(),0);await p.evaluate(()=>{Storage.prototype.setItem=window.originalSet;});await p.locator('[data-review]').click();
  assert.equal(await p.locator('.review-mode').count(),1);let rs=await get('panludiq.review.reverse.session.v1');assert.equal(rs.data.initialBoard,regularLight.data.initialBoard);
  const bit=C.solution(rs.data.board),idx=Array.from({length:16},(_,i)=>i).find(i=>bit&(1<<i));await p.locator(`[data-press="${idx}"]`).click();rs=await get('panludiq.review.reverse.session.v1');await p.reload();await p.locator('.review-mode').waitFor();assert.deepEqual(await get('panludiq.review.reverse.session.v1'),rs);
- await solve('panludiq.review.reverse.session.v1');await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='reverse').length,1);assert.equal(await p.evaluate(()=>localStorage.getItem('panludiq.solo.records.v1')),normalRows);assert.deepEqual(await get('panludiq.solo.reverse.session.v1'),regularLight);
+ await solve('panludiq.review.reverse.session.v1');assert((await p.locator('.review-comparison').innerText()).includes('원래 도전'));await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='reverse').length,1);assert.equal(await p.evaluate(()=>localStorage.getItem('panludiq.solo.records.v1')),normalRows);assert.deepEqual(await get('panludiq.solo.reverse.session.v1'),regularLight);
  await p.locator('#open-records').click();assert((await p.locator('#record-list').innerText()).includes('복습 완료 기록'));await p.locator('[data-close="solo-records"]').click();
  await p.screenshot({path:path.join(out,'lights-result-pc.png'),fullPage:true});await p.locator('[data-new]').click();assert.equal(await p.locator('.review-mode').count(),0);assert.equal((await get('panludiq.solo.reverse.session.v1')).data.difficulty,'normal');
  await p.goto(base+'/dice-strategy.html');await p.locator('[data-select="0"]').waitFor();const pairs=[];
@@ -37,7 +37,7 @@ let browser;
   await place(8-i,1);
  }
  assert((await p.locator('#save-status').innerText()).includes('저장하지 못함'));await p.locator('[data-new]').click();assert.equal(await p.locator('.review-mode').count(),1); // Don't overwrite unsaved completion.
- await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='dice').length,1);await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='dice').length,1);
+ await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='dice').length,1);assert((await p.locator('.review-comparison').innerText()).includes('가로 보너스'));await p.reload();await p.locator('[data-review]').waitFor();assert.equal((await get('panludiq.review.records.v1')).filter(r=>r.game==='dice').length,1);
  assert.equal(await p.evaluate(()=>localStorage.getItem('panludiq.solo.records.v1')),beforeReviewRows);assert.deepEqual(await get('panludiq.solo.dice.session.v1'),regularDice);
  for(const width of [1280,390,320]){await p.setViewportSize({width,height:900});assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:path.join(out,`dice-result-${width}.png`),fullPage:true});}
  await p.locator('[data-new]').click();assert.equal(await p.locator('.review-mode').count(),0);
@@ -50,7 +50,7 @@ let browser;
  for(let round=1;round<=6;round++){
   if(round>1){
    if(round===2){await p.evaluate(()=>clock(0,()=>tripleEnd(false,'시간초과'),()=>{}));await p.locator('#triple-next').waitFor();await p.reload();await p.locator('#triple-next').waitFor();assert((await p.locator('.triple-review').innerText()).includes('제출한 조합이 없어'));}
-   else {const answer=await p.evaluate(()=>state.puzzle.answer);for(const i of answer)await p.locator('.triple .tile').nth(i).click();await p.locator('#submit').click();assert((await p.locator('#triple-review-heading').innerText()).includes('내가 맞힌'));}
+   else {const answer=await p.evaluate(()=>state.puzzle.answer);for(const i of answer)await p.locator('.triple .tile').nth(i).click();await p.locator('#submit').click();assert((await p.locator('#triple-review-heading').innerText()).includes('내가 맞힌'));assert.equal(await p.locator('.triple-review details[open]').count(),0);assert((await p.locator('.triple-correct-summary').innerText()).includes('✓'));}
   }
   const snapshot=await p.evaluate(()=>({score:state.score,round:state.round,review:state.roundReview,puzzle:state.puzzle}));await p.waitForTimeout(1700);assert.equal(await p.evaluate(()=>state.round),round);await p.reload();await p.locator('#triple-next').waitFor();assert.deepEqual(await p.evaluate(()=>({score:state.score,round:state.round,review:state.roundReview,puzzle:state.puzzle})),snapshot);
   if(round===3){await p.screenshot({path:path.join(out,'triple-review-mobile.png'),fullPage:true});assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}

@@ -28,7 +28,7 @@ for (const file of fs.readdirSync(root).filter(f => f.endsWith('.html'))) {
     }
   }
   if (file === 'index.html') {
-    assert.equal(graph.find(x => x['@type'] === 'ItemList').numberOfItems, 9);
+    assert.equal(graph.find(x => x['@type'] === 'ItemList').numberOfItems, games.filter(g=>g[0]!=='online.html').length);
     const org=graph.find(x=>x['@type']==='Organization'),site=graph.find(x=>x['@type']==='WebSite');
     assert.equal(org.name,'판루딕');assert.equal(org.alternateName,'PANLUDIQ');assert.equal(org.url,origin+'/');
     assert.equal(site.publisher['@id'],org['@id']);assert.equal(page.publisher['@id'],org['@id']);

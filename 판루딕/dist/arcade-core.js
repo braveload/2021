@@ -11,7 +11,7 @@ function create(game,seed=Date.now(),now=Date.now()){
  if(!GAMES[game])throw Error('지원하지 않는 게임');
  const s={schema:1,version:'1.0.0',game,id:`${game}-${seed>>>0}-${now}`,seed:(seed>>>0)||1,rng:(seed>>>0)||1,status:'playing',score:0,revision:0,startedAt:now,updatedAt:now,finishedAt:null};
  if(game==='brick'){s.data={stage:1,lives:3,paddle:240,bricks:brickLayout(1),serving:true};serve(s.data);}
- if(game==='shisen'){const pairs=shuffle(s,Array.from({length:24},(_,i)=>i%8));s.data={board:pairs.flatMap(n=>[n,n]),hints:0,reshuffles:0,hint:[]};}
+ if(game==='shisen'){const pairs=shuffle(s,Array.from({length:24},(_,i)=>i%8));let board=pairs.flatMap(n=>[n,n]);for(let attempt=0;attempt<100;attempt++){const candidate=shuffle(s,board),test=candidate.slice();let p;while((p=pair(test))){test[p.a]=test[p.b]=null;}if(test.every(n=>n===null)){board=candidate;break;}}s.data={board,hints:0,reshuffles:0,hint:[]};}
  if(game==='pop'){let board=Array.from({length:64},()=>Math.floor(rand(s)*5));board[0]=board[1];s.data={board,removed:0,groups:0};}
  if(game==='bubble'){const board=Array(88).fill(null);for(let i=0;i<32;i++)board[i]=Math.floor(rand(s)*3);s.data={board,shots:0,current:0,next:0};s.data.current=nextColor(s);s.data.next=nextColor(s);}
  return s;

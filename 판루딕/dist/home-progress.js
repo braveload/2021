@@ -141,7 +141,7 @@
       const rows = readRecords.rows.filter(r => r.game === id), scores = rows.map(r => r.score).filter(Number.isFinite);
       const detail = id === 'reverse' ? `${rows.filter(r => r.outcome === 'won').length}회 성공 / ${rows.length}경기` : id === 'line' ? `${rows.filter(r => r.outcome === 'won').length}승 ${rows.filter(r => r.outcome === 'draw').length}무 ${rows.filter(r => r.outcome === 'lost').length}패` : `${rows.length}경기 · 최고 ${scores.length ? Math.max(...scores) + '점' : '기록 없음'}`;
       return `<section class="record-summary"><h3>${g.name}</h3><p>${detail}</p></section>`;
-    }).join('') + (readRecords.error ? '<p class="note">일부 기록을 읽지 못했습니다. 원본은 보존됩니다.</p>' : '') + '<p class="note">8종 게임의 기록을 한 화면에서 확인할 수 있습니다. 난이도별 상세 기록은 각 게임의 내 기록에서 확인하세요.</p>';
+    }).join('') + (readRecords.error ? '<p class="note">일부 기록을 읽지 못했습니다. 원본은 보존됩니다.</p>' : '') + '<p class="note">기존 8종과 오락실 4종의 기록을 이 화면에서 확인할 수 있습니다. 난이도별 상세 기록은 각 게임의 내 기록에서 확인하세요.</p>';
     link.replaceWith(panel);
     try {
       const rows=SoloStore.create(localStorage,{review:true}).records().rows;

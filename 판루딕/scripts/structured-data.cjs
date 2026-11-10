@@ -12,6 +12,10 @@ const games = [
   ['dice-strategy.html', '전략 주사위', '기록과 분리된 시간·횟수 제한 없는 그림 연습에서 배치와 기본점수·가로·세로·대각선 보너스를 배웁니다. 본게임은 매 턴 주사위 두 개 중 하나를 고르고 예상 점수를 확인해 3×3 보드에 배치를 확정하며, 9칸의 눈의 합과 보너스로 최종 점수를 계산합니다.', 'assets/solo-dice.svg', 'SinglePlayer', 1],
   ['number-chain.html', '숫자 연쇄', '시간·횟수 제한 없는 그림 연습에서 같은 색·숫자 차이 1·양 끝 선택·재추첨을 배웁니다. 연습은 기록과 분리됩니다. 본게임은 카드를 양 끝에 총 12회 배치하며 막혔을 때 최대 2회 재추첨할 수 있습니다.', 'assets/solo-chain.svg', 'SinglePlayer', 1],
   ['line-control.html', '라인 컨트롤', '기록과 분리된 시간·횟수 제한 없는 그림 연습에서 연결·겹침·교차 득점과 종료 시 중앙 보너스를 배웁니다. 본게임은 5×5 보드에서 AI와 각 10번 놓으며, 연속 3칸당 3점과 경기 종료 시 중앙 3×3 영역 보너스를 겨룹니다. 연결선과 득점 이유를 표시하고 AI 난이도·선후공을 선택할 수 있습니다.', 'assets/solo-line.svg', 'SinglePlayer', 1],
+  ['brick-breaker.html','벽돌깨기','패들을 움직여 공을 반사하고 목숨 3개로 3단계의 벽돌을 모두 깨는 액션 게임입니다. 키보드·마우스·터치를 지원하며 설명과 탭 이탈 시 일시정지합니다.','assets/arcade-brick.svg','SinglePlayer',1],
+  ['shisen.html','사천성','6행 8열에서 같은 문양 두 개를 직각 두 번 이내로 연결해 지우는 퍼즐입니다. 바깥 경로와 힌트, 막힐 때 자동 재배치를 지원합니다.','assets/arcade-shisen.svg','SinglePlayer',1],
+  ['block-pop.html','블록 팝','8행 8열에서 상하좌우로 이어진 같은 색 블록 두 개 이상을 제거합니다. 아래로 낙하하고 빈 열은 왼쪽으로 모이며 남은 그룹이 없으면 종료합니다.','assets/arcade-pop.svg','SinglePlayer',1],
+  ['bubble-shooter.html','버블 슈터','벽 반사를 활용해 버블을 조준하고 같은 색 세 개 이상을 연결해 제거합니다. 천장과 끊긴 버블도 떨어지며 40발 안에 모두 지우면 성공합니다.','assets/arcade-bubble.svg','SinglePlayer',1],
   ['chess.html', '12칸 미니 체스', '대전과 분리된 시간·횟수 제한 없는 그림 연습에서 말 이동·잡기·재투입·폰 승급과 승리 조건을 배웁니다. 본게임은 3열 4행 로컬 2인 게임이며, 상대 킹 포획 또는 끝줄에 진입한 킹의 상대 한 차례 생존으로 승리합니다.', null, 'MultiPlayer', 2],
   ['online.html', '12칸 미니 체스 온라인 친구 대전', '방을 만들고 초대 링크나 6자리 코드로 친구와 각자의 기기에서 대결하는 12칸 미니 체스입니다. 대전과 분리된 시간·횟수 제한 없는 그림 연습에서 이동·잡기·재투입·승리 조건을 배울 수 있습니다. 방과 경기 기록은 서버 재시작·배포 시 초기화됩니다.', null, 'MultiPlayer', 2]
 ];
@@ -40,7 +44,7 @@ function generate() {
       if (!home && !game) throw new Error('Missing page mapping: ' + file);
       const page = { '@type': home ? 'CollectionPage' : 'WebPage', '@id': url + '#webpage', url,
         name: home ? '판루딕 | 생각하는 즐거움' : g[1] + ' | 판루딕', inLanguage: 'ko',
-        description: home ? '두뇌게임 8종과 12칸 미니 체스 로컬·온라인 친구 대전을 제공하는 판루딕입니다.' : g[2],
+        description: home ? '싱글게임 12종과 12칸 미니 체스 로컬·온라인 친구 대전을 제공하는 판루딕입니다.' : g[2],
         isPartOf: { '@id': website['@id'] }, mainEntity: { '@id': home ? origin + '/#games-list' : game['@id'] } };
       const graph = [website, page];
       if (home) {
@@ -54,7 +58,7 @@ function generate() {
         page.publisher = { '@id': organization['@id'] };
         page.about = { '@id': organization['@id'] };
         graph.push(organization);
-        const entries = games.slice(0, 9).map(entity);
+        const entries = games.filter(g=>g[0]!=='online.html').map(entity);
         graph.push({ '@type': 'ItemList', '@id': origin + '/#games-list', name: '판루딕 게임 목록', numberOfItems: entries.length,
           itemListElement: entries.map((item, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@id': item['@id'] } })) }, ...entries);
       } else {

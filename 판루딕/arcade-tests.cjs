@@ -23,7 +23,13 @@ for(let seed=1;seed<=5;seed++){
  }assert(C.valid(a));assert.equal(a.status,'won','tracking bot must finish all three stages');assert.equal(a.score,870);brickWins++;
 }
 let miss=C.create('brick',1);miss.data.ball={x:400,y:566,vx:0,vy:220};miss.data.serving=false;miss.data.lives=1;miss=C.apply(miss,{type:'step',dt:.016}).state;assert.equal(miss.status,'lost');assert(C.valid(miss));
+
+let randomSeed=123,random=()=>{randomSeed=(1664525*randomSeed+1013904223)>>>0;return randomSeed/4294967296;},automaticReshuffles=0;
+for(let n=0;n<100;n++){let s=C.create('shisen',n+1);for(let i=47;i>0;i--){const j=Math.floor(random()*(i+1));[s.data.board[i],s.data.board[j]]=[s.data.board[j],s.data.board[i]];}if(!C.pair(s.data.board))continue;while(s.status==='playing'){const pairs=[];for(let a=0;a<48;a++)for(let b=a+1;b<48;b++)if(s.data.board[a]!==null&&s.data.board[a]===s.data.board[b]&&C.path(s.data.board,a,b))pairs.push({type:'match',a,b});assert(pairs.length,'Automatic repair must leave a legal pair');s=C.apply(s,pairs[Math.floor(random()*pairs.length)]).state;assert(C.valid(s));}automaticReshuffles+=s.data.reshuffles;}
+assert(automaticReshuffles>0,'Must exercise automatic blocked-board repair');
+let floating=C.create('bubble',1);floating.data.board.fill(null);floating.data.board[0]=floating.data.board[1]=0;floating.data.board[8]=1;floating.data.current=0;floating=C.apply(floating,{type:'shoot',x:140,y:0}).state;assert.equal(floating.status,'won');assert.equal(floating.score,50,'three linked bubbles plus one falling bubble');
+
 const data=new Map([['panludiq.records.v1','original']]),storage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};const store=S.create(storage);assert(store.save(all).ok);assert(store.save(all).ok);assert.equal(store.records().rows.length,1);assert.equal(data.get('panludiq.records.v1'),'original');assert.deepEqual(store.load('pop').state,all);
 data.set(store.sessionKey('shisen'),'{bad');assert(store.save(q).ok);assert.equal(data.get(store.sessionKey('shisen')+'.backup'),'{bad');
 assert(!S.create({getItem:()=>null,setItem:()=>{throw Error('quota');}}).save(all).ok);
-console.log(JSON.stringify({passed:true,shisenGames:100,shuffles,popGames:popCompleted,bubbleScriptedGames:100,bubbleScriptedWins:bubbleWins,brickThreeStageWins:brickWins,pathBoundary:true,shotLimit:true,separateStorage:true,deduplicated:true}));
+console.log(JSON.stringify({passed:true,shisenGames:100,shuffles,automaticReshuffles,popGames:popCompleted,bubbleScriptedGames:100,bubbleScriptedWins:bubbleWins,brickThreeStageWins:brickWins,pathBoundary:true,shotLimit:true,separateStorage:true,deduplicated:true}));
