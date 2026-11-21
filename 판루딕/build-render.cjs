@@ -5,7 +5,7 @@ const output=path.resolve(process.cwd(),'panludiq-public');
 fs.cpSync(path.join(__dirname,'dist'),output,{recursive:true});
 // Keep mutually dependent storage changes on immutable paths during CDN rollout.
 const crypto=require('node:crypto'),versioned={};
-for(const name of ['record-ledger.js','app.js','home-progress.js','solo-store.js','solo-ui.js','arcade-store.js','arcade-ui.js','arcade-home.js']){
+for(const name of ['record-ledger.js','app.js','home-progress.js','solo-store.js','solo-ui.js','arcade-store.js','arcade-ui.js','arcade-home.js','online.js']){
  const code=fs.readFileSync(path.join(output,name),'utf8').replace(/^\uFEFF/,'').replace(/\r\n/g,'\n'),hash=crypto.createHash('sha256').update(code).digest('hex').slice(0,12),target=name.replace(/\.js$/,'.'+hash+'.js');
  fs.writeFileSync(path.join(output,target),code);versioned[name]=target;
 }
