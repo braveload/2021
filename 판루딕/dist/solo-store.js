@@ -8,6 +8,7 @@
     const validState = s => Core.valid(s) && (review ? Replay.valid(s) : !s.reviewSource);
     const Ledger=typeof module!=='undefined'?require('./record-ledger.js'):root.RecordLedger,ledger=Ledger.create(storage,history,Core.validRecord),seen=new Map();
     function bestRecords(){return ledger.read();}
+    function legacyBestRecords(){return Ledger.create(storage,'panludiq.lights.v1',r=>r&&Number.isInteger(r.moves)&&r.moves>0&&typeof r.time==='string'&&Number.isFinite(Date.parse(r.time))).read();}
     const key = game => `${prefix}${game}.session.v1`;
     function get(k) { try { return { raw: storage.getItem(k), error: '' }; } catch { return { raw: null, error: '브라우저 저장소에 접근할 수 없습니다.' }; } }
     function load(game) {
@@ -60,7 +61,7 @@
         return { ok: true, error: '' };
       } catch { return { ok: false, error: '진행 또는 완료 기록을 저장하지 못했습니다. 이 페이지에서는 계속 플레이할 수 있습니다.' }; }
     }
-    return { load, save, records, bestRecords, legacyLights, sessionKey: key, historyKey: history };
+    return { load, save, records, bestRecords, legacyLights, legacyBestRecords, sessionKey: key, historyKey: history };
   }
   const api = { create, PREFIX, HISTORY };
   if (typeof module !== 'undefined') module.exports = api;

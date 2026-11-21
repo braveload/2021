@@ -4,19 +4,26 @@
   const ids = ['baseball', 'triple', 'memory'], key = id => `panludiq.popup.${id}.v1`;
   let pausedMs = null, pauseAt = 0, expired = null, tick = null, finishing = false, storageError = false;
   const original = { start, cleanup, finish, finishBaseball, showGameRules, showRecords };
+  const tabId=crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random(),ownerKey=id=>key(id)+'.owner';
+  let ownedGame=null,following=false;
+  function owns(id){try{return localStorage.getItem(ownerKey(id))===tabId;}catch{storageError=true;return true;}}
+  function claim(id,force=false){try{const owner=localStorage.getItem(ownerKey(id));if(owner&&owner!==tabId&&!force)return false;localStorage.setItem(ownerKey(id),tabId);ownedGame=id;const ok=owns(id);if(ok){following=false;document.getElementById('content').inert=false;}return ok;}catch{storageError=true;ownedGame=id;return true;}}
+  function release(){if(ownedGame){try{if(owns(ownedGame))localStorage.removeItem(ownerKey(ownedGame));}catch{storageError=true;}ownedGame=null;}}
+  function syncTab(){if(!active||!ids.includes(state?.id))return;following=!owns(state.id);document.getElementById('content').inert=following;if(following){if(state.id!=='baseball'&&pausedMs===null){pausedMs=Math.max(0,state.deadline-Date.now());pauseAt=Date.now();}clearInterval(timer);}note();}
+  function takeOver(){if(!active||!ids.includes(state?.id))return;const id=state.id;if(!claim(id,true))return;following=false;document.getElementById('content').inert=false;const latest=read(id);if(latest)restore(latest);else{original.cleanup();original.start(id);save();}note();}
   function note() {
     let tools = document.getElementById('popup-progress-tools');
     if (!tools) {
       tools = document.createElement('div'); tools.id = 'popup-progress-tools'; tools.className = 'popup-progress-tools';
-      tools.innerHTML = '<p id="popup-save-status" class="note" role="status"></p><button id="popup-restart" type="button">새 도전</button>';
-      document.getElementById('content').before(tools); document.getElementById('popup-restart').addEventListener('click', restartPopup);
+      tools.innerHTML = '<p id="popup-save-status" class="note" role="status"></p><button id="popup-takeover" type="button" hidden>이 탭에서 이어하기</button><button id="popup-restart" type="button">새 도전</button>';
+      document.getElementById('content').before(tools); document.getElementById('popup-restart').addEventListener('click', restartPopup);document.getElementById('popup-takeover').addEventListener('click',takeOver);
     }
     tools.hidden = !active || !ids.includes(state?.id);
-    document.getElementById('popup-save-status').textContent = storageError ? '진행을 저장하지 못했습니다. 현재 페이지에서는 계속할 수 있습니다.' : '진행 자동 저장 · 설명/다른 탭에서는 시간 정지';
-    document.getElementById('popup-restart').hidden = state?.id === 'baseball';
+    document.getElementById('popup-save-status').textContent = following ? '다른 탭의 진행을 보호하고 있어요. 이어하기를 누르면 최신 진행을 가져옵니다.' : storageError ? '진행을 저장하지 못했습니다. 현재 페이지에서는 계속할 수 있습니다.' : '진행 자동 저장 · 설명/다른 탭에서는 시간 정지';
+    document.getElementById('popup-restart').hidden = following || state?.id === 'baseball';document.getElementById('popup-takeover').hidden=!following;document.getElementById('popup-takeover').textContent=following&&!read(state.id)?'새 도전 시작':'이 탭에서 이어하기';
   }
   function restartPopup() {
-    if (!active || !['triple','memory'].includes(state?.id)) return;
+    if (!active || !['triple','memory'].includes(state?.id)) return;if(!owns(state.id)){syncTab();return;}
     const id = state.id;
     askGameChange('현재 진행을 새 게임으로 바꿀까요? 완료 기록은 유지됩니다.', () => {
       finishing = true; try { cleanup(); } finally { finishing = false; }
@@ -66,7 +73,7 @@
     for (const id of ids) { const el = document.querySelector(`.game-card.${id} .card-play`); if (el) el.textContent = read(id) ? '이어서 플레이 →' : '바로 플레이 →'; }
   }
   function save() {
-    if (!active || finishing || !ids.includes(state?.id)) return;
+    if (!active || finishing || !ids.includes(state?.id)) return;if(!owns(state.id)){syncTab();return;}
     const remainingMs = state.id === 'baseball' ? 0 : pausedMs ?? Math.max(0, state.deadline - Date.now());
     const x = { schema: 1, state: JSON.parse(JSON.stringify(state)), remainingMs, draft: state.id === 'baseball' ? document.getElementById('baseball-guess')?.value.slice(0, 4) || '' : '' };
     if (valid(x, state.id)) { write(key(state.id), x); write('panludiq.popup.active.v1', state.id); }
@@ -74,15 +81,15 @@
   }
   function runClock() {
     clearInterval(timer); const sid = session;
-    timer = setInterval(() => { if (!active || sid !== session || pausedMs !== null) return; tick?.(); if (Date.now() >= state.deadline) { clearInterval(timer); expired?.(); } }, 100);
+    timer = setInterval(() => { if (!active || sid !== session || pausedMs !== null) return;if(!owns(state.id)){syncTab();return;} tick?.(); if (Date.now() >= state.deadline) { clearInterval(timer); expired?.(); } }, 100);
   }
   clock = function (seconds, onExpired, onTick) { pausedMs = null; pauseAt = 0; expired = onExpired; tick = onTick; state.deadline = Date.now() + seconds * 1000; runClock(); if (document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open],#popup-picture-practice[open]')) pause(); };
   remaining = () => Math.max(0, Math.ceil((pausedMs ?? (state.deadline - Date.now())) / 1000));
   function pause() { if (!active || (state?.id==='triple'&&state.locked) || state?.id === 'baseball' || !expired || pausedMs !== null) return; pausedMs = Math.max(0, state.deadline - Date.now()); pauseAt = Date.now(); clearInterval(timer); tick?.(); save(); }
   function resume() { if (!active || (state?.id==='triple'&&state.locked) || pausedMs === null || document.hidden || document.querySelector('#game-rules[open],#confirm-dialog[open],#triple-practice[open],#popup-picture-practice[open]')) return; if (state.id === 'memory') state.start += Date.now() - pauseAt; state.deadline = Date.now() + pausedMs; pausedMs = null; pauseAt = 0; runClock(); save(); }
-  cleanup = function () { if (active && !finishing) save(); pausedMs = null; expired = tick = null; original.cleanup(); write('panludiq.popup.active.v1', null); note(); badge(); };
+  cleanup = function () { const wasActive=active,wasOwner=active&&ids.includes(state?.id)&&owns(state.id);if(active&&!finishing)save();if(wasActive&&!finishing)release();following=false;document.getElementById('content').inert=false;pausedMs=null;expired=tick=null;original.cleanup();if(wasOwner)write('panludiq.popup.active.v1',null);note();badge(); };
   for (const name of ['finish', 'finishBaseball']) {
-    const wrapped = (...args) => {
+    const wrapped = (...args) => {if(active&&ids.includes(state?.id)&&!owns(state.id)){syncTab();return;}
       const id = state?.id, tripleCorrect=id==='triple'?state.log.filter(x=>x.includes(' · 정답 · ')).length:0, tripleErrors=state?.errors, recordKey = name === 'finishBaseball' ? 'panludiq.baseball.v1' : 'panludiq.records.v1';
       let before; try { before = localStorage.getItem(recordKey); } catch {}
       finishing = true;
@@ -93,7 +100,7 @@
         if (recorded) write(key(id), null);
         else if (ids.includes(id)) document.getElementById('content').insertAdjacentHTML('beforeend', '<p class="note">기록 저장을 확인하지 못해 이전 진행을 보존했습니다. 저장 공간을 확보한 뒤 같은 게임에서 다시 완료할 수 있습니다.</p>');
         return value;
-      } finally { finishing = false; badge(); }
+      } finally { finishing = false;release(); badge(); }
     };
     if (name === 'finish') finish = wrapped; else finishBaseball = wrapped;
   }
@@ -126,19 +133,20 @@
     }
     tick?.(); note(); save();
   }
-  start = function (id, length) { const x = ids.includes(id) ? read(id) : null; if (x) restore(x); else original.start(id, length); save(); badge(); };
+  start = function(id,length){if(active)save();release();original.cleanup();const x=ids.includes(id)?read(id):null;if(ids.includes(id))claim(id);if(x)restore(x);else original.start(id,length);save();syncTab();badge();};
   for (const type of ['click', 'submit', 'input']) document.addEventListener(type, () => { save(); }, false);
   setInterval(save, 500);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); else resume(); });
-  window.addEventListener('pagehide', () => { pause(); save(); });
-  window.addEventListener('pageshow', resume);
+  window.addEventListener('pagehide', () => { pause();save();release(); });
+  window.addEventListener('storage',e=>{if(active&&ids.includes(state?.id)&&e.key===ownerKey(state.id))syncTab();});
+  window.addEventListener('pageshow',()=>{if(active&&ids.includes(state?.id)){if(!claim(state.id)){syncTab();return;}const latest=read(state.id);if(latest)restore(latest);}resume();});
   showRecords = function () {
     original.showRecords();
     const link = document.querySelector('.suite-record-link'); if (!link) return;
-    let readRecords; try { readRecords = SoloStore.create(localStorage).records(); } catch { readRecords = { rows: [], error: 'storage unavailable' }; }
+    let readRecords; try { readRecords = SoloStore.create(localStorage).records();readRecords.best=SoloStore.create(localStorage).bestRecords().rows; } catch { readRecords = { rows: [], error: 'storage unavailable' }; }
     const panel = document.createElement('div'); panel.className = 'all-game-records';
     panel.innerHTML = Object.entries(SoloCore.GAMES).map(([id, g]) => {
-      const rows = readRecords.rows.filter(r => r.game === id), scores = rows.map(r => r.score).filter(Number.isFinite);
+      const rows = readRecords.rows.filter(r => r.game === id), scores = (readRecords.best||readRecords.rows).filter(r=>r.game===id).map(r => r.score).filter(Number.isFinite);
       const detail = id === 'reverse' ? `${rows.filter(r => r.outcome === 'won').length}회 성공 / ${rows.length}경기` : id === 'line' ? `${rows.filter(r => r.outcome === 'won').length}승 ${rows.filter(r => r.outcome === 'draw').length}무 ${rows.filter(r => r.outcome === 'lost').length}패` : `${rows.length}경기 · 최고 ${scores.length ? Math.max(...scores) + '점' : '기록 없음'}`;
       return `<section class="record-summary"><h3>${g.name}</h3><p>${detail}</p></section>`;
     }).join('') + (readRecords.error ? '<p class="note">일부 기록을 읽지 못했습니다. 원본은 보존됩니다.</p>' : '') + '<p class="note">기존 8종과 오락실 4종의 기록을 이 화면에서 확인할 수 있습니다. 난이도별 상세 기록은 각 게임의 내 기록에서 확인하세요.</p>';
@@ -151,5 +159,5 @@
   };
   window.PopupProgress={save};
   badge(); window.addEventListener('load', badge);
-  try { const id = JSON.parse(localStorage.getItem('panludiq.popup.active.v1')); if (performance.getEntriesByType('navigation')[0]?.type === 'reload' && ids.includes(id)) { const x = read(id); if (x) restore(x); } } catch { /* No recoverable popup. */ }
+  try { const id = JSON.parse(localStorage.getItem('panludiq.popup.active.v1')); if (performance.getEntriesByType('navigation')[0]?.type === 'reload' && ids.includes(id)) { const x = read(id); if(x){claim(id);restore(x);syncTab();} } } catch { /* No recoverable popup. */ }
 })();

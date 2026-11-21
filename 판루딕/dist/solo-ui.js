@@ -111,7 +111,7 @@
   }
   function diceGoal() {
     if(reviewing)return '<p class="dice-goal">복습에서는 배치를 바꿔보세요. 정규 최고점은 새 주사위 도전에서 갱신합니다.</p>';
-    const rows = normalStore.records().rows.filter(r => r.game === 'dice'), best = rows.length ? Math.max(...rows.map(r => r.score)) : null;
+    const rows = normalStore.bestRecords().rows.filter(r => r.game === 'dice'), best = rows.length ? Math.max(...rows.map(r => r.score)) : null;
     return `<p class="dice-goal">${best === null ? '첫 목표: 주사위 9칸을 완성해 나의 첫 기록을 만드세요.' : `다음 목표: 나의 최고 ${best}점에 도전하세요.`}</p>`;
   }
   function diceView() {
@@ -143,24 +143,24 @@
     if(reviewing) $('#play').insertAdjacentHTML('afterbegin','<p class="review-mode" role="status">복습 도전 · 정규 최고점 제외 · 진행과 완료 기록 별도 저장</p>');
     if (game === 'line' && window.LineFeedback) LineFeedback.decorate(state, C); scheduleAI(); }
   function openRecords() {
-    const read = normalStore.records(), legacy = normalStore.legacyLights(), reviews=reviewStore.records(); $('#records-warning').textContent = [read.error, legacy.error,reviews.error].filter(Boolean).join(' ');
-    $('#record-summary').innerHTML = Object.entries(C.GAMES).map(([id, g]) => {
-      const rows = read.rows.filter(r => r.game === id), wins = rows.filter(r => r.outcome === 'won');
+    const read = normalStore.records(), legacy = normalStore.legacyLights(), reviews=reviewStore.records(),bestRead=normalStore.bestRecords(),legacyBest=normalStore.legacyBestRecords(); $('#records-warning').textContent = [read.error, legacy.error,reviews.error,bestRead.error,legacyBest.error].filter(Boolean).join(' ');
+    $('#record-summary').innerHTML = '<p class="note">경기 수는 최근 100개 기록 기준 · 최고점과 최소 횟수는 별도 보존 · 복습은 정규 최고점에서 제외</p>'+Object.entries(C.GAMES).map(([id, g]) => {
+      const rows = read.rows.filter(r => r.game === id), wins = rows.filter(r => r.outcome === 'won'), bestRows=bestRead.rows.filter(r=>r.game===id),bestWins=bestRows.filter(r=>r.outcome==='won');
       let detail;
       if (id === 'reverse') {
         const groups = [['free', '자유 모드'], ...Object.entries(C.LEVELS).map(([key, l]) => [key, `25회 도전 · ${l.name}`]), ['legacy', '이전 리버스 타일 · 난이도 미분류']];
         detail = groups.map(([key, name]) => {
           const matches = rows.filter(r => key === 'legacy' ? r.ruleVersion === C.VERSION : r.ruleVersion !== C.VERSION && (key === 'free' ? r.mode === 'free' : r.mode === 'challenge' && r.difficulty === key));
-          const successes = matches.filter(r => r.outcome === 'won');
-          return `<p>${name} · ${successes.length}회 성공 / ${matches.length}경기 · 최소 ${successes.length ? Math.min(...successes.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
+          const successes = matches.filter(r => r.outcome === 'won'),bestSuccesses=bestWins.filter(r=>key==='legacy'?r.ruleVersion===C.VERSION:r.ruleVersion!==C.VERSION&&(key==='free'?r.mode==='free':r.mode==='challenge'&&r.difficulty===key));
+          return `<p>${name} · ${successes.length}회 성공 / ${matches.length}경기 · 최소 ${bestSuccesses.length ? Math.min(...bestSuccesses.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
         }).join('');
-        detail += `<p>이전 불빛 뒤집기 · 자유 모드 ${legacy.rows.length}회 성공 · 최소 ${legacy.rows.length ? Math.min(...legacy.rows.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
+        detail += `<p>이전 불빛 뒤집기 · 자유 모드 ${legacy.rows.length}회 성공 · 최소 ${legacyBest.rows.length ? Math.min(...legacyBest.rows.map(r => r.moves)) + '회' : '기록 없음'}</p>`;
       } else if (id === 'line') {
         detail = ['easy','normal','hard'].flatMap(level => ['human','ai'].map(first => {
           const matches = rows.filter(r => r.difficulty === level && r.starter === first);
-          return `<p>${SoloExtraUI.levels[level]} · ${first === 'human' ? '내 선공' : 'AI 선공'} · ${matches.filter(r=>r.outcome==='won').length}승 ${matches.filter(r=>r.outcome==='draw').length}무 ${matches.filter(r=>r.outcome==='lost').length}패</p>`;
+          return `<p>${SoloExtraUI.levels[level]} · ${first === 'human' ? '내 선공' : 'AI 선공'} · ${matches.filter(r=>r.outcome==='won').length}승 ${matches.filter(r=>r.outcome==='draw').length}무 ${matches.filter(r=>r.outcome==='lost').length}패 · 최고 ${bestRows.some(r=>r.difficulty===level&&r.starter===first)?Math.max(...bestRows.filter(r=>r.difficulty===level&&r.starter===first).map(r=>r.score))+'점':'기록 없음'}</p>`;
         })).join('');
-      } else detail = `<p>${id === 'code' ? `${wins.length}승 / ${rows.length}경기 · 최고 ${wins.length ? Math.max(...wins.map(r => r.score)) + '점' : '기록 없음'}` : `${rows.length}회 완료 · 최고 ${rows.length ? Math.max(...rows.map(r => r.score)) + '점' : '기록 없음'}`}</p>`;
+      } else detail = `<p>${id === 'code' ? `${wins.length}승 / ${rows.length}경기 · 최고 ${bestWins.length ? Math.max(...bestWins.map(r => r.score)) + '점' : '기록 없음'}` : `${rows.length}회 완료 · 최고 ${bestRows.length ? Math.max(...bestRows.map(r => r.score)) + '점' : '기록 없음'}`}</p>`;
       return `<section class="record-summary"><h3>${g.name}</h3>${detail}</section>`;
     }).join('');
     const currentRows = read.rows.slice(0, 20).map(r => `<div class="suite-record"><b>${C.GAMES[r.game].name}</b> · ${r.outcome === 'won' ? '성공' : r.outcome === 'lost' ? (r.game === 'chain' ? '막힘 종료' : '패배/실패') : r.outcome === 'draw' ? '무승부' : '완료'} · ${r.game === 'reverse' ? `${lightLabel(r)} · ${r.moves}회${r.stars ? ' / 별 ' + r.stars : ''}` : `${r.score}점${r.game === 'line' ? ` : AI ${r.aiPoints}점 · ${SoloExtraUI.levels[r.difficulty]} · ${r.starter === 'human' ? '내 선공' : 'AI 선공'}` : r.game === 'chain' ? ` / ${r.turns}회 · 별 ${r.stars}` : ''}${r.game === 'code' ? ` / ${r.attempts}회` : ''}`}<small>${escape(new Date(r.finishedAt).toLocaleString('ko-KR'))} · 경과 ${Math.floor(r.elapsedMs / 60000)}분 ${Math.floor(r.elapsedMs / 1000) % 60}초</small></div>`).join('');
