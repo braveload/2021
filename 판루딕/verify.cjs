@@ -1,3 +1,4 @@
+require('./server-management-tests.cjs');
 require('./storage-safety-tests.cjs');
 require('./upgrade-tests.cjs');
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),assert=require('node:assert/strict');
